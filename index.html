@@ -8,11 +8,9 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- LEFT SYSTEM PANEL -->
         <div class="control-panel">
             <h1 class="logo">WORLD CUP <span class="highlight">XV DRAFT</span></h1>
             
-            <!-- CONFIGURATION DASHBOARD -->
             <div id="setup-card" class="card">
                 <h2>Tournament Configuration</h2>
                 
@@ -53,7 +51,6 @@
                 <button id="start-game-btn" class="btn primary-btn">Initialize Draft Bracket</button>
             </div>
 
-            <!-- ACTIVE DRAFT DASHBOARD -->
             <div id="draft-dashboard" class="card hidden">
                 <div class="setting-group">
                     <div class="mode-toggle-switch">
@@ -70,16 +67,14 @@
                     <button id="respin-btn" class="btn secondary-btn disabled" disabled>RESPIN (<span id="respin-count">0</span>)</button>
                 </div>
 
-                <!-- DYNAMIC SPIN ELEMENT CONTAINER -->
                 <div id="status-banner" class="status-banner">
+                    <div id="spinner-anchor"></div>
                     <span id="status-text">Select SPIN SQUAD to unlock your first drafting pool.</span>
                 </div>
                 
-                <!-- SORTED SCROLL ROSTER -->
                 <div id="roster-container" class="roster-scroll-box locked"></div>
             </div>
 
-            <!-- SIMULATION PORTAL -->
             <div id="sim-dashboard" class="card hidden">
                 <h2>Tournament Engine</h2>
                 <button id="run-sim-btn" class="btn success-btn">EXECUTE TOURNAMENT SIMULATION</button>
@@ -88,7 +83,6 @@
             </div>
         </div>
 
-        <!-- SCROLLABLE RIGHT PITCH DISPLAY -->
         <div class="pitch-panel">
             <div class="pitch-scroll-wrapper">
                 <div class="rugby-pitch">
@@ -101,7 +95,6 @@
                     <div class="pitch-line try-line bottom"></div>
                     
                     <div class="grid-layer">
-                        <!-- Front Row -->
                         <div class="pitch-circle" data-pos="Loosehead Prop" style="top: 86%; left: 22%;">
                             <div class="circle-num">1</div><div class="circle-name">Loosehead Prop</div>
                         </div>
@@ -112,7 +105,6 @@
                             <div class="circle-num">3</div><div class="circle-name">Tighthead Prop</div>
                         </div>
 
-                        <!-- Second Row -->
                         <div class="pitch-circle" data-pos="Lock 4" style="top: 73%; left: 33%;">
                             <div class="circle-num">4</div><div class="circle-name">Lock 4</div>
                         </div>
@@ -120,7 +112,6 @@
                             <div class="circle-num">5</div><div class="circle-name">Lock 5</div>
                         </div>
 
-                        <!-- Back Row -->
                         <div class="pitch-circle" data-pos="Blindside Flanker" style="top: 60%; left: 18%;">
                             <div class="circle-num">6</div><div class="circle-name">Blindside Flanker</div>
                         </div>
@@ -131,7 +122,6 @@
                             <div class="circle-num">7</div><div class="circle-name">Openside Flanker</div>
                         </div>
 
-                        <!-- Halfbacks -->
                         <div class="pitch-circle" data-pos="Scrum-half" style="top: 48%; left: 33%;">
                             <div class="circle-num">9</div><div class="circle-name">Scrum-half</div>
                         </div>
@@ -139,7 +129,6 @@
                             <div class="circle-num">10</div><div class="circle-name">Fly-half</div>
                         </div>
 
-                        <!-- Midfield & Wings -->
                         <div class="pitch-circle" data-pos="Left Wing" style="top: 28%; left: 13%;">
                             <div class="circle-num">11</div><div class="circle-name">Left Wing</div>
                         </div>
@@ -153,7 +142,6 @@
                             <div class="circle-num">14</div><div class="circle-name">Right Wing</div>
                         </div>
 
-                        <!-- Fullback -->
                         <div class="pitch-circle" data-pos="Fullback" style="top: 10%; left: 50%;">
                             <div class="circle-num">15</div><div class="circle-name">Fullback</div>
                         </div>
