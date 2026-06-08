@@ -6,155 +6,34 @@ const positionFamilies = {
     "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
 };
 
-const utilityOverrideMaps = {
-    "Beauden Barrett": ["Fly Halves", "Back Three"],
-    "Jason Leonard": ["Props"],
-    "Frans Steyn": ["Centres", "Back Three"],
-    "Matt Giteau": ["Fly Halves", "Centres"]
-};
-
-// WORLD CUP ALL-TIME TOURNAMENT DATABASE COHORT
-const rugbyDatabase = [
-    {
-        country: "South Africa", year: 2023,
-        players: [
-            { name: "Steven Kitshoff", pos: "Props", rating: 92, careerRating: 93 },
-            { name: "Frans Malherbe", pos: "Props", rating: 91, careerRating: 92 },
-            { name: "Ox Nché", pos: "Props", rating: 90, careerRating: 91 },
-            { name: "Bongi Mbonambi", pos: "Hooker", rating: 90, careerRating: 91 },
-            { name: "Eben Etzebeth", pos: "Second Rows", rating: 96, careerRating: 97 },
-            { name: "Franco Mostert", pos: "Second Rows", rating: 89, careerRating: 90 },
-            { name: "RG Snyman", pos: "Second Rows", rating: 91, careerRating: 92 },
-            { name: "Siya Kolisi", pos: "Back Row", rating: 93, careerRating: 94 },
-            { name: "Pieter-Steph du Toit", pos: "Back Row", rating: 95, careerRating: 96 },
-            { name: "Duane Vermeulen", pos: "Back Row", rating: 91, careerRating: 95 },
-            { name: "Jasper Wiese", pos: "Back Row", rating: 88, careerRating: 89 },
-            { name: "Faf de Klerk", pos: "Scrum Halves", rating: 91, careerRating: 93 },
-            { name: "Handré Pollard", pos: "Fly Halves", rating: 92, careerRating: 93 },
-            { name: "Manie Libbok", pos: "Fly Halves", rating: 87, careerRating: 88 },
-            { name: "Damian de Allende", pos: "Centres", rating: 92, careerRating: 93 },
-            { name: "Lukhanyo Am", pos: "Centres", rating: 90, careerRating: 94 },
-            { name: "Jesse Kriel", pos: "Centres", rating: 89, careerRating: 90 },
-            { name: "Cheslin Kolbe", pos: "Back Three", rating: 94, careerRating: 96 },
-            { name: "Kurt-Lee Arendse", pos: "Back Three", rating: 92, careerRating: 92 },
-            { name: "Damian Willemse", pos: "Back Three", rating: 90, careerRating: 91 },
-            { name: "Willie le Roux", pos: "Back Three", rating: 86, careerRating: 91 }
-        ]
-    },
-    {
-        country: "New Zealand", year: 2015,
-        players: [
-            { name: "Joe Moody", pos: "Props", rating: 88, careerRating: 90 },
-            { name: "Owen Franks", pos: "Props", rating: 91, careerRating: 92 },
-            { name: "Charlie Faumuina", pos: "Props", rating: 86, careerRating: 88 },
-            { name: "Dane Coles", pos: "Hooker", rating: 94, careerRating: 94 },
-            { name: "Keven Mealamu", pos: "Hooker", rating: 85, careerRating: 93 },
-            { name: "Brodie Retallick", pos: "Second Rows", rating: 97, careerRating: 97 },
-            { name: "Sam Whitelock", pos: "Second Rows", rating: 95, careerRating: 95 },
-            { name: "Jerome Kaino", pos: "Back Row", rating: 93, careerRating: 94 },
-            { name: "Richie McCaw", pos: "Back Row", rating: 98, careerRating: 99 },
-            { name: "Kieran Read", pos: "Back Row", rating: 95, careerRating: 96 },
-            { name: "Sam Cane", pos: "Back Row", rating: 87, careerRating: 91 },
-            { name: "Aaron Smith", pos: "Scrum Halves", rating: 96, careerRating: 96 },
-            { name: "Dan Carter", pos: "Fly Halves", rating: 98, careerRating: 99 },
-            { name: "Beauden Barrett", pos: "Fly Halves", rating: 91, careerRating: 96 },
-            { name: "Ma'a Nonu", pos: "Centres", rating: 96, careerRating: 96 },
-            { name: "Conrad Smith", pos: "Centres", rating: 92, careerRating: 93 },
-            { name: "Sonny Bill Williams", pos: "Centres", rating: 90, careerRating: 92 },
-            { name: "Julian Savea", pos: "Back Three", rating: 95, careerRating: 95 },
-            { name: "Ben Smith", pos: "Back Three", rating: 94, careerRating: 94 },
-            { name: "Nehe Milner-Skudder", pos: "Back Three", rating: 89, careerRating: 89 }
-        ]
-    },
-    {
-        country: "England", year: 2003,
-        players: [
-            { name: "Trevor Woodman", pos: "Props", rating: 89, careerRating: 89 },
-            { name: "Phil Vickery", pos: "Props", rating: 91, careerRating: 92 },
-            { name: "Jason Leonard", pos: "Props", rating: 86, careerRating: 94 },
-            { name: "Steve Thompson", pos: "Hooker", rating: 91, careerRating: 91 },
-            { name: "Martin Johnson", pos: "Second Rows", rating: 98, careerRating: 98 },
-            { name: "Ben Kay", pos: "Second Rows", rating: 89, careerRating: 89 },
-            { name: "Richard Hill", pos: "Back Row", rating: 94, careerRating: 94 },
-            { name: "Neil Back", pos: "Back Row", rating: 92, careerRating: 93 },
-            { name: "Lawrence Dallaglio", pos: "Back Row", rating: 95, careerRating: 96 },
-            { name: "Matt Dawson", pos: "Scrum Halves", rating: 93, careerRating: 93 },
-            { name: "Jonny Wilkinson", pos: "Fly Halves", rating: 99, careerRating: 99 },
-            { name: "Mike Catt", pos: "Fly Halves", rating: 85, careerRating: 89 },
-            { name: "Mike Tindall", pos: "Centres", rating: 90, careerRating: 90 },
-            { name: "Will Greenwood", pos: "Centres", rating: 94, careerRating: 94 },
-            { name: "Ben Cohen", pos: "Back Three", rating: 89, careerRating: 90 },
-            { name: "Jason Robinson", pos: "Back Three", rating: 96, careerRating: 96 },
-            { name: "Josh Lewsey", pos: "Back Three", rating: 91, careerRating: 92 }
-        ]
-    },
-    {
-        country: "France", year: 2011,
-        players: [
-            { name: "Jean-Baptiste Poux", pos: "Props", rating: 85, careerRating: 86 },
-            { name: "Nicolas Mas", pos: "Props", rating: 91, careerRating: 92 },
-            { name: "William Servat", pos: "Hooker", rating: 90, careerRating: 91 },
-            { name: "Dimitri Szarzewski", pos: "Hooker", rating: 86, careerRating: 88 },
-            { name: "Lionel Nallet", pos: "Second Rows", rating: 88, careerRating: 90 },
-            { name: "Pascal Papé", pos: "Second Rows", rating: 87, careerRating: 89 },
-            { name: "Thierry Dusautoir", pos: "Back Row", rating: 96, careerRating: 96 },
-            { name: "Julien Bonnaire", pos: "Back Row", rating: 89, careerRating: 91 },
-            { name: "Imanol Harinordoquy", pos: "Back Row", rating: 92, careerRating: 93 },
-            { name: "Dimitri Yachvili", pos: "Scrum Halves", rating: 91, careerRating: 91 },
-            { name: "Morgan Parra", pos: "Fly Halves", rating: 89, careerRating: 91 },
-            { name: "François Trinh-Duc", pos: "Fly Halves", rating: 86, careerRating: 88 },
-            { name: "Aurélien Rougerie", pos: "Centres", rating: 89, careerRating: 91 },
-            { name: "Maxime Mermoz", pos: "Centres", rating: 86, careerRating: 88 },
-            { name: "Vincent Clerc", pos: "Back Three", rating: 93, careerRating: 93 },
-            { name: "Alexis Palisson", pos: "Back Three", rating: 84, careerRating: 85 },
-            { name: "Maxime Médard", pos: "Back Three", rating: 88, careerRating: 90 }
-        ]
-    },
-    {
-        country: "Australia", year: 2003,
-        players: [
-            { name: "Bill Young", pos: "Props", rating: 84, careerRating: 85 },
-            { name: "Al Baxter", pos: "Props", rating: 85, careerRating: 87 },
-            { name: "Brendan Cannon", pos: "Hooker", rating: 86, careerRating: 87 },
-            { name: "Jeremy Paul", pos: "Hooker", rating: 85, careerRating: 90 },
-            { name: "Nathan Sharpe", pos: "Second Rows", rating: 90, careerRating: 92 },
-            { name: "Justin Harrison", pos: "Second Rows", rating: 86, careerRating: 88 },
-            { name: "George Smith", pos: "Back Row", rating: 95, careerRating: 96 },
-            { name: "Phil Waugh", pos: "Back Row", rating: 90, careerRating: 91 },
-            { name: "David Lyons", pos: "Back Row", rating: 87, careerRating: 89 },
-            { name: "George Gregan", pos: "Scrum Halves", rating: 96, careerRating: 97 },
-            { name: "Stephen Larkham", pos: "Fly Halves", rating: 95, careerRating: 96 },
-            { name: "Matt Giteau", pos: "Centres", rating: 89, careerRating: 94 },
-            { name: "Elton Flatley", pos: "Centres", rating: 88, careerRating: 89 },
-            { name: "Stirling Mortlock", pos: "Centres", rating: 92, careerRating: 94 },
-            { name: "Lote Tuqiri", pos: "Back Three", rating: 91, careerRating: 92 },
-            { name: "Wendell Sailor", pos: "Back Three", rating: 88, careerRating: 89 },
-            { name: "Mat Rogers", pos: "Back Three", rating: 89, careerRating: 90 }
-        ]
-    },
-    {
-        country: "Ireland", year: 2023,
-        players: [
-            { name: "Andrew Porter", pos: "Props", rating: 92, careerRating: 92 },
-            { name: "Tadhg Furlong", pos: "Props", rating: 91, careerRating: 94 },
-            { name: "Finlay Bealham", pos: "Props", rating: 85, careerRating: 85 },
-            { name: "Dan Sheehan", pos: "Hooker", rating: 93, careerRating: 93 },
-            { name: "Rónan Kelleher", pos: "Hooker", rating: 87, careerRating: 87 },
-            { name: "Tadhg Beirne", pos: "Second Rows", rating: 92, careerRating: 92 },
-            { name: "James Ryan", pos: "Second Rows", rating: 90, careerRating: 92 },
-            { name: "Iain Henderson", pos: "Second Rows", rating: 86, careerRating: 89 },
-            { name: "Peter O'Mahony", pos: "Back Row", rating: 90, careerRating: 91 },
-            { name: "Josh van der Flier", pos: "Back Row", rating: 92, careerRating: 94 },
-            { name: "Caelan Doris", pos: "Back Row", rating: 94, careerRating: 94 },
-            { name: "Jamison Gibson-Park", pos: "Scrum Halves", rating: 92, careerRating: 92 },
-            { name: "Johnny Sexton", pos: "Fly Halves", rating: 94, careerRating: 95 },
-            { name: "Bundee Aki", pos: "Centres", rating: 94, careerRating: 94 },
-            { name: "Garry Ringrose", pos: "Centres", rating: 91, careerRating: 92 },
-            { name: "James Lowe", pos: "Back Three", rating: 91, careerRating: 91 },
-            { name: "Mack Hansen", pos: "Back Three", rating: 90, careerRating: 90 },
-            { name: "Hugo Keenan", pos: "Back Three", rating: 92, careerRating: 92 }
-        ]
-    }
+// FULL ELIGIBLE COUNTRY LOG: Contains all 26 historic qualified nations split into competitive tiers
+const historicalNations = [
+    { country: "New Zealand", tier: 1, surnamePool: ["Retallick", "McCaw", "Read", "Smith", "Barrett", "Carter", "Nonu", "Whitelock", "Mealamu", "Franks", "Savea", "Lomu", "Fitzpatrick", "Jones", "Umaga"] },
+    { country: "South Africa", tier: 1, surnamePool: ["Etzebeth", "du Toit", "Vermeulen", "Kolisi", "de Klerk", "Pollard", "de Allende", "Am", "Kolbe", "Malherbe", "Mbonambi", "Kitshoff", "Nché", "Steyn", "Habana"] },
+    { country: "England", tier: 1, surnamePool: ["Johnson", "Wilkinson", "Dallaglio", "Hill", "Back", "Greenwood", "Robinson", "Vickery", "Thompson", "Dawson", "Tindall", "Cohen", "Farrell", "Itoje", "Underhill"] },
+    { country: "France", tier: 1, surnamePool: ["Dusautoir", "Mas", "Yachvili", "Clerc", "Harinordoquy", "Parra", "Servat", "Nallet", "Dupont", "Ntamack", "Penaud", "Alldritt", "Fickou", "Baille", "Marchand"] },
+    { country: "Ireland", tier: 1, surnamePool: ["Sexton", "O'Driscoll", "Aki", "Porter", "Furlong", "Sheehan", "Beirne", "Ryan", "van der Flier", "Doris", "Gibson-Park", "Ringrose", "Lowe", "Keenan", "O'Connell"] },
+    { country: "Australia", tier: 1, surnamePool: ["Gregan", "Larkham", "Smith", "Mortlock", "Giteau", "Tuqiri", "Sharpe", "Sailor", "Rogers", "Horan", "Eales", "Campese", "Pocock", "Genia", "Hooper"] },
+    { country: "Wales", tier: 1, surnamePool: ["Jones", "Warburton", "Tipuric", "Faletau", "Williams", "Biggar", "Davies", "Roberts", "North", "Halfpenny", "Jenkins", "Owens", "Adam Jones", "Rees-Zammit"] },
+    { country: "Scotland", tier: 2, surnamePool: ["Hogg", "Russell", "Van der Merwe", "Ritchie", "Watson", "Price", "Harris", "Sutherland", "Turner", "Zander Fagerson", "Gray", "Gilchrist", "Laidlaw", "Hastings"] },
+    { country: "Argentina", tier: 2, surnamePool: ["Pichot", "Contepomi", "Hernández", "Lobbe", "Materas", "Kremer", "Montoya", "Boffelli", "Sánchez", "Cubelli", "Gallo", "Lavanini", "Moroni", "Mallía"] },
+    { country: "Fiji", tier: 2, surnamePool: ["Radradra", "Nakarawa", "Botia", "Tuisova", "Mata", "Lomani", "Volavola", "Wainiqolo", "Nayacalevu", "Maqala", "Ravai", "Matavesi", "Habosi"] },
+    { country: "Japan", tier: 2, surnamePool: ["Leitch", "Matsushima", "Tamura", "Fukuoka", "Himeno", "Inagaki", "Horie", "Labuschagné", "Nakamura", "Yamanaka", "Gu", "Dearns", "Naoto Saito"] },
+    { country: "Italy", tier: 2, surnamePool: ["Parisse", "Castrogiovanni", "Garbisi", "Capuozzo", "Negri", "Lamaro", "Cannone", "Fischetti", "Ruzza", "Ioane", "Brex", "Varney", "Allan"] },
+    { country: "Samoa", tier: 2, surnamePool: ["Tuilagi", "Mapusua", "Taulafo", "Tekori", "Fa'asalele", "Lee-Lo", "Nanai-Williams", "Luatua", "Sopoaga", "Seuteni", "Lay", "McFarlane"] },
+    { country: "Tonga", tier: 2, surnamePool: ["Lilo", "Taufa", "Piutau", "Fisilau", "Fekitoa", "Mounga", "Taumalolo", "Latu", "Kafatolu", "Takulua", "Halaifonua", "Fifita"] },
+    { country: "Georgia", tier: 2, surnamePool: ["Gorgodze", "Zirakashvili", "Niniashvili", "Abzhandadze", "Lobzhanidze", "Sharikadze", "Gigashvili", "Chachua", "Saghinadze", "Mamukashvili"] },
+    { country: "Romania", tier: 3, surnamePool: ["Sursen", "Fercu", "Calafeteanu", "Vlaicu", "Macovei", "Gajion", "Chirica", "Surugiu", "Gorcioaia", "Savzu", "Popa", "Rupanu"] },
+    { country: "Canada", tier: 3, surnamePool: ["Cudmore", "Ardron", "Pritchard", "Paris", "Hearn", "Blevins", "Olmstead", "Mack", "Barkwill", "Sears-Duru", "Rumball", "Nelson"] },
+    { country: "United States", tier: 3, surnamePool: ["Scully", "MacGinty", "Wyles", "Lamositele", "Maninoa", "Civetta", "Taufete'e", "Dolan", "Augspurger", "Campbell", "Iscaro"] },
+    { country: "Uruguay", tier: 3, surnamePool: ["Ormaechea", "Berchesi", "Diana", "Arata", "Vilaseca", "Freitas", "Mieres", "Kessler", "Dotti", "Gaminara", "Pujadas", "Amaya"] },
+    { country: "Namibia", tier: 3, surnamePool: ["Burger", "Botha", "Deysel", "Kitshoff", "Stevens", "Jantjies", "Greyling", "Coetzee", "van Jaarsveld", "Katjijeko", "Louw"] },
+    { country: "Portugal", tier: 3, surnamePool: ["Marques", "Storti", "Marta", "Tadjer", "Fernandes", "Madeira", "Martins", "Granate", "Appleton", "Lima", "Bento", "Sousa"] },
+    { country: "Spain", tier: 3, surnamePool: ["Feijoo", "Heredia", "Rouet", "Auzqui", "del Hoyo", "Mora", "Pinto", "Gimeno", "Linklater", "Lopez", "Bartere"] },
+    { country: "Zimbabwe", tier: 3, surnamePool: ["Groenewald", "Tsimba", "Chivanga", "Mutamangira", "Mudariki", "Makwanya", "Nyakanyanga", "Breslin"] },
+    { country: "Russia", tier: 3, surnamePool: ["Artemyev", "Oosthuizen", "Kushnarev", "Galinovskiy", "Gerasimov", "Ostroushko", "Garbuzov", "Selyutin"] },
+    { country: "Chile", tier: 3, surnamePool: ["Sigren", "Fernández", "Ayarza", "Lues", "Dittus", "Bohme", "Saavedra", "Torrealba", "Garafulic", "Casas"] },
+    { country: "Ivory Coast", tier: 3, surnamePool: ["Camara", "Dali", "Niakou", "Okou", "N'Gbala", "Gachon", "Konan", "Lassissi"] }
 ];
 
 const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
@@ -233,7 +112,7 @@ respinBtn.addEventListener("click", () => {
     }
 });
 
-// CRITICAL ADJUSTMENT: HARD-LOCKED 1-SECOND DURATION LOOP
+// ANIMATION TIMELINE ENGINE (HARD-LOCKED TO EXACTLY 1-SECOND LATCH TIME)
 function triggerSpinEngineWithAnimation() {
     selectedPlayer = null;
     spinBtn.classList.add("disabled"); spinBtn.disabled = true;
@@ -241,23 +120,37 @@ function triggerSpinEngineWithAnimation() {
     rosterContainer.innerHTML = "";
     rosterContainer.classList.add("locked");
 
-    statusText.textContent = "Querying historical world cup analytics databases...";
+    statusText.textContent = "Querying global tournament data vaults...";
     spinnerAnchor.innerHTML = '<div class="rugby-spinner"></div>';
 
     setTimeout(() => {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
 
-        const rolledIndex = Math.floor(Math.random() * rugbyDatabase.length);
-        const rolledTeam = rugbyDatabase[rolledIndex];
+        // Draw an absolute random configuration out of all 26 world cup nations
+        const rolledNation = historicalNations[Math.floor(Math.random() * historicalNations.length)];
+        const rolledYear = 1987 + (Math.floor(Math.random() * 10) * 4); // Contextual year bracket generator
 
-        statusText.textContent = `Pool Active: ${rolledTeam.country} (${rolledTeam.year}). Allocate your drafting asset.`;
+        statusText.textContent = `Pool Opened: ${rolledNation.country} (${rolledYear > 2023 ? 2023 : rolledYear}). Assign your asset.`;
         
-        currentSpunSquad = rolledTeam.players.map(p => ({
-            name: p.name,
-            pos: p.pos,
-            rating: isCareerMode ? p.careerRating : p.rating
-        }));
+        // DYNAMIC ALGORITHMIC GENERATION ENGINE FOR THE 26 WORLD CUP TEAMS
+        currentSpunSquad = [];
+        let baseRatingModifier = rolledNation.tier === 1 ? 90 : rolledNation.tier === 2 ? 82 : 72;
+
+        displayOrder.forEach(positionGroup => {
+            // Populate two competitive choices per positional family tree block
+            for (let variant = 1; variant <= 2; variant++) {
+                let uniqueSurname = rolledNation.surnamePool[Math.floor(Math.random() * rolledNation.surnamePool.length)];
+                let randomInitials = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + ".";
+                let computedBase = baseRatingModifier + Math.floor(Math.random() * 7);
+                
+                currentSpunSquad.push({
+                    name: `${randomInitials} ${uniqueSurname}`,
+                    pos: positionGroup,
+                    rating: isCareerMode ? computedBase + Math.floor(Math.random() * 3) : computedBase
+                });
+            }
+        });
 
         currentSpunSquad.sort((a, b) => displayOrder.indexOf(a.pos) - displayOrder.indexOf(b.pos));
         renderRosterList();
@@ -267,7 +160,7 @@ function triggerSpinEngineWithAnimation() {
             respinBtn.classList.remove("disabled");
             respinBtn.disabled = false;
         }
-    }, 1000); // 1-SECOND SPIN LIFECYCLE TARGET
+    }, 1000); // 1 SEC SPIN WINDOW EFFECTIVELY PARSES THE DRAW INTERFACE
 }
 
 function renderRosterList() {
@@ -324,12 +217,9 @@ function evaluateEligibilityCircles(player) {
         const badgePosition = circle.dataset.pos;
         const targetFamily = positionFamilies[badgePosition];
         
-        let isEligible = (targetFamily === player.pos);
-        if (utilityOverrideMaps[player.name] && utilityOverrideMaps[player.name].includes(targetFamily)) {
-            isEligible = true;
+        if (targetFamily === player.pos) {
+            circle.classList.add("highlight-eligible");
         }
-
-        if (isEligible) circle.classList.add("highlight-eligible");
     });
 }
 
@@ -340,12 +230,7 @@ pitchCircles.forEach(node => {
         const badgePosition = node.dataset.pos;
         const targetFamily = positionFamilies[badgePosition];
 
-        let isMatch = (targetFamily === selectedPlayer.pos);
-        if (utilityOverrideMaps[selectedPlayer.name] && utilityOverrideMaps[selectedPlayer.name].includes(targetFamily)) {
-            isMatch = true;
-        }
-
-        if (!isMatch) {
+        if (targetFamily !== selectedPlayer.pos) {
             alert(`Structural Conflict: Strategy constraints deny this slot configuration.`);
             return;
         }
@@ -353,10 +238,11 @@ pitchCircles.forEach(node => {
         let calculatedValue = selectedPlayer.rating;
         let requiresTag = false;
 
-        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman") && !selectedPlayer.name.includes("Leonard") && !selectedPlayer.name.includes("Porter") && !selectedPlayer.name.includes("Kitshoff") && !selectedPlayer.name.includes("Nché")) {
+        // Penalize out-of-position cross alignments inside complex groupings
+        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && Math.random() > 0.6) {
             calculatedValue -= 4; requiresTag = true;
         }
-        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey") && !selectedPlayer.name.includes("Barrett") && !selectedPlayer.name.includes("Keenan") && !selectedPlayer.name.includes("Willemse")) {
+        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && Math.random() > 0.6) {
             calculatedValue -= 4; requiresTag = true;
         }
 
@@ -398,8 +284,8 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
     const squadOvr = Math.round(globalSum / 15);
     const logs = document.getElementById("sim-results");
     
-    logs.innerHTML = `[CONFIG] Injecting team into bracket replacing: ${replacedCountryTarget}\n`;
-    logs.innerHTML += `[RATING] Evaluated Squad Strength: ${squadOvr} OVR\n\n`;
+    logs.innerHTML = `[CONFIG] Injecting hybrid squad into world tournament replacement matrix...\n`;
+    logs.innerHTML += `[RATING] Finalized Combined Squad Level: ${squadOvr} OVR\n\n`;
 
     function calculateFixture(teamRating, opponentRating) {
         const spread = teamRating - opponentRating;
@@ -410,32 +296,30 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
         return { team: teamScore, opp: oppScore, win: teamScore > oppScore };
     }
 
-    const match1 = calculateFixture(squadOvr, 86);
-    logs.innerHTML += `[POOL MATCH 1] Vs Scotland\nPredicted Score: Your Team ${match1.team} - ${match1.opp} Scotland\n\n`;
-    const match2 = calculateFixture(squadOvr, 70);
-    logs.innerHTML += `[POOL MATCH 2] Vs Romania\nPredicted Score: Your Team ${match2.team} - ${match2.opp} Romania\n\n`;
-    const match3 = calculateFixture(squadOvr, 78);
-    logs.innerHTML += `[POOL MATCH 3] Vs Tonga\nPredicted Score: Your Team ${match3.team} - ${match3.opp} Tonga\n\n`;
+    const match1 = calculateFixture(squadOvr, 84);
+    logs.innerHTML += `[POOL FIXTURE 1] Vs Initial Challenger\nScoreline: Hybrid XV ${match1.team} - ${match1.opp} Opponent\n\n`;
+    const match2 = calculateFixture(squadOvr, 74);
+    logs.innerHTML += `[POOL FIXTURE 2] Vs Mid-tier Seed\nScoreline: Hybrid XV ${match2.team} - ${match2.opp} Opponent\n\n`;
 
-    const qf = calculateFixture(squadOvr, 92);
-    logs.innerHTML += `--- KNOCKOUT PHASE ---\n[QUARTER FINAL] Vs France\nPredicted Score: Your Team ${qf.team} - ${qf.opp} France\n`;
+    const qf = calculateFixture(squadOvr, 88);
+    logs.innerHTML += `--- KNOCKOUT ROUNDS BRACKET ---\n[QUARTER FINAL] Vs Championship Contender\nScoreline: Hybrid XV ${qf.team} - ${qf.opp} Opponent\n`;
     
     if (!qf.win) {
-        logs.innerHTML += `\n❌ TOURNAMENT RESULT: Eliminated in the Quarter-Finals by France.`;
+        logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Quarter-Finals stage.`;
     } else {
-        const sf = calculateFixture(squadOvr, 94);
-        logs.innerHTML += `\n[SEMI FINAL] Vs New Zealand\nPredicted Score: Your Team ${sf.team} - ${sf.opp} New Zealand\n`;
+        const sf = calculateFixture(squadOvr, 91);
+        logs.innerHTML += `\n[SEMI FINAL] Vs Major Superpower\nScoreline: Hybrid XV ${sf.team} - ${sf.opp} Opponent\n`;
         
         if (!sf.win) {
-            logs.innerHTML += `\n❌ TOURNAMENT RESULT: Eliminated in the Semi-Finals by New Zealand.`;
+            logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Semi-Finals tier.`;
         } else {
-            const f = calculateFixture(squadOvr, 95);
-            logs.innerHTML += `\n[WORLD CUP FINAL] Vs South Africa\nPredicted Score: Your Team ${f.team} - ${f.opp} South Africa\n`;
+            const f = calculateFixture(squadOvr, 93);
+            logs.innerHTML += `\n[RUGBY WORLD CUP FINAL] Vs Grand Finalist\nScoreline: Hybrid XV ${f.team} - ${f.opp} Opponent\n`;
             
             if (f.win) {
-                logs.innerHTML += `\n🏆 TOURNAMENT RESULT: WORLD CUP CHAMPIONS!`;
+                logs.innerHTML += `\n🏆 TOURNAMENT COMPLETE: WORLD CUP BRACKET CONQUERED!`;
             } else {
-                logs.innerHTML += `\n❌ TOURNAMENT RESULT: Runners-Up. Defeated in the Final.`;
+                logs.innerHTML += `\n❌ RUN TERMINATED: Silver Medal Finish. Lost in the Final match.`;
             }
         }
     }
