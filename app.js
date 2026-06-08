@@ -9,92 +9,150 @@ const positionFamilies = {
 const utilityOverrideMaps = {
     "Beauden Barrett": ["Fly Halves", "Back Three"],
     "Jason Leonard": ["Props"],
-    "Frans Steyn": ["Centres", "Back Three"]
+    "Frans Steyn": ["Centres", "Back Three"],
+    "Matt Giteau": ["Fly Halves", "Centres"]
 };
 
+// WORLD CUP ALL-TIME TOURNAMENT DATABASE COHORT
 const rugbyDatabase = [
     {
-        country: "England", year: 2003,
+        country: "South Africa", year: 2023,
         players: [
-            { name: "Trevor Woodman", pos: "Props", rating: 89, careerRating: 89 },
-            { name: "Phil Vickery", pos: "Props", rating: 91, careerRating: 92 },
-            { name: "Jason Leonard", pos: "Props", rating: 87, careerRating: 94 },
-            { name: "Steve Thompson", pos: "Hooker", rating: 90, careerRating: 90 },
-            { name: "Dorian West", pos: "Hooker", rating: 82, careerRating: 84 },
-            { name: "Martin Johnson", pos: "Second Rows", rating: 97, careerRating: 98 },
-            { name: "Ben Kay", pos: "Second Rows", rating: 88, careerRating: 89 },
-            { name: "Simon Shaw", pos: "Second Rows", rating: 85, careerRating: 91 },
-            { name: "Richard Hill", pos: "Back Row", rating: 93, careerRating: 94 },
-            { name: "Neil Back", pos: "Back Row", rating: 91, careerRating: 93 },
-            { name: "Lawrence Dallaglio", pos: "Back Row", rating: 94, careerRating: 96 },
-            { name: "Joe Worsley", pos: "Back Row", rating: 83, careerRating: 86 },
-            { name: "Lewis Moody", pos: "Back Row", rating: 86, careerRating: 89 },
-            { name: "Matt Dawson", pos: "Scrum Halves", rating: 92, careerRating: 93 },
-            { name: "Kyran Bracken", pos: "Scrum Halves", rating: 81, careerRating: 84 },
-            { name: "Jonny Wilkinson", pos: "Fly Halves", rating: 98, careerRating: 98 },
-            { name: "Mike Catt", pos: "Fly Halves", rating: 86, careerRating: 89 },
-            { name: "Mike Tindall", pos: "Centres", rating: 89, careerRating: 90 },
-            { name: "Will Greenwood", pos: "Centres", rating: 93, careerRating: 93 },
-            { name: "Ben Cohen", pos: "Back Three", rating: 88, careerRating: 90 },
-            { name: "Jason Robinson", pos: "Back Three", rating: 96, careerRating: 96 },
-            { name: "Josh Lewsey", pos: "Back Three", rating: 91, careerRating: 92 },
-            { name: "Iain Balshaw", pos: "Back Three", rating: 83, careerRating: 86 }
-        ]
-    },
-    {
-        country: "South Africa", year: 2019,
-        players: [
-            { name: "Tendai Mtawarira", pos: "Props", rating: 91, careerRating: 93 },
-            { name: "Frans Malherbe", pos: "Props", rating: 90, careerRating: 92 },
-            { name: "Steven Kitshoff", pos: "Props", rating: 91, careerRating: 93 },
-            { name: "Vincent Koch", pos: "Props", rating: 88, careerRating: 90 },
-            { name: "Bongi Mbonambi", pos: "Hooker", rating: 89, careerRating: 91 },
-            { name: "Malcolm Marx", pos: "Hooker", rating: 93, careerRating: 94 },
-            { name: "Eben Etzebeth", pos: "Second Rows", rating: 95, careerRating: 97 },
-            { name: "Lood de Jager", pos: "Second Rows", rating: 89, careerRating: 91 },
-            { name: "RG Snyman", pos: "Second Rows", rating: 90, careerRating: 92 },
-            { name: "Franco Mostert", pos: "Second Rows", rating: 88, careerRating: 90 },
-            { name: "Siya Kolisi", pos: "Back Row", rating: 92, careerRating: 94 },
-            { name: "Pieter-Steph du Toit", pos: "Back Row", rating: 96, careerRating: 96 },
-            { name: "Duane Vermeulen", pos: "Back Row", rating: 94, careerRating: 95 },
-            { name: "Francois Louw", pos: "Back Row", rating: 86, careerRating: 90 },
-            { name: "Faf de Klerk", pos: "Scrum Halves", rating: 92, careerRating: 93 },
-            { name: "Herschel Jantjies", pos: "Scrum Halves", rating: 84, careerRating: 86 },
-            { name: "Handré Pollard", pos: "Fly Halves", rating: 91, careerRating: 93 },
-            { name: "Damian de Allende", pos: "Centres", rating: 91, careerRating: 92 },
-            { name: "Lukhanyo Am", pos: "Centres", rating: 93, careerRating: 94 },
-            { name: "Makazole Mapimpi", pos: "Back Three", rating: 93, careerRating: 93 },
-            { name: "Cheslin Kolbe", pos: "Back Three", rating: 96, careerRating: 96 },
-            { name: "Willie le Roux", pos: "Back Three", rating: 87, careerRating: 91 },
-            { name: "Frans Steyn", pos: "Centres", rating: 88, careerRating: 94 }
+            { name: "Steven Kitshoff", pos: "Props", rating: 92, careerRating: 93 },
+            { name: "Frans Malherbe", pos: "Props", rating: 91, careerRating: 92 },
+            { name: "Ox Nché", pos: "Props", rating: 90, careerRating: 91 },
+            { name: "Bongi Mbonambi", pos: "Hooker", rating: 90, careerRating: 91 },
+            { name: "Eben Etzebeth", pos: "Second Rows", rating: 96, careerRating: 97 },
+            { name: "Franco Mostert", pos: "Second Rows", rating: 89, careerRating: 90 },
+            { name: "RG Snyman", pos: "Second Rows", rating: 91, careerRating: 92 },
+            { name: "Siya Kolisi", pos: "Back Row", rating: 93, careerRating: 94 },
+            { name: "Pieter-Steph du Toit", pos: "Back Row", rating: 95, careerRating: 96 },
+            { name: "Duane Vermeulen", pos: "Back Row", rating: 91, careerRating: 95 },
+            { name: "Jasper Wiese", pos: "Back Row", rating: 88, careerRating: 89 },
+            { name: "Faf de Klerk", pos: "Scrum Halves", rating: 91, careerRating: 93 },
+            { name: "Handré Pollard", pos: "Fly Halves", rating: 92, careerRating: 93 },
+            { name: "Manie Libbok", pos: "Fly Halves", rating: 87, careerRating: 88 },
+            { name: "Damian de Allende", pos: "Centres", rating: 92, careerRating: 93 },
+            { name: "Lukhanyo Am", pos: "Centres", rating: 90, careerRating: 94 },
+            { name: "Jesse Kriel", pos: "Centres", rating: 89, careerRating: 90 },
+            { name: "Cheslin Kolbe", pos: "Back Three", rating: 94, careerRating: 96 },
+            { name: "Kurt-Lee Arendse", pos: "Back Three", rating: 92, careerRating: 92 },
+            { name: "Damian Willemse", pos: "Back Three", rating: 90, careerRating: 91 },
+            { name: "Willie le Roux", pos: "Back Three", rating: 86, careerRating: 91 }
         ]
     },
     {
         country: "New Zealand", year: 2015,
         players: [
-            { name: "Joe Moody", pos: "Props", rating: 87, careerRating: 90 },
-            { name: "Owen Franks", pos: "Props", rating: 90, careerRating: 92 },
-            { name: "Ben Franks", pos: "Props", rating: 83, careerRating: 85 },
-            { name: "Charlie Faumuina", pos: "Props", rating: 85, careerRating: 88 },
-            { name: "Dane Coles", pos: "Hooker", rating: 93, careerRating: 94 },
-            { name: "Keven Mealamu", pos: "Hooker", rating: 86, careerRating: 93 },
-            { name: "Brodie Retallick", pos: "Second Rows", rating: 96, careerRating: 96 },
-            { name: "Sam Whitelock", pos: "Second Rows", rating: 94, careerRating: 95 },
-            { name: "Jerome Kaino", pos: "Back Row", rating: 92, careerRating: 94 },
+            { name: "Joe Moody", pos: "Props", rating: 88, careerRating: 90 },
+            { name: "Owen Franks", pos: "Props", rating: 91, careerRating: 92 },
+            { name: "Charlie Faumuina", pos: "Props", rating: 86, careerRating: 88 },
+            { name: "Dane Coles", pos: "Hooker", rating: 94, careerRating: 94 },
+            { name: "Keven Mealamu", pos: "Hooker", rating: 85, careerRating: 93 },
+            { name: "Brodie Retallick", pos: "Second Rows", rating: 97, careerRating: 97 },
+            { name: "Sam Whitelock", pos: "Second Rows", rating: 95, careerRating: 95 },
+            { name: "Jerome Kaino", pos: "Back Row", rating: 93, careerRating: 94 },
             { name: "Richie McCaw", pos: "Back Row", rating: 98, careerRating: 99 },
-            { name: "Kieran Read", pos: "Back Row", rating: 94, careerRating: 96 },
-            { name: "Victor Vito", pos: "Back Row", rating: 84, careerRating: 85 },
-            { name: "Sam Cane", pos: "Back Row", rating: 86, careerRating: 91 },
-            { name: "Aaron Smith", pos: "Scrum Halves", rating: 95, careerRating: 95 },
-            { name: "Tawera Kerr-Barlow", pos: "Scrum Halves", rating: 82, careerRating: 84 },
-            { name: "Dan Carter", pos: "Fly Halves", rating: 97, careerRating: 99 },
+            { name: "Kieran Read", pos: "Back Row", rating: 95, careerRating: 96 },
+            { name: "Sam Cane", pos: "Back Row", rating: 87, careerRating: 91 },
+            { name: "Aaron Smith", pos: "Scrum Halves", rating: 96, careerRating: 96 },
+            { name: "Dan Carter", pos: "Fly Halves", rating: 98, careerRating: 99 },
+            { name: "Beauden Barrett", pos: "Fly Halves", rating: 91, careerRating: 96 },
             { name: "Ma'a Nonu", pos: "Centres", rating: 96, careerRating: 96 },
             { name: "Conrad Smith", pos: "Centres", rating: 92, careerRating: 93 },
-            { name: "Julian Savea", pos: "Back Three", rating: 94, careerRating: 94 },
-            { name: "Nehe Milner-Skudder", pos: "Back Three", rating: 90, careerRating: 90 },
+            { name: "Sonny Bill Williams", pos: "Centres", rating: 90, careerRating: 92 },
+            { name: "Julian Savea", pos: "Back Three", rating: 95, careerRating: 95 },
             { name: "Ben Smith", pos: "Back Three", rating: 94, careerRating: 94 },
-            { name: "Beauden Barrett", pos: "Fly Halves", rating: 92, careerRating: 96 },
-            { name: "Sonny Bill Williams", pos: "Centres", rating: 90, careerRating: 92 }
+            { name: "Nehe Milner-Skudder", pos: "Back Three", rating: 89, careerRating: 89 }
+        ]
+    },
+    {
+        country: "England", year: 2003,
+        players: [
+            { name: "Trevor Woodman", pos: "Props", rating: 89, careerRating: 89 },
+            { name: "Phil Vickery", pos: "Props", rating: 91, careerRating: 92 },
+            { name: "Jason Leonard", pos: "Props", rating: 86, careerRating: 94 },
+            { name: "Steve Thompson", pos: "Hooker", rating: 91, careerRating: 91 },
+            { name: "Martin Johnson", pos: "Second Rows", rating: 98, careerRating: 98 },
+            { name: "Ben Kay", pos: "Second Rows", rating: 89, careerRating: 89 },
+            { name: "Richard Hill", pos: "Back Row", rating: 94, careerRating: 94 },
+            { name: "Neil Back", pos: "Back Row", rating: 92, careerRating: 93 },
+            { name: "Lawrence Dallaglio", pos: "Back Row", rating: 95, careerRating: 96 },
+            { name: "Matt Dawson", pos: "Scrum Halves", rating: 93, careerRating: 93 },
+            { name: "Jonny Wilkinson", pos: "Fly Halves", rating: 99, careerRating: 99 },
+            { name: "Mike Catt", pos: "Fly Halves", rating: 85, careerRating: 89 },
+            { name: "Mike Tindall", pos: "Centres", rating: 90, careerRating: 90 },
+            { name: "Will Greenwood", pos: "Centres", rating: 94, careerRating: 94 },
+            { name: "Ben Cohen", pos: "Back Three", rating: 89, careerRating: 90 },
+            { name: "Jason Robinson", pos: "Back Three", rating: 96, careerRating: 96 },
+            { name: "Josh Lewsey", pos: "Back Three", rating: 91, careerRating: 92 }
+        ]
+    },
+    {
+        country: "France", year: 2011,
+        players: [
+            { name: "Jean-Baptiste Poux", pos: "Props", rating: 85, careerRating: 86 },
+            { name: "Nicolas Mas", pos: "Props", rating: 91, careerRating: 92 },
+            { name: "William Servat", pos: "Hooker", rating: 90, careerRating: 91 },
+            { name: "Dimitri Szarzewski", pos: "Hooker", rating: 86, careerRating: 88 },
+            { name: "Lionel Nallet", pos: "Second Rows", rating: 88, careerRating: 90 },
+            { name: "Pascal Papé", pos: "Second Rows", rating: 87, careerRating: 89 },
+            { name: "Thierry Dusautoir", pos: "Back Row", rating: 96, careerRating: 96 },
+            { name: "Julien Bonnaire", pos: "Back Row", rating: 89, careerRating: 91 },
+            { name: "Imanol Harinordoquy", pos: "Back Row", rating: 92, careerRating: 93 },
+            { name: "Dimitri Yachvili", pos: "Scrum Halves", rating: 91, careerRating: 91 },
+            { name: "Morgan Parra", pos: "Fly Halves", rating: 89, careerRating: 91 },
+            { name: "François Trinh-Duc", pos: "Fly Halves", rating: 86, careerRating: 88 },
+            { name: "Aurélien Rougerie", pos: "Centres", rating: 89, careerRating: 91 },
+            { name: "Maxime Mermoz", pos: "Centres", rating: 86, careerRating: 88 },
+            { name: "Vincent Clerc", pos: "Back Three", rating: 93, careerRating: 93 },
+            { name: "Alexis Palisson", pos: "Back Three", rating: 84, careerRating: 85 },
+            { name: "Maxime Médard", pos: "Back Three", rating: 88, careerRating: 90 }
+        ]
+    },
+    {
+        country: "Australia", year: 2003,
+        players: [
+            { name: "Bill Young", pos: "Props", rating: 84, careerRating: 85 },
+            { name: "Al Baxter", pos: "Props", rating: 85, careerRating: 87 },
+            { name: "Brendan Cannon", pos: "Hooker", rating: 86, careerRating: 87 },
+            { name: "Jeremy Paul", pos: "Hooker", rating: 85, careerRating: 90 },
+            { name: "Nathan Sharpe", pos: "Second Rows", rating: 90, careerRating: 92 },
+            { name: "Justin Harrison", pos: "Second Rows", rating: 86, careerRating: 88 },
+            { name: "George Smith", pos: "Back Row", rating: 95, careerRating: 96 },
+            { name: "Phil Waugh", pos: "Back Row", rating: 90, careerRating: 91 },
+            { name: "David Lyons", pos: "Back Row", rating: 87, careerRating: 89 },
+            { name: "George Gregan", pos: "Scrum Halves", rating: 96, careerRating: 97 },
+            { name: "Stephen Larkham", pos: "Fly Halves", rating: 95, careerRating: 96 },
+            { name: "Matt Giteau", pos: "Centres", rating: 89, careerRating: 94 },
+            { name: "Elton Flatley", pos: "Centres", rating: 88, careerRating: 89 },
+            { name: "Stirling Mortlock", pos: "Centres", rating: 92, careerRating: 94 },
+            { name: "Lote Tuqiri", pos: "Back Three", rating: 91, careerRating: 92 },
+            { name: "Wendell Sailor", pos: "Back Three", rating: 88, careerRating: 89 },
+            { name: "Mat Rogers", pos: "Back Three", rating: 89, careerRating: 90 }
+        ]
+    },
+    {
+        country: "Ireland", year: 2023,
+        players: [
+            { name: "Andrew Porter", pos: "Props", rating: 92, careerRating: 92 },
+            { name: "Tadhg Furlong", pos: "Props", rating: 91, careerRating: 94 },
+            { name: "Finlay Bealham", pos: "Props", rating: 85, careerRating: 85 },
+            { name: "Dan Sheehan", pos: "Hooker", rating: 93, careerRating: 93 },
+            { name: "Rónan Kelleher", pos: "Hooker", rating: 87, careerRating: 87 },
+            { name: "Tadhg Beirne", pos: "Second Rows", rating: 92, careerRating: 92 },
+            { name: "James Ryan", pos: "Second Rows", rating: 90, careerRating: 92 },
+            { name: "Iain Henderson", pos: "Second Rows", rating: 86, careerRating: 89 },
+            { name: "Peter O'Mahony", pos: "Back Row", rating: 90, careerRating: 91 },
+            { name: "Josh van der Flier", pos: "Back Row", rating: 92, careerRating: 94 },
+            { name: "Caelan Doris", pos: "Back Row", rating: 94, careerRating: 94 },
+            { name: "Jamison Gibson-Park", pos: "Scrum Halves", rating: 92, careerRating: 92 },
+            { name: "Johnny Sexton", pos: "Fly Halves", rating: 94, careerRating: 95 },
+            { name: "Bundee Aki", pos: "Centres", rating: 94, careerRating: 94 },
+            { name: "Garry Ringrose", pos: "Centres", rating: 91, careerRating: 92 },
+            { name: "James Lowe", pos: "Back Three", rating: 91, careerRating: 91 },
+            { name: "Mack Hansen", pos: "Back Three", rating: 90, careerRating: 90 },
+            { name: "Hugo Keenan", pos: "Back Three", rating: 92, careerRating: 92 }
         ]
     }
 ];
@@ -122,7 +180,6 @@ const spinnerAnchor = document.getElementById("spinner-anchor");
 const statusText = document.getElementById("status-text");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
-// SLIDERS
 setupSlider("variant-slider-track", "variant-handle", ["variant-comp", "variant-career"], (index) => {
     isCareerMode = (index === 1);
 });
@@ -176,7 +233,7 @@ respinBtn.addEventListener("click", () => {
     }
 });
 
-// ENFORCED 2-SECOND SPIN SCHEDULER WITH HIGH ACCURACY
+// CRITICAL ADJUSTMENT: HARD-LOCKED 1-SECOND DURATION LOOP
 function triggerSpinEngineWithAnimation() {
     selectedPlayer = null;
     spinBtn.classList.add("disabled"); spinBtn.disabled = true;
@@ -184,18 +241,17 @@ function triggerSpinEngineWithAnimation() {
     rosterContainer.innerHTML = "";
     rosterContainer.classList.add("locked");
 
-    // Display spinning ball
-    statusText.textContent = "Analyzing historic matches & scouting rosters...";
+    statusText.textContent = "Querying historical world cup analytics databases...";
     spinnerAnchor.innerHTML = '<div class="rugby-spinner"></div>';
 
     setTimeout(() => {
-        spinnerAnchor.innerHTML = ''; // Delete animation node
+        spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
 
         const rolledIndex = Math.floor(Math.random() * rugbyDatabase.length);
         const rolledTeam = rugbyDatabase[rolledIndex];
 
-        statusText.textContent = `Pool Opened: ${rolledTeam.country} (${rolledTeam.year}). Choose your player assignment.`;
+        statusText.textContent = `Pool Active: ${rolledTeam.country} (${rolledTeam.year}). Allocate your drafting asset.`;
         
         currentSpunSquad = rolledTeam.players.map(p => ({
             name: p.name,
@@ -211,7 +267,7 @@ function triggerSpinEngineWithAnimation() {
             respinBtn.classList.remove("disabled");
             respinBtn.disabled = false;
         }
-    }, 2000); // FIXED 2000ms DELAY CYCLE
+    }, 1000); // 1-SECOND SPIN LIFECYCLE TARGET
 }
 
 function renderRosterList() {
@@ -290,17 +346,17 @@ pitchCircles.forEach(node => {
         }
 
         if (!isMatch) {
-            alert(`Position Violation: Slot rules block assignment.`);
+            alert(`Structural Conflict: Strategy constraints deny this slot configuration.`);
             return;
         }
 
         let calculatedValue = selectedPlayer.rating;
         let requiresTag = false;
 
-        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman") && !selectedPlayer.name.includes("Leonard")) {
+        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman") && !selectedPlayer.name.includes("Leonard") && !selectedPlayer.name.includes("Porter") && !selectedPlayer.name.includes("Kitshoff") && !selectedPlayer.name.includes("Nché")) {
             calculatedValue -= 4; requiresTag = true;
         }
-        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey") && !selectedPlayer.name.includes("Barrett")) {
+        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey") && !selectedPlayer.name.includes("Barrett") && !selectedPlayer.name.includes("Keenan") && !selectedPlayer.name.includes("Willemse")) {
             calculatedValue -= 4; requiresTag = true;
         }
 
@@ -327,11 +383,11 @@ pitchCircles.forEach(node => {
         pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
 
         if (spotsFilledCount === 15) {
-            statusText.textContent = "Draft complete. Ready for tournament kickoff.";
+            statusText.textContent = "Roster optimized. System prepared for tournament sim.";
             draftDashboard.classList.add("hidden");
             simDashboard.classList.remove("hidden");
         } else {
-            statusText.textContent = "Player locked in. Spin for your next team pool.";
+            statusText.textContent = "Selection processed. Run SPIN SQUAD for alternative options.";
         }
     });
 });
