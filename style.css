@@ -11,13 +11,17 @@
 
 body, html {
     margin: 0; padding: 0;
-    width: 100%; height: 100%;
+    width: 100vw; height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--rwc-navy); color: var(--text-white);
     overflow: hidden;
 }
 
-.app-container { display: flex; width: 100vw; height: 100vh; }
+.app-container { 
+    display: flex; 
+    width: 100%; 
+    height: 100%; 
+}
 
 .control-panel {
     width: 35%; min-width: 410px; height: 100%;
@@ -42,7 +46,7 @@ body, html {
 
 .setting-group { margin-bottom: 18px; }
 .setting-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #cbd5e1; font-weight: 600; }
-.setting-group input[type="text"], .setting-group select {
+.setting-group select {
     width: 100%; padding: 10px; background: var(--panel-blue); border: 1px solid rgba(255,255,255,0.2);
     border-radius: 4px; color: white; box-sizing: border-box; font-size: 0.9rem;
 }
@@ -50,7 +54,7 @@ body, html {
 .help-text { display: block; font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
 .radio-group label { display: block; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; }
 
-/* 2-POSITION SLIDER ENGINE */
+/* SLIDER SYSTEM */
 .mode-toggle-switch {
     display: flex; background: #050b14; border-radius: 20px;
     padding: 4px; align-items: center; justify-content: space-between;
@@ -79,51 +83,50 @@ body, html {
 .success-btn { background: var(--rwc-emerald); color: white; width: 100%; font-size: 1rem; }
 .btn.disabled, .btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-/* STATUS CONTENT HOOKS */
+/* STATUS CONTAINER */
 .status-banner {
     background: var(--panel-blue); padding: 12px; border-radius: 4px;
     font-size: 0.85rem; border-left: 4px solid var(--rwc-gold); margin-bottom: 15px;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    min-height: 44px; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+    min-height: 56px; box-sizing: border-box;
 }
-#status-text { flex: 1; text-align: center; }
+#status-text { flex: 1; text-align: left; line-height: 1.3; }
 
-/* CSS SPINNING RUGBY BALL LOADER ANIMATION */
+/* HIGH-VISIBILITY BALL ANIMATION */
 .rugby-spinner {
-    width: 20px; height: 32px;
+    width: 24px; height: 36px;
     background: var(--rwc-gold);
-    border-radius: 100% / 100%; /* Creates oval profile shape */
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     position: relative;
-    box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
-    animation: rugbyRotate 0.75s linear infinite;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 0 5px rgba(0,0,0,0.5);
+    animation: rugbyRotate 0.6s linear infinite;
     flex-shrink: 0;
+    margin-right: 4px;
 }
 .rugby-spinner::before {
     content: ''; position: absolute;
-    top: 0; left: 9px; width: 2px; height: 32px;
-    background: rgba(255, 255, 255, 0.7);
+    top: 0; left: 11px; width: 2px; height: 36px;
+    background: rgba(255, 255, 255, 0.6);
 }
 .rugby-spinner::after {
-    content: '-----'; font-size: 8px; color: rgba(255, 255, 255, 0.9);
-    position: absolute; top: 10px; left: 3px; font-weight: 900;
-    letter-spacing: -1px; transform: rotate(90deg);
+    content: '||||'; font-size: 7px; color: rgba(255, 255, 255, 0.95);
+    position: absolute; top: 11px; left: 6px; font-weight: 900;
+    letter-spacing: 0px; transform: rotate(90deg);
 }
 @keyframes rugbyRotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* ROSTER SECTIONS - FIXES SCROLL DISAPPEARING CONFLICT */
+/* ROSTER SYSTEM */
 .roster-scroll-box { 
     flex: 1; overflow-y: auto !important; padding-right: 4px;
-    transition: opacity 0.2s ease;
 }
 .roster-group { margin-bottom: 12px; }
 .group-header {
     background: var(--rwc-emerald); padding: 5px 10px; font-size: 0.75rem;
     font-weight: 800; border-radius: 3px; color: white; text-transform: uppercase; letter-spacing: 0.5px;
 }
-
 .player-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 10px 12px; background: #0c1726; margin-top: 3px; border-radius: 3px;
@@ -135,8 +138,7 @@ body, html {
 .player-name { font-size: 0.9rem; font-weight: 600; }
 .player-rating { font-size: 1rem; font-weight: 700; color: var(--rwc-gold); }
 
-/* Lockout adjustments use safe opacity pointer mechanics without hiding scrollbars */
-.roster-scroll-box.locked { opacity: 0.35; }
+.roster-scroll-box.locked { opacity: 0.4; }
 .roster-scroll-box.locked .player-row { pointer-events: none; }
 
 .sim-results-box {
@@ -145,52 +147,55 @@ body, html {
     font-size: 0.85rem; color: #e2e8f0; margin: 15px 0; line-height: 1.45;
 }
 
-/* RIGHT PITCH FIXED WINDOW & SCROLL CONTAINER */
+/* RIGHT PANEL GRAPHICS ENVIRONMENT */
 .pitch-panel {
     flex: 1; height: 100%; 
-    background: #050c14; padding: 15px; box-sizing: border-box;
-    overflow-y: auto;
+    background: #050c14; padding: 25px; box-sizing: border-box;
+    overflow-y: auto !important; display: block;
 }
 .pitch-scroll-wrapper {
-    min-height: 840px;
-    width: 100%; display: flex; align-items: center; justify-content: center;
+    min-height: 900px; width: 100%;
+    display: flex; justify-content: center; align-items: flex-start;
 }
 .rugby-pitch {
-    position: relative; width: 100%; max-width: 580px; height: 820px;
-    background-color: var(--pitch-turf); border: 4px solid #ffffff; border-radius: 4px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    position: relative; width: 100%; max-width: 580px; height: 860px;
+    background-color: var(--pitch-turf) !important; 
+    border: 4px solid #ffffff !important; border-radius: 6px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.7);
+    box-sizing: border-box;
 }
 
-.pitch-line { position: absolute; left: 0; width: 100%; border-top: 2px dashed var(--white-lines); }
-.pitch-line.try-line { border-top-style: solid; border-top-color: #ffffff; border-top-width: 3px; }
+/* PITCH FIELD LINES */
+.pitch-line { position: absolute; left: 0; width: 100%; border-top: 2px dashed var(--white-lines); height: 0; }
+.pitch-line.try-line { border-top-style: solid; border-top-color: #ffffff; border-top-width: 4px; }
 .pitch-line.top { top: 12%; }
 .pitch-line.twenty-two.top { top: 25%; }
 .pitch-line.ten-meter.top { top: 38%; }
-.pitch-line.half-way { top: 50%; border-top-style: solid; border-top-color: #ffffff; border-top-width: 3px; }
+.pitch-line.half-way { top: 50%; border-top-style: solid; border-top-color: #ffffff; border-top-width: 4px; }
 .pitch-line.ten-meter.bottom { top: 62%; }
 .pitch-line.twenty-two.bottom { top: 75%; }
 .pitch-line.try-line.bottom { top: 88%; }
 
-/* HUGE & READABLE PITCH CIRCLES */
-.grid-layer { position: absolute; top:0; left:0; width:100%; height:100%; }
+/* CIRCLE ENGINE POSITIONS */
+.grid-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 .pitch-circle {
-    position: absolute; width: 85px; height: 85px; border-radius: 50%;
-    background: rgba(11, 26, 48, 0.95); border: 3px solid white;
-    transform: translate(-50%, -50%); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; cursor: pointer; z-index: 10;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.4); transition: transform 0.2s, border-color 0.2s;
+    position: absolute; width: 85px; height: 85px; border-radius: 50% !important;
+    background: rgba(11, 26, 48, 0.95) !important; border: 3px solid #ffffff !important;
+    transform: translate(-50%, -50%) !important; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; z-index: 50;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4); transition: transform 0.2s, border-color 0.2s;
     box-sizing: border-box; padding: 4px;
 }
-.pitch-circle:hover { border-color: var(--rwc-gold); transform: translate(-50%, -50%) scale(1.08); }
-.pitch-circle.highlight-eligible { border-color: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
-.pitch-circle.occupied { background: var(--rwc-navy); border-color: var(--rwc-gold); }
+.pitch-circle:hover { border-color: var(--rwc-gold) !important; transform: translate(-50%, -50%) scale(1.08) !important; }
+.pitch-circle.highlight-eligible { border-color: #38bdf8 !important; box-shadow: 0 0 18px #38bdf8; }
+.pitch-circle.occupied { background: var(--rwc-navy) !important; border-color: var(--rwc-gold) !important; }
 
-.circle-num { font-size: 1.3rem; font-weight: 900; color: white; line-height: 1.1; }
-.circle-name { font-size: 0.65rem; font-weight: 700; text-align: center; color: #cbd5e1; margin-top: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.circle-num { font-size: 1.3rem; font-weight: 900; color: #ffffff; line-height: 1.1; pointer-events: none; }
+.circle-name { font-size: 0.65rem; font-weight: 700; text-align: center; color: #cbd5e1; margin-top: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 
 .pitch-circle.occupied .circle-num { color: var(--rwc-gold); font-size: 1.15rem; }
 .pitch-circle.occupied .circle-name { color: white; font-weight: 800; font-size: 0.62rem; }
 
-.penalty-tag { font-size: 0.55rem; background: #dc2626; color: white; border-radius: 2px; padding: 1px 4px; margin-top: 2px; font-weight: 900; letter-spacing: 0.3px; }
+.penalty-tag { font-size: 0.55rem; background: #dc2626; color: white; border-radius: 2px; padding: 1px 4px; margin-top: 2px; font-weight: 900; }
 
 .hidden { display: none !important; }
