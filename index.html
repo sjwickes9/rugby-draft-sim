@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rugby World Cup Squad Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- LEFT SYSTEM PANEL -->
+        <div class="control-panel">
+            <h1 class="logo">WORLD CUP <span class="highlight">XV DRAFT</span></h1>
+            
+            <!-- CONFIGURATION DASHBOARD -->
+            <div id="setup-card" class="card">
+                <h2>Tournament Configuration</h2>
+                
+                <div class="setting-group">
+                    <label>Draft Variant:</label>
+                    <div class="mode-toggle-switch flex-toggle">
+                        <span id="variant-comp" class="toggle-option active">Competition Mode</span>
+                        <div class="switch-bg" id="variant-slider-track">
+                            <div class="switch-handle" id="variant-handle"></div>
+                        </div>
+                        <span id="variant-career" class="toggle-option">Career Peak Mode</span>
+                    </div>
+                    <small class="help-text">Comp uses tournament-year stats. Career unlocks historical peak value.</small>
+                </div>
+
+                <div class="setting-group">
+                    <label>Target Replacement Candidate:</label>
+                    <select id="replace-team-select">
+                        <option value="South Africa">South Africa</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Ireland">Ireland</option>
+                        <option value="France">France</option>
+                        <option value="England">England</option>
+                        <option value="Wales">Wales</option>
+                        <option value="Australia">Australia</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label>Draft Difficulty Rules:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="difficulty" value="easy" checked> Easy (3 Respins Allowed)</label>
+                        <label><input type="radio" name="difficulty" value="normal"> Normal (1 Respin Allowed)</label>
+                        <label><input type="radio" name="difficulty" value="hard"> Hard (0 Respins Allowed)</label>
+                    </div>
+                </div>
+
+                <button id="start-game-btn" class="btn primary-btn">Initialize Draft Bracket</button>
+            </div>
+
+            <!-- ACTIVE DRAFT DASHBOARD -->
+            <div id="draft-dashboard" class="card hidden">
+                <div class="setting-group">
+                    <div class="mode-toggle-switch">
+                        <span id="lbl-reveal" class="toggle-option active">Reveal Ratings</span>
+                        <div class="switch-bg" id="rating-slider-track">
+                            <div class="switch-handle" id="rating-handle"></div>
+                        </div>
+                        <span id="lbl-knowledge" class="toggle-option">Knowledge Mode</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="spin-btn" class="btn primary-btn">SPIN SQUAD</button>
+                    <button id="respin-btn" class="btn secondary-btn disabled" disabled>RESPIN (<span id="respin-count">0</span>)</button>
+                </div>
+
+                <div id="status-banner" class="status-banner">Select SPIN SQUAD to unlock your first drafting pool.</div>
+                
+                <!-- SORTED SCROLL ROSTER -->
+                <div id="roster-container" class="roster-scroll-box"></div>
+            </div>
+
+            <!-- SIMULATION PORTAL -->
+            <div id="sim-dashboard" class="card hidden">
+                <h2>Tournament Engine</h2>
+                <button id="run-sim-btn" class="btn success-btn">EXECUTE TOURNAMENT SIMULATION</button>
+                <div id="sim-results" class="sim-results-box"></div>
+                <button id="restart-btn" class="btn secondary-btn hidden">Draft New Hybrid XV</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PITCH DISPLAY -->
+        <div class="pitch-panel">
+            <div class="rugby-pitch">
+                <div class="pitch-line try-line top"></div>
+                <div class="pitch-line twenty-two top"></div>
+                <div class="pitch-line ten-meter top"></div>
+                <div class="pitch-line half-way"></div>
+                <div class="pitch-line ten-meter bottom"></div>
+                <div class="pitch-line twenty-two bottom"></div>
+                <div class="pitch-line try-line bottom"></div>
+                
+                <div class="grid-layer">
+                    <!-- Front Row -->
+                    <div class="pitch-circle" data-pos="Loosehead Prop" style="top: 84%; left: 25%;">
+                        <div class="circle-num">1</div><div class="circle-name">Loosehead Prop</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Hooker" style="top: 86%; left: 50%;">
+                        <div class="circle-num">2</div><div class="circle-name">Hooker</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Tighthead Prop" style="top: 84%; left: 75%;">
+                        <div class="circle-num">3</div><div class="circle-name">Tighthead Prop</div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="pitch-circle" data-pos="Lock 4" style="top: 71%; left: 35%;">
+                        <div class="circle-num">4</div><div class="circle-name">Lock 4</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Lock 5" style="top: 71%; left: 65%;">
+                        <div class="circle-num">5</div><div class="circle-name">Lock 5</div>
+                    </div>
+
+                    <!-- Back Row -->
+                    <div class="pitch-circle" data-pos="Blindside Flanker" style="top: 59%; left: 20%;">
+                        <div class="circle-num">6</div><div class="circle-name">Blindside Flanker</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Number 8" style="top: 62%; left: 50%;">
+                        <div class="circle-num">8</div><div class="circle-name">Number 8</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Openside Flanker" style="top: 59%; left: 80%;">
+                        <div class="circle-num">7</div><div class="circle-name">Openside Flanker</div>
+                    </div>
+
+                    <!-- Halfbacks -->
+                    <div class="pitch-circle" data-pos="Scrum-half" style="top: 47%; left: 35%;">
+                        <div class="circle-num">9</div><div class="circle-name">Scrum-half</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Fly-half" style="top: 42%; left: 56%;">
+                        <div class="circle-num">10</div><div class="circle-name">Fly-half</div>
+                    </div>
+
+                    <!-- Midfield -->
+                    <div class="pitch-circle" data-pos="Left Wing" style="top: 28%; left: 12%;">
+                        <div class="circle-num">11</div><div class="circle-name">Left Wing</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Inside Centre" style="top: 30%; left: 39%;">
+                        <div class="circle-num">12</div><div class="circle-name">Inside Centre</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Outside Centre" style="top: 26%; left: 64%;">
+                        <div class="circle-num">13</div><div class="circle-name">Outside Centre</div>
+                    </div>
+                    <div class="pitch-circle" data-pos="Right Wing" style="top: 28%; left: 88%;">
+                        <div class="circle-num">14</div><div class="circle-name">Right Wing</div>
+                    </div>
+
+                    <!-- Fullback -->
+                    <div class="pitch-circle" data-pos="Fullback" style="top: 10%; left: 50%;">
+                        <div class="circle-num">15</div><div class="circle-name">Fullback</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
