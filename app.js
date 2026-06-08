@@ -6,34 +6,34 @@ const positionFamilies = {
     "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
 };
 
-// FULL ELIGIBLE COUNTRY LOG: Contains all 26 historic qualified nations split into competitive tiers
+// THE ALL-NATION HISTORICAL MATRICES (26 Certified Tournament Competitors)
 const historicalNations = [
-    { country: "New Zealand", tier: 1, surnamePool: ["Retallick", "McCaw", "Read", "Smith", "Barrett", "Carter", "Nonu", "Whitelock", "Mealamu", "Franks", "Savea", "Lomu", "Fitzpatrick", "Jones", "Umaga"] },
-    { country: "South Africa", tier: 1, surnamePool: ["Etzebeth", "du Toit", "Vermeulen", "Kolisi", "de Klerk", "Pollard", "de Allende", "Am", "Kolbe", "Malherbe", "Mbonambi", "Kitshoff", "Nché", "Steyn", "Habana"] },
-    { country: "England", tier: 1, surnamePool: ["Johnson", "Wilkinson", "Dallaglio", "Hill", "Back", "Greenwood", "Robinson", "Vickery", "Thompson", "Dawson", "Tindall", "Cohen", "Farrell", "Itoje", "Underhill"] },
-    { country: "France", tier: 1, surnamePool: ["Dusautoir", "Mas", "Yachvili", "Clerc", "Harinordoquy", "Parra", "Servat", "Nallet", "Dupont", "Ntamack", "Penaud", "Alldritt", "Fickou", "Baille", "Marchand"] },
-    { country: "Ireland", tier: 1, surnamePool: ["Sexton", "O'Driscoll", "Aki", "Porter", "Furlong", "Sheehan", "Beirne", "Ryan", "van der Flier", "Doris", "Gibson-Park", "Ringrose", "Lowe", "Keenan", "O'Connell"] },
-    { country: "Australia", tier: 1, surnamePool: ["Gregan", "Larkham", "Smith", "Mortlock", "Giteau", "Tuqiri", "Sharpe", "Sailor", "Rogers", "Horan", "Eales", "Campese", "Pocock", "Genia", "Hooper"] },
-    { country: "Wales", tier: 1, surnamePool: ["Jones", "Warburton", "Tipuric", "Faletau", "Williams", "Biggar", "Davies", "Roberts", "North", "Halfpenny", "Jenkins", "Owens", "Adam Jones", "Rees-Zammit"] },
-    { country: "Scotland", tier: 2, surnamePool: ["Hogg", "Russell", "Van der Merwe", "Ritchie", "Watson", "Price", "Harris", "Sutherland", "Turner", "Zander Fagerson", "Gray", "Gilchrist", "Laidlaw", "Hastings"] },
-    { country: "Argentina", tier: 2, surnamePool: ["Pichot", "Contepomi", "Hernández", "Lobbe", "Materas", "Kremer", "Montoya", "Boffelli", "Sánchez", "Cubelli", "Gallo", "Lavanini", "Moroni", "Mallía"] },
-    { country: "Fiji", tier: 2, surnamePool: ["Radradra", "Nakarawa", "Botia", "Tuisova", "Mata", "Lomani", "Volavola", "Wainiqolo", "Nayacalevu", "Maqala", "Ravai", "Matavesi", "Habosi"] },
-    { country: "Japan", tier: 2, surnamePool: ["Leitch", "Matsushima", "Tamura", "Fukuoka", "Himeno", "Inagaki", "Horie", "Labuschagné", "Nakamura", "Yamanaka", "Gu", "Dearns", "Naoto Saito"] },
-    { country: "Italy", tier: 2, surnamePool: ["Parisse", "Castrogiovanni", "Garbisi", "Capuozzo", "Negri", "Lamaro", "Cannone", "Fischetti", "Ruzza", "Ioane", "Brex", "Varney", "Allan"] },
-    { country: "Samoa", tier: 2, surnamePool: ["Tuilagi", "Mapusua", "Taulafo", "Tekori", "Fa'asalele", "Lee-Lo", "Nanai-Williams", "Luatua", "Sopoaga", "Seuteni", "Lay", "McFarlane"] },
-    { country: "Tonga", tier: 2, surnamePool: ["Lilo", "Taufa", "Piutau", "Fisilau", "Fekitoa", "Mounga", "Taumalolo", "Latu", "Kafatolu", "Takulua", "Halaifonua", "Fifita"] },
-    { country: "Georgia", tier: 2, surnamePool: ["Gorgodze", "Zirakashvili", "Niniashvili", "Abzhandadze", "Lobzhanidze", "Sharikadze", "Gigashvili", "Chachua", "Saghinadze", "Mamukashvili"] },
-    { country: "Romania", tier: 3, surnamePool: ["Sursen", "Fercu", "Calafeteanu", "Vlaicu", "Macovei", "Gajion", "Chirica", "Surugiu", "Gorcioaia", "Savzu", "Popa", "Rupanu"] },
-    { country: "Canada", tier: 3, surnamePool: ["Cudmore", "Ardron", "Pritchard", "Paris", "Hearn", "Blevins", "Olmstead", "Mack", "Barkwill", "Sears-Duru", "Rumball", "Nelson"] },
-    { country: "United States", tier: 3, surnamePool: ["Scully", "MacGinty", "Wyles", "Lamositele", "Maninoa", "Civetta", "Taufete'e", "Dolan", "Augspurger", "Campbell", "Iscaro"] },
-    { country: "Uruguay", tier: 3, surnamePool: ["Ormaechea", "Berchesi", "Diana", "Arata", "Vilaseca", "Freitas", "Mieres", "Kessler", "Dotti", "Gaminara", "Pujadas", "Amaya"] },
-    { country: "Namibia", tier: 3, surnamePool: ["Burger", "Botha", "Deysel", "Kitshoff", "Stevens", "Jantjies", "Greyling", "Coetzee", "van Jaarsveld", "Katjijeko", "Louw"] },
-    { country: "Portugal", tier: 3, surnamePool: ["Marques", "Storti", "Marta", "Tadjer", "Fernandes", "Madeira", "Martins", "Granate", "Appleton", "Lima", "Bento", "Sousa"] },
-    { country: "Spain", tier: 3, surnamePool: ["Feijoo", "Heredia", "Rouet", "Auzqui", "del Hoyo", "Mora", "Pinto", "Gimeno", "Linklater", "Lopez", "Bartere"] },
-    { country: "Zimbabwe", tier: 3, surnamePool: ["Groenewald", "Tsimba", "Chivanga", "Mutamangira", "Mudariki", "Makwanya", "Nyakanyanga", "Breslin"] },
-    { country: "Russia", tier: 3, surnamePool: ["Artemyev", "Oosthuizen", "Kushnarev", "Galinovskiy", "Gerasimov", "Ostroushko", "Garbuzov", "Selyutin"] },
-    { country: "Chile", tier: 3, surnamePool: ["Sigren", "Fernández", "Ayarza", "Lues", "Dittus", "Bohme", "Saavedra", "Torrealba", "Garafulic", "Casas"] },
-    { country: "Ivory Coast", tier: 3, surnamePool: ["Camara", "Dali", "Niakou", "Okou", "N'Gbala", "Gachon", "Konan", "Lassissi"] }
+    { country: "New Zealand", flag: "🇳🇿", tier: 1, dynamicSquad: { "Props": ["T. Woodcock", "O. Franks"], "Hooker": ["K. Mealamu"], "Second Rows": ["B. Retallick", "S. Whitelock"], "Back Row": ["J. Kaino", "R. McCaw", "K. Read"], "Scrum Halves": ["A. Smith"], "Fly Halves": ["D. Carter"], "Centres": ["M. Nonu", "C. Smith"], "Back Three": ["J. Savea", "B. Smith", "J. Lomu"] }},
+    { country: "South Africa", flag: "🇿🇦", tier: 1, dynamicSquad: { "Props": ["O. du Randt", "F. Malherbe"], "Hooker": ["B. du Plessis"], "Second Rows": ["E. Etzebeth", "V. Matfield"], "Back Row": ["S. Burger", "S. Kolisi", "D. Vermeulen"], "Scrum Halves": ["F. de Klerk"], "Fly Halves": ["H. Pollard"], "Centres": ["D. de Allende", "L. Am"], "Back Three": ["B. Habana", "C. Kolbe", "P. Montgomery"] }},
+    { country: "England", flag: "🇬🇧", tier: 1, dynamicSquad: { "Props": ["P. Vickery", "J. Leonard"], "Hooker": ["P. Thompson"], "Second Rows": ["M. Johnson", "B. Kay"], "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], "Scrum Halves": ["M. Dawson"], "Fly Halves": ["J. Wilkinson"], "Centres": ["W. Greenwood", "M. Tindall"], "Back Three": ["B. Cohen", "J. Robinson", "M. Cueto"] }},
+    { country: "France", flag: "🇫🇷", tier: 1, dynamicSquad: { "Props": ["S. Marconnet", "N. Mas"], "Hooker": ["W. Servat"], "Second Rows": ["F. Pelous", "L. Nallet"], "Back Row": ["T. Dusautoir", "I. Harinordoquy", "G. Alldritt"], "Scrum Halves": ["A. Dupont"], "Fly Halves": ["F. Michalak"], "Centres": ["Y. Jauzion", "G. Fickou"], "Back Three": ["V. Clerc", "D. Penaud", "T. Ramos"] }},
+    { country: "Ireland", flag: "🇮🇪", tier: 1, dynamicSquad: { "Props": ["A. Porter", "T. Furlong"], "Hooker": ["D. Sheehan"], "Second Rows": ["P. O'Connell", "J. Ryan"], "Back Row": ["P. O'Mahony", "J. van der Flier", "C. Doris"], "Scrum Halves": ["J. Gibson-Park"], "Fly Halves": ["J. Sexton"], "Centres": ["B. O'Driscoll", "B. Aki"], "Back Three": ["M. Hansen", "J. Lowe", "H. Keenan"] }},
+    { country: "Australia", flag: "🇦🇺", tier: 1, dynamicSquad: { "Props": ["E. McKenzie", "A. Baxter"], "Hooker": ["P. Kearns"], "Second Rows": ["J. Eales", "N. Sharpe"], "Back Row": ["O. Finegan", "G. Smith", "T. Kefu"], "Scrum Halves": ["G. Gregan"], "Fly Halves": ["S. Larkham"], "Centres": ["T. Horan", "S. Mortlock"], "Back Three": ["D. Campese", "L. Tuqiri", "C. Latham"] }},
+    { country: "Wales", flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿", tier: 1, dynamicSquad: { "Props": ["G. Jenkins", "A. Jones"], "Hooker": ["K. Owens"], "Second Rows": ["A. W. Jones", "L. Charteris"], "Back Row": ["D. Lydiate", "S. Warburton", "T. Faletau"], "Scrum Halves": ["M. Phillips"], "Fly Halves": ["D. Biggar"], "Centres": ["J. Roberts", "J. Davies"], "Back Three": ["S. Williams", "G. North", "L. Halfpenny"] }},
+    { country: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", tier: 2, dynamicSquad: { "Props": ["P. Wright", "Z. Fagerson"], "Hooker": ["C. Lawson"], "Second Rows": ["R. Gray", "G. Gilchrist"], "Back Row": ["J. White", "H. Watson", "M. Leslie"], "Scrum Halves": ["G. Laidlaw"], "Fly Halves": ["F. Russell"], "Centres": ["S. Hastings", "M. Harris"], "Back Three": ["D. van der Merwe", "T. Seymour", "S. Hogg"] }},
+    { country: "Argentina", flag: "🇦🇷", tier: 2, dynamicSquad: { "Props": ["R. Roncero", "M. Scelzo"], "Hooker": ["M. Ledesma"], "Second Rows": ["P. Albacete", "T. Lavanini"], "Back Row": ["P. Matera", "M. Kremer", "J.M. Leguizamón"], "Scrum Halves": ["A. Pichot"], "Fly Halves": ["F. Contepomi"], "Centres": ["J.M. Hernández", "M. Moroni"], "Back Three": ["H. Agulla", "E. Boffelli", "J.C. Mallía"] }},
+    { country: "Fiji", flag: "🇫🇯", tier: 2, dynamicSquad: { "Props": ["E. Mawi", "M. Saulo"], "Hooker": ["S. Matavesi"], "Second Rows": ["L. Nakarawa", "A. Ratuniyarawa"], "Back Row": ["D. Wainiqolo", "P. Yato", "V. Mata"], "Scrum Halves": ["F. Lomani"], "Fly Halves": ["B. Volavola"], "Centres": ["S. Radradra", "W. Nayacalevu"], "Back Three": ["J. Tuisova", "M. Habosi"], "Fullback": ["K. Murimurivalu"] }},
+    { country: "Japan", flag: "🇯🇵", tier: 2, dynamicSquad: { "Props": ["K. Inagaki", "Ji-won Gu"], "Hooker": ["S. Horie"], "Second Rows": ["L. Thompson", "W. Dearns"], "Back Row": ["M. Leitch", "P. Labuschagné", "K. Himeno"], "Scrum Halves": ["Y. Nagare"], "Fly Halves": ["Y. Tamura"], "Centres": ["R. Nakamura", "T. Lafaele"], "Back Three": ["K. Fukuoka", "K. Matsushima", "L. Yamanaka"] }},
+    { country: "Italy", flag: "🇮🇹", tier: 2, dynamicSquad: { "Props": ["S. Perugini", "M. Castrogiovanni"], "Hooker": ["L. Ghiraldini"], "Second Rows": ["M. Bortolami", "F. Ruzza"], "Back Row": ["A. Zanni", "M. Lamaro", "S. Parisse"], "Scrum Halves": ["A. Troncon"], "Fly Halves": ["P. Garbisi"], "Centres": ["G. Canale", "J. Brex"], "Back Three": ["M. Bergamasco", "E. Ioane", "A. Capuozzo"] }},
+    { country: "Samoa", flag: "🇼🇸", tier: 2, dynamicSquad: { "Props": ["C. Johnston", "L. Mulipola"], "Hooker": ["M. Schwalger"], "Second Rows": ["I. Tekori", "F. Levi"], "Back Row": ["M. Fa'asalele", "J. Lam", "S. Sione"], "Scrum Halves": ["K. Fotuali'i"], "Fly Halves": ["T. Pisi"], "Centres": ["S. Mapusua", "G. Pisi"], "Back Three": ["A. Tuilagi", "T. Nanai-Williams", "Tim Nanai"] }},
+    { country: "Tonga", flag: "🇹🇴", tier: 2, dynamicSquad: { "Props": ["S. Taumalolo", "B. Tameifuna"], "Hooker": ["A. Lutui"], "Second Rows": ["S. Latu", "L. Lokotui"], "Back Row": ["S. Kalamafoni", "N. Latu", "V. Ma'afu"], "Scrum Halves": ["S. Takulua"], "Fly Halves": ["K. Morath"], "Centres": ["S. Piutau", "M. Fekitoa"], "Back Three": ["F. Vainikolo", "T. Veainu", "V. Lilo"] }},
+    { country: "Georgia", flag: "🇬🇪", tier: 2, dynamicSquad: { "Props": ["D. Zirakashvili", "B. Gigashvili"], "Hooker": ["J. Bregvadze"], "Second Rows": ["K. Mikautadze", "N. Cheishvili"], "Back Row": ["M. Gorgodze", "G. Tskhadadze", "B. Saghinadze"], "Scrum Halves": ["V. Lobzhanidze"], "Fly Halves": ["L. Khmaladze"], "Centres": ["D. Kacharava", "M. Sharikadze"], "Back Three": ["A. Todua", "A. Niniashvili", "B. Tsiklauri"] }},
+    { country: "Canada", flag: "🇨🇦", tier: 3, dynamicSquad: { "Props": ["R. Snow", "H. Sears-Duru"], "Hooker": ["P. Riordan"], "Second Rows": ["J. Cudmore", "B. Beukeboom"], "Back Row": ["A. Charron", "J. Moonlight", "T. Ardron"], "Scrum Halves": ["G. Rees"], "Fly Halves": ["G. Pritchard"], "Centres": ["C. Hearn", "D. van der Merwe"], "Back Three": ["W. Stanley", "D. Paris", "J. Elkinson"] }},
+    { country: "United States", flag: "🇺🇸", tier: 3, dynamicSquad: { "Props": ["T. Lamositele", "E. Fry"], "Hooker": ["J. Taufete'e"], "Second Rows": ["S. Civetta", "G. Peterson"], "Back Row": ["A. MacGinty", "T. Clever", "C. Dolan"], "Scrum Halves": ["N. Augspurger"], "Fly Halves": ["M. Brache"], "Centres": ["P. Lasike", "B. Campbell"], "Back Three": ["B. Scully", "T. Ngwenya"], "Fullback": ["C. Wyles"] }},
+    { country: "Uruguay", flag: "🇺🇾", tier: 3, dynamicSquad: { "Props": ["M. Sanguinetti", "D. Arbelo"], "Hooker": ["G. Kessler"], "Second Rows": ["M. Leindekar", "I. Dotti"], "Back Row": ["M. Gaminara", "S. Civetta", "A. Ormaechea"], "Scrum Halves": ["S. Arata"], "Fly Halves": ["F. Berchesi"], "Centres": ["A. Vilaseca", "T. Inciarte"], "Back Three": ["G. Mieres", "N. Freitas", "R. Silva"] }},
+    { country: "Namibia", flag: "🇳🇦", tier: 3, dynamicSquad: { "Props": ["J. Redelinghuys", "A. Coetzee"], "Hooker": ["T. van Jaarsveld"], "Second Rows": ["T. Uanivi", "H. Ludik"], "Back Row": ["J. Burger", "T. Forbes", "R. Kitshoff"], "Scrum Halves": ["E. Jantjies"], "Fly Halves": ["T. Kotze"], "Centres": ["D. de la Harpe", "J. Deysel"], "Back Three": ["C. Bouwer", "J. Tromp", "M. Loubser"] }},
+    { country: "Portugal", flag: "🇵🇹", tier: 3, dynamicSquad: { "Props": ["F. Fernandes", "D. Costa"], "Hooker": ["M. Tadjer"], "Second Rows": ["J. Madeira", "S. Cerqueira"], "Back Row": ["D. Wallis", "N. Martins", "R. Marta"], "Scrum Halves": ["S. Marques"], "Fly Halves": ["J. Lima"], "Centres": ["T. Appleton", "P. Bettencourt"], "Back Three": ["R. Storti", "V. Pinto", "N. Guedes"] }},
+    { country: "Spain", flag: "🇪🇸", tier: 3, dynamicSquad: { "Props": ["J. Zapatero", "V. Torres"], "Hooker": ["F. Velazco"], "Second Rows": ["A. Souto", "M. Auzqui"], "Back Row": ["A. Mata", "C. Gavidi", "G. Lopez"], "Scrum Halves": ["G. Rouet"], "Fly Halves": ["M. Linklater"], "Centres": ["F. Sempere", "A. Gimeno"], "Back Three": ["J. Lopez", "S. Aubanell", "C. Pinto"] }},
+    { country: "Zimbabwe", flag: "🇿🇼", tier: 3, dynamicSquad: { "Props": ["A. Mutamangira", "P. Larat"], "Hooker": ["K. Barrett"], "Second Rows": ["M. Nico", "B. Brider"], "Back Row": ["S. Bera", "N. Ndlovu", "B. Tsimba"], "Scrum Halves": ["C. Makwanya"], "Fly Halves": ["G. Tsimba"], "Centres": ["O. Ndlovu", "D. Walters"], "Back Three": ["W. Mbanje", "G. Sibanda", "M. Tsimba"] }},
+    { country: "Russia", flag: "🇷🇺", tier: 3, dynamicSquad: { "Props": ["A. Khrokin", "E. Pronenko"], "Hooker": ["V. Korshunov"], "Second Rows": ["A. Voytov", "D. Antonov"], "Back Row": ["A. Garbuzov", "V. Gresev", "A. Temnov"], "Scrum Halves": ["A. Shakirov"], "Fly Halves": ["Y. Kushnarev"], "Centres": ["D. Gerasimov", "M. Babaev"], "Back Three": ["V. Artemyev", "D. Simplikevich", "I. Klyuchnikov"] }},
+    { country: "Chile", flag: "🇨🇱", tier: 3, dynamicSquad: { "Props": ["J. Lues", "M. Dittus"], "Hooker": ["A. Böhme"], "Second Rows": ["C. Saavedra", "P. Huete"], "Back Row": ["M. Sigren", "I. Silva", "A. Ayarza"], "Scrum Halves": ["M. Torrealba"], "Fly Halves": ["R. Fernández"], "Centres": ["D. Saavedra", "M. Garafulic"], "Back Three": ["S. Videla", "N. Garafulic", "F. Velarde"] }},
+    { country: "Ivory Coast", flag: "🇨🇮", tier: 3, dynamicSquad: { "Props": ["T. Dali", "P. Kama"], "Hooker": ["E. Moni"], "Second Rows": ["G. Pere", "B. Castiglioni"], "Back Row": ["A. Lassissi", "P. Bouazo", "D. Camara"], "Scrum Halves": ["F. Castiglioni"], "Fly Halves": ["A. Chiche"], "Centres": ["L. Niakou", "D. N'Gbala"], "Back Three": ["C. Kouassi", "J. Granval", "V. Okou"] }},
+    { country: "Romania", flag: "🇷🇴", tier: 3, dynamicSquad: { "Props": ["I. Paulica", "M. Lazar"], "Hooker": ["O. Tonita"], "Second Rows": ["C. Petre", "V. Poparlan"], "Back Row": ["M. Macovei", "S. Burcea", "V. Lucaci"], "Scrum Halves": ["F. Surugiu"], "Fly Halves": ["D. Dumbrava"], "Centres": ["R. Gontineac", "C. Gal"], "Back Three": ["C. Fercu", "M. Lemnaru"], "Fullback": ["I. Dumitru"] }}
 ];
 
 const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
@@ -56,6 +56,7 @@ const respinBtn = document.getElementById("respin-btn");
 const respinCountText = document.getElementById("respin-count");
 const rosterContainer = document.getElementById("roster-container");
 const spinnerAnchor = document.getElementById("spinner-anchor");
+const flagIndicator = document.getElementById("flag-indicator");
 const statusText = document.getElementById("status-text");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
@@ -112,7 +113,6 @@ respinBtn.addEventListener("click", () => {
     }
 });
 
-// ANIMATION TIMELINE ENGINE (HARD-LOCKED TO EXACTLY 1-SECOND LATCH TIME)
 function triggerSpinEngineWithAnimation() {
     selectedPlayer = null;
     spinBtn.classList.add("disabled"); spinBtn.disabled = true;
@@ -120,36 +120,37 @@ function triggerSpinEngineWithAnimation() {
     rosterContainer.innerHTML = "";
     rosterContainer.classList.add("locked");
 
-    statusText.textContent = "Querying global tournament data vaults...";
+    flagIndicator.textContent = "";
+    statusText.textContent = "Querying historical global rosters...";
     spinnerAnchor.innerHTML = '<div class="rugby-spinner"></div>';
 
     setTimeout(() => {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
 
-        // Draw an absolute random configuration out of all 26 world cup nations
+        // TRUE RANDOM POOL PICK OUT OF ALL 26 NATIONS
         const rolledNation = historicalNations[Math.floor(Math.random() * historicalNations.length)];
-        const rolledYear = 1987 + (Math.floor(Math.random() * 10) * 4); // Contextual year bracket generator
+        const rolledYear = 1987 + (Math.floor(Math.random() * 10) * 4);
+        const actualDisplayedYear = rolledYear > 2023 ? 2023 : rolledYear;
 
-        statusText.textContent = `Pool Opened: ${rolledNation.country} (${rolledYear > 2023 ? 2023 : rolledYear}). Assign your asset.`;
+        // VISUAL SYSTEM FLAGS UPDATE TERMINAL LATCH
+        flagIndicator.textContent = rolledNation.flag;
+        statusText.textContent = `${rolledNation.country.toUpperCase()} (${actualDisplayedYear}) Pool Open. Assign your player.`;
         
-        // DYNAMIC ALGORITHMIC GENERATION ENGINE FOR THE 26 WORLD CUP TEAMS
         currentSpunSquad = [];
-        let baseRatingModifier = rolledNation.tier === 1 ? 90 : rolledNation.tier === 2 ? 82 : 72;
+        let baseRatingModifier = rolledNation.tier === 1 ? 88 : rolledNation.tier === 2 ? 79 : 68;
 
         displayOrder.forEach(positionGroup => {
-            // Populate two competitive choices per positional family tree block
-            for (let variant = 1; variant <= 2; variant++) {
-                let uniqueSurname = rolledNation.surnamePool[Math.floor(Math.random() * rolledNation.surnamePool.length)];
-                let randomInitials = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + ".";
-                let computedBase = baseRatingModifier + Math.floor(Math.random() * 7);
-                
+            const availableNames = rolledNation.dynamicSquad[positionGroup] || ["H. Player", "X. Replacement"];
+            
+            availableNames.forEach(realName => {
+                let computedBase = baseRatingModifier + Math.floor(Math.random() * 8);
                 currentSpunSquad.push({
-                    name: `${randomInitials} ${uniqueSurname}`,
+                    name: realName,
                     pos: positionGroup,
-                    rating: isCareerMode ? computedBase + Math.floor(Math.random() * 3) : computedBase
+                    rating: isCareerMode ? computedBase + 4 : computedBase
                 });
-            }
+            });
         });
 
         currentSpunSquad.sort((a, b) => displayOrder.indexOf(a.pos) - displayOrder.indexOf(b.pos));
@@ -160,7 +161,7 @@ function triggerSpinEngineWithAnimation() {
             respinBtn.classList.remove("disabled");
             respinBtn.disabled = false;
         }
-    }, 1000); // 1 SEC SPIN WINDOW EFFECTIVELY PARSES THE DRAW INTERFACE
+    }, 1000); 
 }
 
 function renderRosterList() {
@@ -238,11 +239,7 @@ pitchCircles.forEach(node => {
         let calculatedValue = selectedPlayer.rating;
         let requiresTag = false;
 
-        // Penalize out-of-position cross alignments inside complex groupings
         if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && Math.random() > 0.6) {
-            calculatedValue -= 4; requiresTag = true;
-        }
-        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && Math.random() > 0.6) {
             calculatedValue -= 4; requiresTag = true;
         }
 
@@ -296,24 +293,24 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
         return { team: teamScore, opp: oppScore, win: teamScore > oppScore };
     }
 
-    const match1 = calculateFixture(squadOvr, 84);
+    const match1 = calculateFixture(squadOvr, 82);
     logs.innerHTML += `[POOL FIXTURE 1] Vs Initial Challenger\nScoreline: Hybrid XV ${match1.team} - ${match1.opp} Opponent\n\n`;
-    const match2 = calculateFixture(squadOvr, 74);
+    const match2 = calculateFixture(squadOvr, 76);
     logs.innerHTML += `[POOL FIXTURE 2] Vs Mid-tier Seed\nScoreline: Hybrid XV ${match2.team} - ${match2.opp} Opponent\n\n`;
 
-    const qf = calculateFixture(squadOvr, 88);
+    const qf = calculateFixture(squadOvr, 86);
     logs.innerHTML += `--- KNOCKOUT ROUNDS BRACKET ---\n[QUARTER FINAL] Vs Championship Contender\nScoreline: Hybrid XV ${qf.team} - ${qf.opp} Opponent\n`;
     
     if (!qf.win) {
         logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Quarter-Finals stage.`;
     } else {
-        const sf = calculateFixture(squadOvr, 91);
+        const sf = calculateFixture(squadOvr, 89);
         logs.innerHTML += `\n[SEMI FINAL] Vs Major Superpower\nScoreline: Hybrid XV ${sf.team} - ${sf.opp} Opponent\n`;
         
         if (!sf.win) {
             logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Semi-Finals tier.`;
         } else {
-            const f = calculateFixture(squadOvr, 93);
+            const f = calculateFixture(squadOvr, 92);
             logs.innerHTML += `\n[RUGBY WORLD CUP FINAL] Vs Grand Finalist\nScoreline: Hybrid XV ${f.team} - ${f.opp} Opponent\n`;
             
             if (f.win) {
