@@ -1,196 +1,390 @@
-:root {
-    --rwc-navy: #0b1a30;
-    --rwc-emerald: #00875a;
-    --rwc-gold: #d4af37;
-    --panel-blue: #13243d;
-    --pitch-turf: #026642;
-    --white-lines: rgba(255, 255, 255, 0.45);
-    --card-bg: #091322;
-    --text-white: #ffffff;
+const positionFamilies = {
+    "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hooker",
+    "Lock 4": "Second Rows", "Lock 5": "Second Rows", "Blindside Flanker": "Back Row",
+    "Openside Flanker": "Back Row", "Number 8": "Back Row", "Scrum-half": "Scrum Halves",
+    "Fly-half": "Fly Halves", "Inside Centre": "Centres", "Outside Centre": "Centres",
+    "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
+};
+
+const utilityOverrideMaps = {
+    "Beauden Barrett": ["Fly Halves", "Back Three"],
+    "Jason Leonard": ["Props"],
+    "Frans Steyn": ["Centres", "Back Three"]
+};
+
+const rugbyDatabase = [
+    {
+        country: "England", year: 2003,
+        players: [
+            { name: "Trevor Woodman", pos: "Props", rating: 89, careerRating: 89 },
+            { name: "Phil Vickery", pos: "Props", rating: 91, careerRating: 92 },
+            { name: "Jason Leonard", pos: "Props", rating: 87, careerRating: 94 },
+            { name: "Steve Thompson", pos: "Hooker", rating: 90, careerRating: 90 },
+            { name: "Dorian West", pos: "Hooker", rating: 82, careerRating: 84 },
+            { name: "Martin Johnson", pos: "Second Rows", rating: 97, careerRating: 98 },
+            { name: "Ben Kay", pos: "Second Rows", rating: 88, careerRating: 89 },
+            { name: "Simon Shaw", pos: "Second Rows", rating: 85, careerRating: 91 },
+            { name: "Richard Hill", pos: "Back Row", rating: 93, careerRating: 94 },
+            { name: "Neil Back", pos: "Back Row", rating: 91, careerRating: 93 },
+            { name: "Lawrence Dallaglio", pos: "Back Row", rating: 94, careerRating: 96 },
+            { name: "Joe Worsley", pos: "Back Row", rating: 83, careerRating: 86 },
+            { name: "Lewis Moody", pos: "Back Row", rating: 86, careerRating: 89 },
+            { name: "Matt Dawson", pos: "Scrum Halves", rating: 92, careerRating: 93 },
+            { name: "Kyran Bracken", pos: "Scrum Halves", rating: 81, careerRating: 84 },
+            { name: "Jonny Wilkinson", pos: "Fly Halves", rating: 98, careerRating: 98 },
+            { name: "Mike Catt", pos: "Fly Halves", rating: 86, careerRating: 89 },
+            { name: "Mike Tindall", pos: "Centres", rating: 89, careerRating: 90 },
+            { name: "Will Greenwood", pos: "Centres", rating: 93, careerRating: 93 },
+            { name: "Ben Cohen", pos: "Back Three", rating: 88, careerRating: 90 },
+            { name: "Jason Robinson", pos: "Back Three", rating: 96, careerRating: 96 },
+            { name: "Josh Lewsey", pos: "Back Three", rating: 91, careerRating: 92 },
+            { name: "Iain Balshaw", pos: "Back Three", rating: 83, careerRating: 86 }
+        ]
+    },
+    {
+        country: "South Africa", year: 2019,
+        players: [
+            { name: "Tendai Mtawarira", pos: "Props", rating: 91, careerRating: 93 },
+            { name: "Frans Malherbe", pos: "Props", rating: 90, careerRating: 92 },
+            { name: "Steven Kitshoff", pos: "Props", rating: 91, careerRating: 93 },
+            { name: "Vincent Koch", pos: "Props", rating: 88, careerRating: 90 },
+            { name: "Bongi Mbonambi", pos: "Hooker", rating: 89, careerRating: 91 },
+            { name: "Malcolm Marx", pos: "Hooker", rating: 93, careerRating: 94 },
+            { name: "Eben Etzebeth", pos: "Second Rows", rating: 95, careerRating: 97 },
+            { name: "Lood de Jager", pos: "Second Rows", rating: 89, careerRating: 91 },
+            { name: "RG Snyman", pos: "Second Rows", rating: 90, careerRating: 92 },
+            { name: "Franco Mostert", pos: "Second Rows", rating: 88, careerRating: 90 },
+            { name: "Siya Kolisi", pos: "Back Row", rating: 92, careerRating: 94 },
+            { name: "Pieter-Steph du Toit", pos: "Back Row", rating: 96, careerRating: 96 },
+            { name: "Duane Vermeulen", pos: "Back Row", rating: 94, careerRating: 95 },
+            { name: "Francois Louw", pos: "Back Row", rating: 86, careerRating: 90 },
+            { name: "Faf de Klerk", pos: "Scrum Halves", rating: 92, careerRating: 93 },
+            { name: "Herschel Jantjies", pos: "Scrum Halves", rating: 84, careerRating: 86 },
+            { name: "Handré Pollard", pos: "Fly Halves", rating: 91, careerRating: 93 },
+            { name: "Damian de Allende", pos: "Centres", rating: 91, careerRating: 92 },
+            { name: "Lukhanyo Am", pos: "Centres", rating: 93, careerRating: 94 },
+            { name: "Makazole Mapimpi", pos: "Back Three", rating: 93, careerRating: 93 },
+            { name: "Cheslin Kolbe", pos: "Back Three", rating: 96, careerRating: 96 },
+            { name: "Willie le Roux", pos: "Back Three", rating: 87, careerRating: 91 },
+            { name: "Frans Steyn", pos: "Centres", rating: 88, careerRating: 94 }
+        ]
+    },
+    {
+        country: "New Zealand", year: 2015,
+        players: [
+            { name: "Joe Moody", pos: "Props", rating: 87, careerRating: 90 },
+            { name: "Owen Franks", pos: "Props", rating: 90, careerRating: 92 },
+            { name: "Ben Franks", pos: "Props", rating: 83, careerRating: 85 },
+            { name: "Charlie Faumuina", pos: "Props", rating: 85, careerRating: 88 },
+            { name: "Dane Coles", pos: "Hooker", rating: 93, careerRating: 94 },
+            { name: "Keven Mealamu", pos: "Hooker", rating: 86, careerRating: 93 },
+            { name: "Brodie Retallick", pos: "Second Rows", rating: 96, careerRating: 96 },
+            { name: "Sam Whitelock", pos: "Second Rows", rating: 94, careerRating: 95 },
+            { name: "Jerome Kaino", pos: "Back Row", rating: 92, careerRating: 94 },
+            { name: "Richie McCaw", pos: "Back Row", rating: 98, careerRating: 99 },
+            { name: "Kieran Read", pos: "Back Row", rating: 94, careerRating: 96 },
+            { name: "Victor Vito", pos: "Back Row", rating: 84, careerRating: 85 },
+            { name: "Sam Cane", pos: "Back Row", rating: 86, careerRating: 91 },
+            { name: "Aaron Smith", pos: "Scrum Halves", rating: 95, careerRating: 95 },
+            { name: "Tawera Kerr-Barlow", pos: "Scrum Halves", rating: 82, careerRating: 84 },
+            { name: "Dan Carter", pos: "Fly Halves", rating: 97, careerRating: 99 },
+            { name: "Ma'a Nonu", pos: "Centres", rating: 96, careerRating: 96 },
+            { name: "Conrad Smith", pos: "Centres", rating: 92, careerRating: 93 },
+            { name: "Julian Savea", pos: "Back Three", rating: 94, careerRating: 94 },
+            { name: "Nehe Milner-Skudder", pos: "Back Three", rating: 90, careerRating: 90 },
+            { name: "Ben Smith", pos: "Back Three", rating: 94, careerRating: 94 },
+            { name: "Beauden Barrett", pos: "Fly Halves", rating: 92, careerRating: 96 },
+            { name: "Sonny Bill Williams", pos: "Centres", rating: 90, careerRating: 92 }
+        ]
+    }
+];
+
+const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
+
+let userTeam = {};
+let currentSpunSquad = [];
+let selectedPlayer = null;
+let respinsLeft = 0;
+let isKnowledgeMode = false;
+let isCareerMode = false;
+let spotsFilledCount = 0;
+let claimedGlobalRoster = new Set();
+let replacedCountryTarget = "South Africa";
+
+const setupCard = document.getElementById("setup-card");
+const draftDashboard = document.getElementById("draft-dashboard");
+const simDashboard = document.getElementById("sim-dashboard");
+const spinBtn = document.getElementById("spin-btn");
+const respinBtn = document.getElementById("respin-btn");
+const respinCountText = document.getElementById("respin-count");
+const rosterContainer = document.getElementById("roster-container");
+const spinnerAnchor = document.getElementById("spinner-anchor");
+const statusText = document.getElementById("status-text");
+const pitchCircles = document.querySelectorAll(".pitch-circle");
+
+// SLIDERS
+setupSlider("variant-slider-track", "variant-handle", ["variant-comp", "variant-career"], (index) => {
+    isCareerMode = (index === 1);
+});
+
+setupSlider("rating-slider-track", "rating-handle", ["lbl-reveal", "lbl-knowledge"], (index) => {
+    isKnowledgeMode = (index === 1);
+    if (currentSpunSquad.length > 0) renderRosterList();
+});
+
+function setupSlider(trackId, handleId, optionIds, onChange) {
+    const track = document.getElementById(trackId);
+    const opt0 = document.getElementById(optionIds[0]);
+    const opt1 = document.getElementById(optionIds[1]);
+    let activeIndex = 0;
+
+    function updateUI(idx) {
+        activeIndex = idx;
+        if (idx === 0) {
+            track.classList.remove("right-state");
+            opt0.classList.add("active");
+            opt1.classList.remove("active");
+        } else {
+            track.classList.add("right-state");
+            opt0.classList.remove("active");
+            opt1.classList.add("active");
+        }
+        onChange(activeIndex);
+    }
+
+    track.addEventListener("click", () => updateUI(activeIndex === 0 ? 1 : 0));
+    opt0.addEventListener("click", (e) => { e.stopPropagation(); updateUI(0); });
+    opt1.addEventListener("click", (e) => { e.stopPropagation(); updateUI(1); });
 }
 
-body, html {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--rwc-navy); color: var(--text-white);
-    overflow: hidden;
+document.getElementById("start-game-btn").addEventListener("click", () => {
+    const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
+    respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
+    respinCountText.textContent = respinsLeft;
+    replacedCountryTarget = document.getElementById("replace-team-select").value;
+    
+    setupCard.classList.add("hidden");
+    draftDashboard.classList.remove("hidden");
+});
+
+spinBtn.addEventListener("click", triggerSpinEngineWithAnimation);
+respinBtn.addEventListener("click", () => {
+    if (respinsLeft > 0 && selectedPlayer === null) {
+        respinsLeft--;
+        respinCountText.textContent = respinsLeft;
+        triggerSpinEngineWithAnimation();
+    }
+});
+
+// ENFORCED 2-SECOND SPIN SCHEDULER WITH HIGH ACCURACY
+function triggerSpinEngineWithAnimation() {
+    selectedPlayer = null;
+    spinBtn.classList.add("disabled"); spinBtn.disabled = true;
+    respinBtn.classList.add("disabled"); respinBtn.disabled = true;
+    rosterContainer.innerHTML = "";
+    rosterContainer.classList.add("locked");
+
+    // Display spinning ball
+    statusText.textContent = "Analyzing historic matches & scouting rosters...";
+    spinnerAnchor.innerHTML = '<div class="rugby-spinner"></div>';
+
+    setTimeout(() => {
+        spinnerAnchor.innerHTML = ''; // Delete animation node
+        spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
+
+        const rolledIndex = Math.floor(Math.random() * rugbyDatabase.length);
+        const rolledTeam = rugbyDatabase[rolledIndex];
+
+        statusText.textContent = `Pool Opened: ${rolledTeam.country} (${rolledTeam.year}). Choose your player assignment.`;
+        
+        currentSpunSquad = rolledTeam.players.map(p => ({
+            name: p.name,
+            pos: p.pos,
+            rating: isCareerMode ? p.careerRating : p.rating
+        }));
+
+        currentSpunSquad.sort((a, b) => displayOrder.indexOf(a.pos) - displayOrder.indexOf(b.pos));
+        renderRosterList();
+        
+        rosterContainer.classList.remove("locked");
+        if (respinsLeft > 0) {
+            respinBtn.classList.remove("disabled");
+            respinBtn.disabled = false;
+        }
+    }, 2000); // FIXED 2000ms DELAY CYCLE
 }
 
-.app-container { display: flex; width: 100vw; height: 100vh; }
+function renderRosterList() {
+    rosterContainer.innerHTML = "";
+    let trackingCategory = "";
+    let targetBlock = null;
 
-.control-panel {
-    width: 35%; min-width: 410px; height: 100%;
-    background-color: var(--panel-blue);
-    box-sizing: border-box; padding: 20px;
-    display: flex; flex-direction: column;
-    border-right: 3px solid var(--rwc-emerald);
-}
+    currentSpunSquad.forEach(player => {
+        if (player.pos !== trackingCategory) {
+            trackingCategory = player.pos;
+            const container = document.createElement("div");
+            container.className = "roster-group";
+            
+            const head = document.createElement("div");
+            head.className = "group-header";
+            head.textContent = trackingCategory;
+            container.appendChild(head);
+            rosterContainer.appendChild(container);
+            targetBlock = container;
+        }
 
-.logo {
-    font-size: 1.7rem; font-weight: 900; margin: 0 0 20px 0;
-    letter-spacing: 0.5px; border-bottom: 2px solid var(--rwc-gold);
-    padding-bottom: 10px; text-transform: uppercase;
-}
-.highlight { color: var(--rwc-gold); }
+        const cardRow = document.createElement("div");
+        cardRow.className = "player-row";
+        if (claimedGlobalRoster.has(player.name)) cardRow.classList.add("claimed-lockout");
+        
+        const labelName = document.createElement("span");
+        labelName.className = "player-name";
+        labelName.textContent = player.name;
 
-.card {
-    background: var(--card-bg); border-radius: 8px; padding: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 15px;
-}
-.card h2 { margin-top: 0; font-size: 1.1rem; color: var(--rwc-gold); text-transform: uppercase; }
+        const valRating = document.createElement("span");
+        valRating.className = "player-rating";
+        valRating.textContent = isKnowledgeMode ? "??" : player.rating;
 
-.setting-group { margin-bottom: 18px; }
-.setting-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #cbd5e1; font-weight: 600; }
-.setting-group input[type="text"], .setting-group select {
-    width: 100%; padding: 10px; background: var(--panel-blue); border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px; color: white; box-sizing: border-box; font-size: 0.9rem;
-}
+        cardRow.appendChild(labelName);
+        cardRow.appendChild(valRating);
+        targetBlock.appendChild(cardRow);
 
-.help-text { display: block; font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
-.radio-group label { display: block; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; }
-
-/* 2-POSITION SLIDER ENGINE */
-.mode-toggle-switch {
-    display: flex; background: #050b14; border-radius: 20px;
-    padding: 4px; align-items: center; justify-content: space-between;
-    position: relative; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-}
-.toggle-option {
-    flex: 1; text-align: center; font-size: 0.8rem; font-weight: 700;
-    z-index: 5; color: #64748b; transition: color 0.2s ease; padding: 6px 0;
-}
-.toggle-option.active { color: var(--rwc-navy); }
-.switch-bg {
-    position: absolute; top: 4px; left: 4px; bottom: 4px;
-    width: calc(50% - 4px); background: var(--rwc-gold);
-    border-radius: 16px; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-}
-.switch-bg.right-state { transform: translateX(100%); }
-
-.action-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-.btn {
-    flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: 800;
-    cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 0.85rem;
-}
-.primary-btn { background: var(--rwc-gold); color: var(--rwc-navy); }
-.secondary-btn { background: #334155; color: white; }
-.success-btn { background: var(--rwc-emerald); color: white; width: 100%; font-size: 1rem; }
-.btn.disabled, .btn:disabled { opacity: 0.25; cursor: not-allowed; }
-
-/* STATUS CONTENT HOOKS */
-.status-banner {
-    background: var(--panel-blue); padding: 12px; border-radius: 4px;
-    font-size: 0.85rem; border-left: 4px solid var(--rwc-gold); margin-bottom: 15px;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    min-height: 44px; box-sizing: border-box;
-}
-#status-text { flex: 1; text-align: center; }
-
-/* CSS SPINNING RUGBY BALL LOADER ANIMATION */
-.rugby-spinner {
-    width: 20px; height: 32px;
-    background: var(--rwc-gold);
-    border-radius: 100% / 100%; /* Creates oval profile shape */
-    position: relative;
-    box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
-    animation: rugbyRotate 0.75s linear infinite;
-    flex-shrink: 0;
-}
-.rugby-spinner::before {
-    content: ''; position: absolute;
-    top: 0; left: 9px; width: 2px; height: 32px;
-    background: rgba(255, 255, 255, 0.7);
-}
-.rugby-spinner::after {
-    content: '-----'; font-size: 8px; color: rgba(255, 255, 255, 0.9);
-    position: absolute; top: 10px; left: 3px; font-weight: 900;
-    letter-spacing: -1px; transform: rotate(90deg);
-}
-@keyframes rugbyRotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+        if (!claimedGlobalRoster.has(player.name)) {
+            cardRow.addEventListener("click", () => {
+                document.querySelectorAll(".player-row").forEach(r => r.classList.remove("selected"));
+                cardRow.classList.add("selected");
+                selectedPlayer = player;
+                evaluateEligibilityCircles(player);
+            });
+        }
+    });
 }
 
-/* ROSTER SECTIONS - FIXES SCROLL DISAPPEARING CONFLICT */
-.roster-scroll-box { 
-    flex: 1; overflow-y: auto !important; padding-right: 4px;
-    transition: opacity 0.2s ease;
-}
-.roster-group { margin-bottom: 12px; }
-.group-header {
-    background: var(--rwc-emerald); padding: 5px 10px; font-size: 0.75rem;
-    font-weight: 800; border-radius: 3px; color: white; text-transform: uppercase; letter-spacing: 0.5px;
-}
+function evaluateEligibilityCircles(player) {
+    pitchCircles.forEach(circle => {
+        circle.classList.remove("highlight-eligible");
+        if (circle.classList.contains("occupied")) return;
 
-.player-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 12px; background: #0c1726; margin-top: 3px; border-radius: 3px;
-    cursor: pointer; border: 1px solid transparent;
-}
-.player-row:hover { background: #122238; border-color: rgba(255,255,255,0.1); }
-.player-row.selected { border-color: var(--rwc-gold); background: rgba(212, 175, 55, 0.12); }
-.player-row.claimed-lockout { opacity: 0.2; pointer-events: none; text-decoration: line-through; }
-.player-name { font-size: 0.9rem; font-weight: 600; }
-.player-rating { font-size: 1rem; font-weight: 700; color: var(--rwc-gold); }
+        const badgePosition = circle.dataset.pos;
+        const targetFamily = positionFamilies[badgePosition];
+        
+        let isEligible = (targetFamily === player.pos);
+        if (utilityOverrideMaps[player.name] && utilityOverrideMaps[player.name].includes(targetFamily)) {
+            isEligible = true;
+        }
 
-/* Lockout adjustments use safe opacity pointer mechanics without hiding scrollbars */
-.roster-scroll-box.locked { opacity: 0.35; }
-.roster-scroll-box.locked .player-row { pointer-events: none; }
-
-.sim-results-box {
-    background: #040810; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
-    padding: 12px; height: 260px; overflow-y: auto; font-family: monospace;
-    font-size: 0.85rem; color: #e2e8f0; margin: 15px 0; line-height: 1.45;
+        if (isEligible) circle.classList.add("highlight-eligible");
+    });
 }
 
-/* RIGHT PITCH FIXED WINDOW & SCROLL CONTAINER */
-.pitch-panel {
-    flex: 1; height: 100%; 
-    background: #050c14; padding: 15px; box-sizing: border-box;
-    overflow-y: auto;
-}
-.pitch-scroll-wrapper {
-    min-height: 840px;
-    width: 100%; display: flex; align-items: center; justify-content: center;
-}
-.rugby-pitch {
-    position: relative; width: 100%; max-width: 580px; height: 820px;
-    background-color: var(--pitch-turf); border: 4px solid #ffffff; border-radius: 4px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
+pitchCircles.forEach(node => {
+    node.addEventListener("click", () => {
+        if (!selectedPlayer) return;
 
-.pitch-line { position: absolute; left: 0; width: 100%; border-top: 2px dashed var(--white-lines); }
-.pitch-line.try-line { border-top-style: solid; border-top-color: #ffffff; border-top-width: 3px; }
-.pitch-line.top { top: 12%; }
-.pitch-line.twenty-two.top { top: 25%; }
-.pitch-line.ten-meter.top { top: 38%; }
-.pitch-line.half-way { top: 50%; border-top-style: solid; border-top-color: #ffffff; border-top-width: 3px; }
-.pitch-line.ten-meter.bottom { top: 62%; }
-.pitch-line.twenty-two.bottom { top: 75%; }
-.pitch-line.try-line.bottom { top: 88%; }
+        const badgePosition = node.dataset.pos;
+        const targetFamily = positionFamilies[badgePosition];
 
-/* HUGE & READABLE PITCH CIRCLES */
-.grid-layer { position: absolute; top:0; left:0; width:100%; height:100%; }
-.pitch-circle {
-    position: absolute; width: 85px; height: 85px; border-radius: 50%;
-    background: rgba(11, 26, 48, 0.95); border: 3px solid white;
-    transform: translate(-50%, -50%); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; cursor: pointer; z-index: 10;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.4); transition: transform 0.2s, border-color 0.2s;
-    box-sizing: border-box; padding: 4px;
-}
-.pitch-circle:hover { border-color: var(--rwc-gold); transform: translate(-50%, -50%) scale(1.08); }
-.pitch-circle.highlight-eligible { border-color: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
-.pitch-circle.occupied { background: var(--rwc-navy); border-color: var(--rwc-gold); }
+        let isMatch = (targetFamily === selectedPlayer.pos);
+        if (utilityOverrideMaps[selectedPlayer.name] && utilityOverrideMaps[selectedPlayer.name].includes(targetFamily)) {
+            isMatch = true;
+        }
 
-.circle-num { font-size: 1.3rem; font-weight: 900; color: white; line-height: 1.1; }
-.circle-name { font-size: 0.65rem; font-weight: 700; text-align: center; color: #cbd5e1; margin-top: 2px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        if (!isMatch) {
+            alert(`Position Violation: Slot rules block assignment.`);
+            return;
+        }
 
-.pitch-circle.occupied .circle-num { color: var(--rwc-gold); font-size: 1.15rem; }
-.pitch-circle.occupied .circle-name { color: white; font-weight: 800; font-size: 0.62rem; }
+        let calculatedValue = selectedPlayer.rating;
+        let requiresTag = false;
 
-.penalty-tag { font-size: 0.55rem; background: #dc2626; color: white; border-radius: 2px; padding: 1px 4px; margin-top: 2px; font-weight: 900; letter-spacing: 0.3px; }
+        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman") && !selectedPlayer.name.includes("Leonard")) {
+            calculatedValue -= 4; requiresTag = true;
+        }
+        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey") && !selectedPlayer.name.includes("Barrett")) {
+            calculatedValue -= 4; requiresTag = true;
+        }
 
-.hidden { display: none !important; }
+        userTeam[badgePosition] = { name: selectedPlayer.name, score: calculatedValue };
+        claimedGlobalRoster.add(selectedPlayer.name);
+
+        node.classList.add("occupied");
+        node.classList.remove("highlight-eligible");
+        node.innerHTML = `<div class="circle-num">${calculatedValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
+
+        if (requiresTag) {
+            const shiftBadge = document.createElement("div");
+            shiftBadge.className = "penalty-tag";
+            shiftBadge.textContent = "-4 OVR";
+            node.appendChild(shiftBadge);
+        }
+
+        spotsFilledCount++;
+        selectedPlayer = null;
+        currentSpunSquad = [];
+        rosterContainer.classList.add("locked");
+        respinBtn.classList.add("disabled"); respinBtn.disabled = true;
+        
+        pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
+
+        if (spotsFilledCount === 15) {
+            statusText.textContent = "Draft complete. Ready for tournament kickoff.";
+            draftDashboard.classList.add("hidden");
+            simDashboard.classList.remove("hidden");
+        } else {
+            statusText.textContent = "Player locked in. Spin for your next team pool.";
+        }
+    });
+});
+
+document.getElementById("run-sim-btn").addEventListener("click", () => {
+    let globalSum = 0;
+    for (let k in userTeam) globalSum += userTeam[k].score;
+    const squadOvr = Math.round(globalSum / 15);
+    const logs = document.getElementById("sim-results");
+    
+    logs.innerHTML = `[CONFIG] Injecting team into bracket replacing: ${replacedCountryTarget}\n`;
+    logs.innerHTML += `[RATING] Evaluated Squad Strength: ${squadOvr} OVR\n\n`;
+
+    function calculateFixture(teamRating, opponentRating) {
+        const spread = teamRating - opponentRating;
+        const baseVariance = Math.floor(Math.random() * 12) - 6; 
+        let teamScore = Math.max(3, Math.round(24 + (spread * 1.6) + baseVariance));
+        let oppScore = Math.max(0, Math.round(17 - (spread * 1.0) - baseVariance));
+        if (teamScore === oppScore) Math.random() > 0.5 ? teamScore += 3 : oppScore += 3;
+        return { team: teamScore, opp: oppScore, win: teamScore > oppScore };
+    }
+
+    const match1 = calculateFixture(squadOvr, 86);
+    logs.innerHTML += `[POOL MATCH 1] Vs Scotland\nPredicted Score: Your Team ${match1.team} - ${match1.opp} Scotland\n\n`;
+    const match2 = calculateFixture(squadOvr, 70);
+    logs.innerHTML += `[POOL MATCH 2] Vs Romania\nPredicted Score: Your Team ${match2.team} - ${match2.opp} Romania\n\n`;
+    const match3 = calculateFixture(squadOvr, 78);
+    logs.innerHTML += `[POOL MATCH 3] Vs Tonga\nPredicted Score: Your Team ${match3.team} - ${match3.opp} Tonga\n\n`;
+
+    const qf = calculateFixture(squadOvr, 92);
+    logs.innerHTML += `--- KNOCKOUT PHASE ---\n[QUARTER FINAL] Vs France\nPredicted Score: Your Team ${qf.team} - ${qf.opp} France\n`;
+    
+    if (!qf.win) {
+        logs.innerHTML += `\n❌ TOURNAMENT RESULT: Eliminated in the Quarter-Finals by France.`;
+    } else {
+        const sf = calculateFixture(squadOvr, 94);
+        logs.innerHTML += `\n[SEMI FINAL] Vs New Zealand\nPredicted Score: Your Team ${sf.team} - ${sf.opp} New Zealand\n`;
+        
+        if (!sf.win) {
+            logs.innerHTML += `\n❌ TOURNAMENT RESULT: Eliminated in the Semi-Finals by New Zealand.`;
+        } else {
+            const f = calculateFixture(squadOvr, 95);
+            logs.innerHTML += `\n[WORLD CUP FINAL] Vs South Africa\nPredicted Score: Your Team ${f.team} - ${f.opp} South Africa\n`;
+            
+            if (f.win) {
+                logs.innerHTML += `\n🏆 TOURNAMENT RESULT: WORLD CUP CHAMPIONS!`;
+            } else {
+                logs.innerHTML += `\n❌ TOURNAMENT RESULT: Runners-Up. Defeated in the Final.`;
+            }
+        }
+    }
+    document.getElementById("restart-btn").classList.remove("hidden");
+    document.getElementById("run-sim-btn").classList.add("hidden");
+});
+
+document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
