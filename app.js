@@ -1,4 +1,19 @@
-// DATABASE TRACKING TOURNAMENT RATING VS CAREER HISTORIC PEAK
+// MULTI-POSITION MAPPING ARCHITECTURE
+const positionFamilies = {
+    "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hooker",
+    "Lock 4": "Second Rows", "Lock 5": "Second Rows", "Blindside Flanker": "Back Row",
+    "Openside Flanker": "Back Row", "Number 8": "Back Row", "Scrum-half": "Scrum Halves",
+    "Fly-half": "Fly Halves", "Inside Centre": "Centres", "Outside Centre": "Centres",
+    "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
+};
+
+// UTILITY ALTERNATE ELIGIBILITY HOOKS
+const utilityOverrideMaps = {
+    "Beauden Barrett": ["Fly Halves", "Back Three"],
+    "Jason Leonard": ["Props"], // Allowed structural switching across both sides of front row
+    "Frans Steyn": ["Centres", "Back Three"]
+};
+
 const rugbyDatabase = [
     {
         country: "England", year: 2003,
@@ -53,7 +68,7 @@ const rugbyDatabase = [
             { name: "Makazole Mapimpi", pos: "Back Three", rating: 93, careerRating: 93 },
             { name: "Cheslin Kolbe", pos: "Back Three", rating: 96, careerRating: 96 },
             { name: "Willie le Roux", pos: "Back Three", rating: 87, careerRating: 91 },
-            { name: "Frans Steyn", pos: "Back Three", rating: 88, careerRating: 94 }
+            { name: "Frans Steyn", pos: "Centres", rating: 88, careerRating: 94 }
         ]
     },
     {
@@ -80,23 +95,15 @@ const rugbyDatabase = [
             { name: "Julian Savea", pos: "Back Three", rating: 94, careerRating: 94 },
             { name: "Nehe Milner-Skudder", pos: "Back Three", rating: 90, careerRating: 90 },
             { name: "Ben Smith", pos: "Back Three", rating: 94, careerRating: 94 },
-            { name: "Beauden Barrett", pos: "Back Three", rating: 92, careerRating: 96 },
+            { name: "Beauden Barrett", pos: "Fly Halves", rating: 92, careerRating: 96 },
             { name: "Sonny Bill Williams", pos: "Centres", rating: 90, careerRating: 92 }
         ]
     }
 ];
 
-const positionFamilies = {
-    "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hooker",
-    "Lock 4": "Second Rows", "Lock 5": "Second Rows", "Blindside Flanker": "Back Row",
-    "Openside Flanker": "Back Row", "Number 8": "Back Row", "Scrum-half": "Scrum Halves",
-    "Fly-half": "Fly Halves", "Inside Centre": "Centres", "Outside Centre": "Centres",
-    "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
-};
-
 const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
 
-// STATE CONSTANTS
+// GLOBAL STATE CONSTANTS
 let userTeam = {};
 let currentSpunSquad = [];
 let selectedPlayer = null;
@@ -104,6 +111,8 @@ let respinsLeft = 0;
 let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
+let claimedGlobalRoster = new Set(); // TRACKS ALREADY DRAFTED NAME STRINGS
+let replacedCountryTarget = "South Africa";
 
 // UI ATTACHMENTS
 const setupCard = document.getElementById("setup-card");
@@ -152,11 +161,14 @@ function setupSlider(trackId, handleId, optionIds, onChange) {
     opt1.addEventListener("click", (e) => { e.stopPropagation(); updateUI(1); });
 }
 
-// INITIALIZATION
+// ARRANGE APP BOARDS
 document.getElementById("start-game-btn").addEventListener("click", () => {
     const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
     respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
     respinCountText.textContent = respinsLeft;
+    
+    // Save chosen replacement target
+    replacedCountryTarget = document.getElementById("replace-team-select").value;
     
     setupCard.classList.add("hidden");
     draftDashboard.classList.remove("hidden");
@@ -220,6 +232,11 @@ function renderRosterList() {
         const cardRow = document.createElement("div");
         cardRow.className = "player-row";
         
+        // CHECK GLOBAL NAME LOCKOUT FOR DUPLICATES
+        if (claimedGlobalRoster.has(player.name)) {
+            cardRow.classList.add("claimed-lockout");
+        }
+        
         const labelName = document.createElement("span");
         labelName.className = "player-name";
         labelName.textContent = player.name;
@@ -232,19 +249,34 @@ function renderRosterList() {
         cardRow.appendChild(valRating);
         targetBlock.appendChild(cardRow);
 
-        cardRow.addEventListener("click", () => {
-            document.querySelectorAll(".player-row").forEach(r => r.classList.remove("selected"));
-            cardRow.classList.add("selected");
-            selectedPlayer = player;
-            evaluateEligibilityCircles(player.pos);
-        });
+        if (!claimedGlobalRoster.has(player.name)) {
+            cardRow.addEventListener("click", () => {
+                document.querySelectorAll(".player-row").forEach(r => r.classList.remove("selected"));
+                cardRow.classList.add("selected");
+                selectedPlayer = player;
+                evaluateEligibilityCircles(player);
+            });
+        }
     });
 }
 
-function evaluateEligibilityCircles(groupKey) {
+function evaluateEligibilityCircles(player) {
     pitchCircles.forEach(circle => {
         circle.classList.remove("highlight-eligible");
-        if (positionFamilies[circle.dataset.pos] === groupKey && !circle.classList.contains("occupied")) {
+        if (circle.classList.contains("occupied")) return;
+
+        const badgePosition = circle.dataset.pos;
+        const targetFamily = positionFamilies[badgePosition];
+        
+        // Match base role or utility overrides
+        let isEligible = (targetFamily === player.pos);
+        if (utilityOverrideMaps[player.name]) {
+            if (utilityOverrideMaps[player.name].includes(targetFamily)) {
+                isEligible = true;
+            }
+        }
+
+        if (isEligible) {
             circle.classList.add("highlight-eligible");
         }
     });
@@ -256,7 +288,17 @@ pitchCircles.forEach(node => {
         if (!selectedPlayer) return;
 
         const badgePosition = node.dataset.pos;
-        if (positionFamilies[badgePosition] !== selectedPlayer.pos) {
+        const targetFamily = positionFamilies[badgePosition];
+
+        // VALIDATION ENFORCEMENT INCLUDING UTILITY ALTERNATES
+        let isMatch = (targetFamily === selectedPlayer.pos);
+        if (utilityOverrideMaps[selectedPlayer.name]) {
+            if (utilityOverrideMaps[selectedPlayer.name].includes(targetFamily)) {
+                isMatch = true;
+            }
+        }
+
+        if (!isMatch) {
             alert(`Position Violation: Structural lockout rules block assignment.`);
             return;
         }
@@ -264,15 +306,20 @@ pitchCircles.forEach(node => {
         let calculatedValue = selectedPlayer.rating;
         let requiresTag = false;
 
-        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman")) {
+        // Prop structural switches
+        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && !selectedPlayer.name.includes("Mtawarira") && !selectedPlayer.name.includes("Woodman") && !selectedPlayer.name.includes("Leonard")) {
             calculatedValue -= 4; requiresTag = true;
         }
-        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey")) {
+        // Back three shifts
+        if (selectedPlayer.pos === "Back Three" && badgePosition === "Fullback" && !selectedPlayer.name.includes("Smith") && !selectedPlayer.name.includes("Lewsey") && !selectedPlayer.name.includes("Barrett")) {
             calculatedValue -= 4; requiresTag = true;
         }
 
         userTeam[badgePosition] = { name: selectedPlayer.name, score: calculatedValue };
         
+        // Add name to global lockout set so they cannot be picked again
+        claimedGlobalRoster.add(selectedPlayer.name);
+
         node.classList.add("occupied");
         node.classList.remove("highlight-eligible");
         node.innerHTML = `<div class="circle-num">${calculatedValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
@@ -310,9 +357,8 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
     const squadOvr = Math.round(globalSum / 15);
     
     const logs = document.getElementById("sim-results");
-    const replacedUnit = document.getElementById("replace-team-select").value;
     
-    logs.innerHTML = `[CONFIG] Injecting team into bracket replacing: ${replacedUnit}\n`;
+    logs.innerHTML = `[CONFIG] Injecting team into bracket replacing: ${replacedCountryTarget}\n`;
     logs.innerHTML += `[RATING] Evaluated Squad Strength: ${squadOvr} OVR\n\n`;
 
     // Algorithmic Score Engine
@@ -320,8 +366,8 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
         const spread = teamRating - opponentRating;
         const baseVariance = Math.floor(Math.random() * 12) - 6; 
         
-        let teamScore = Math.max(3, Math.round(22 + (spread * 1.5) + baseVariance));
-        let oppScore = Math.max(0, Math.round(19 - (spread * 1.1) - baseVariance));
+        let teamScore = Math.max(3, Math.round(24 + (spread * 1.6) + baseVariance));
+        let oppScore = Math.max(0, Math.round(17 - (spread * 1.0) - baseVariance));
         
         if (teamScore === oppScore) { 
             Math.random() > 0.5 ? teamScore += 3 : oppScore += 3;
@@ -358,7 +404,7 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
             if (f.win) {
                 logs.innerHTML += `\n🏆 TOURNAMENT RESULT: WORLD CUP CHAMPIONS!`;
             } else {
-                logs.innerHTML += `\n🥈 TOURNAMENT RESULT: Runners-Up. Defeated in the Final.`;
+                logs.innerHTML += `\n❌ TOURNAMENT RESULT: Runners-Up. Defeated in the Final.`;
             }
         }
     }
