@@ -79,13 +79,45 @@ body, html {
 .success-btn { background: var(--rwc-emerald); color: white; width: 100%; font-size: 1rem; }
 .btn.disabled, .btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
+/* STATUS CONTENT HOOKS */
 .status-banner {
-    background: var(--panel-blue); padding: 10px; border-radius: 4px; text-align: center;
+    background: var(--panel-blue); padding: 12px; border-radius: 4px;
     font-size: 0.85rem; border-left: 4px solid var(--rwc-gold); margin-bottom: 15px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    min-height: 44px; box-sizing: border-box;
+}
+#status-text { flex: 1; text-align: center; }
+
+/* CSS SPINNING RUGBY BALL LOADER ANIMATION */
+.rugby-spinner {
+    width: 20px; height: 32px;
+    background: var(--rwc-gold);
+    border-radius: 100% / 100%; /* Creates oval profile shape */
+    position: relative;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
+    animation: rugbyRotate 0.75s linear infinite;
+    flex-shrink: 0;
+}
+.rugby-spinner::before {
+    content: ''; position: absolute;
+    top: 0; left: 9px; width: 2px; height: 32px;
+    background: rgba(255, 255, 255, 0.7);
+}
+.rugby-spinner::after {
+    content: '-----'; font-size: 8px; color: rgba(255, 255, 255, 0.9);
+    position: absolute; top: 10px; left: 3px; font-weight: 900;
+    letter-spacing: -1px; transform: rotate(90deg);
+}
+@keyframes rugbyRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* ROSTER SECTIONS */
-.roster-scroll-box { flex: 1; overflow-y: auto; padding-right: 4px; }
+/* ROSTER SECTIONS - FIXES SCROLL DISAPPEARING CONFLICT */
+.roster-scroll-box { 
+    flex: 1; overflow-y: auto !important; padding-right: 4px;
+    transition: opacity 0.2s ease;
+}
 .roster-group { margin-bottom: 12px; }
 .group-header {
     background: var(--rwc-emerald); padding: 5px 10px; font-size: 0.75rem;
@@ -103,7 +135,9 @@ body, html {
 .player-name { font-size: 0.9rem; font-weight: 600; }
 .player-rating { font-size: 1rem; font-weight: 700; color: var(--rwc-gold); }
 
-.roster-scroll-box.locked { opacity: 0.35; pointer-events: none; }
+/* Lockout adjustments use safe opacity pointer mechanics without hiding scrollbars */
+.roster-scroll-box.locked { opacity: 0.35; }
+.roster-scroll-box.locked .player-row { pointer-events: none; }
 
 .sim-results-box {
     background: #040810; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
@@ -115,10 +149,10 @@ body, html {
 .pitch-panel {
     flex: 1; height: 100%; 
     background: #050c14; padding: 15px; box-sizing: border-box;
-    overflow-y: auto; /* UNLOCKS VIEWING FOR LOWER BOARDS */
+    overflow-y: auto;
 }
 .pitch-scroll-wrapper {
-    min-height: 840px; /* ENFORCES RENDER BOUNDS FOR BACK THREE SLOTS */
+    min-height: 840px;
     width: 100%; display: flex; align-items: center; justify-content: center;
 }
 .rugby-pitch {
