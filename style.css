@@ -19,32 +19,40 @@ body, html {
 
 .app-container { 
     display: flex; 
-    width: 100%; 
-    height: 100%; 
+    width: 100vw; 
+    height: 100vh; 
 }
 
+/* FIXING CHASSIS SCROLL CONSTRAINTS via DISPLAY GRID ARRANGEMENT */
 .control-panel {
-    width: 35%; min-width: 410px; height: 100%;
+    width: 35%; min-width: 420px; height: 100vh;
     background-color: var(--panel-blue);
     box-sizing: border-box; padding: 20px;
-    display: flex; flex-direction: column;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
     border-right: 3px solid var(--rwc-emerald);
+    overflow: hidden;
 }
 
 .logo {
-    font-size: 1.7rem; font-weight: 900; margin: 0 0 20px 0;
+    font-size: 1.6rem; font-weight: 900; margin: 0 0 15px 0;
     letter-spacing: 0.5px; border-bottom: 2px solid var(--rwc-gold);
-    padding-bottom: 10px; text-transform: uppercase;
+    padding-bottom: 8px; text-transform: uppercase;
 }
 .highlight { color: var(--rwc-gold); }
 
+/* STRUCTURAL BOX MODELLING EXCLUDING POSITION ABSOLUTE OVERRIDES */
 .card {
     background: var(--card-bg); border-radius: 8px; padding: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex; flex-direction: column; overflow: hidden; height: 100%; box-sizing: border-box;
 }
-.card h2 { margin-top: 0; font-size: 1.1rem; color: var(--rwc-gold); text-transform: uppercase; }
+#draft-dashboard.card {
+    height: calc(100vh - 100px); /* Sets clear maximum vertical ceiling boundary */
+}
+.card h2 { margin-top: 0; font-size: 1.1rem; color: var(--rwc-gold); text-transform: uppercase; margin-bottom: 12px;}
 
-.setting-group { margin-bottom: 18px; }
+.setting-group { margin-bottom: 14px; flex-shrink: 0; }
 .setting-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #cbd5e1; font-weight: 600; }
 .setting-group select {
     width: 100%; padding: 10px; background: var(--panel-blue); border: 1px solid rgba(255,255,255,0.2);
@@ -54,7 +62,7 @@ body, html {
 .help-text { display: block; font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
 .radio-group label { display: block; margin-bottom: 8px; cursor: pointer; font-size: 0.85rem; }
 
-/* SLIDERS */
+/* VARIANT SWITCH SLIDERS */
 .mode-toggle-switch {
     display: flex; background: #050b14; border-radius: 20px;
     padding: 4px; align-items: center; justify-content: space-between;
@@ -73,7 +81,7 @@ body, html {
 }
 .switch-bg.right-state { transform: translateX(100%); }
 
-.action-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+.action-buttons { display: flex; gap: 10px; margin-bottom: 12px; flex-shrink: 0; }
 .btn {
     flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: 800;
     cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 0.85rem;
@@ -83,25 +91,24 @@ body, html {
 .success-btn { background: var(--rwc-emerald); color: white; width: 100%; font-size: 1rem; }
 .btn.disabled, .btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-/* STATUS CONTAINER */
+/* LOADING CONTAINER HEADER AXIS */
 .status-banner {
-    background: var(--panel-blue); padding: 12px; border-radius: 4px;
-    font-size: 0.85rem; border-left: 4px solid var(--rwc-gold); margin-bottom: 15px;
-    display: flex; align-items: center; justify-content: flex-start; gap: 12px;
-    min-height: 56px; box-sizing: border-box;
+    background: var(--panel-blue); padding: 10px 12px; border-radius: 4px;
+    font-size: 0.82rem; border-left: 4px solid var(--rwc-gold); margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: flex-start; gap: 10px;
+    min-height: 54px; box-sizing: border-box; flex-shrink: 0;
 }
-#status-text { flex: 1; text-align: left; line-height: 1.3; }
+#status-text { flex: 1; text-align: left; line-height: 1.35; }
 
-/* SPINNER ELEMENTS */
+/* 1-SECOND SPIN ASSET DRAW */
 .rugby-spinner {
     width: 24px; height: 36px;
     background: var(--rwc-gold);
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     position: relative;
     box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 0 5px rgba(0,0,0,0.5);
-    animation: rugbyRotate 0.6s linear infinite;
+    animation: rugbyRotate 0.4s linear infinite;
     flex-shrink: 0;
-    margin-right: 4px;
 }
 .rugby-spinner::before {
     content: ''; position: absolute;
@@ -111,33 +118,30 @@ body, html {
 .rugby-spinner::after {
     content: '||||'; font-size: 7px; color: rgba(255, 255, 255, 0.95);
     position: absolute; top: 11px; left: 6px; font-weight: 900;
-    letter-spacing: 0px; transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 @keyframes rugbyRotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* PRODUCTION LEVEL ISOLATED ROSTER CONTAINER (FIXES MISSING SCROLL) */
-.roster-scroll-wrapper {
-    position: relative;
+/* CHASSIS SCROLL ENGINE RESCUE FIX (GUARANTEES VISIBLE SCROLL) */
+.native-scroll-container {
     flex: 1;
-    min-height: 250px;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.roster-list {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
-.roster-scroll-box { 
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    overflow-y: scroll !important;
-    padding-right: 6px;
-}
-/* Ensure track and thumb remain explicitly visible during active interactions */
-.roster-scroll-box::-webkit-scrollbar { width: 6px; }
-.roster-scroll-box::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
-.roster-scroll-box::-webkit-scrollbar-thumb { background: var(--rwc-emerald); border-radius: 3px; }
 
-.roster-group { margin-bottom: 12px; }
+.roster-group { margin-bottom: 10px; }
 .group-header {
     background: var(--rwc-emerald); padding: 5px 10px; font-size: 0.75rem;
     font-weight: 800; border-radius: 3px; color: white; text-transform: uppercase; letter-spacing: 0.5px;
@@ -153,9 +157,8 @@ body, html {
 .player-name { font-size: 0.9rem; font-weight: 600; }
 .player-rating { font-size: 1rem; font-weight: 700; color: var(--rwc-gold); }
 
-/* Lock states modify behavior via opacity parameters without applying display:none structural locks */
-.roster-scroll-box.locked { opacity: 0.35; }
-.roster-scroll-box.locked .player-row { pointer-events: none; }
+/* Safety block limits pointer adjustments without masking scroll layers */
+.roster-list.locked { opacity: 0.35; pointer-events: none; }
 
 .sim-results-box {
     background: #040810; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
@@ -163,13 +166,13 @@ body, html {
     font-size: 0.85rem; color: #e2e8f0; margin: 15px 0; line-height: 1.45;
 }
 
-/* RIGHT PANEL */
+/* RIGHT FIELD DECK AREA */
 .pitch-panel {
-    flex: 1; height: 100%; 
+    flex: 1; height: 100vh; 
     background: #050c14; padding: 25px; box-sizing: border-box;
-    overflow-y: auto !important; display: block;
+    overflow-y: auto !important;
 }
-.pitch-scroll-wrapper {
+.pitch-container-scrollbox {
     min-height: 980px; width: 100%;
     display: flex; justify-content: center; align-items: flex-start;
 }
@@ -181,7 +184,7 @@ body, html {
     box-sizing: border-box;
 }
 
-/* PITCH LINES */
+/* STRIPING SYSTEMS */
 .pitch-line { position: absolute; left: 0; width: 100%; border-top: 2px dashed var(--white-lines); height: 0; }
 .pitch-line.try-line { border-top-style: solid; border-top-color: #ffffff; border-top-width: 4px; }
 .pitch-line.top { top: 12%; }
@@ -192,41 +195,41 @@ body, html {
 .pitch-line.twenty-two.bottom { top: 75%; }
 .pitch-line.try-line.bottom { top: 88%; }
 
-/* HIGH-COMPRESSION EMBEDDED CIRCLES WITH TWO-LINE CAPACITY */
+/* RE-ENGINEERED 112PX STABLE TWO-LINE LABELS FRAMEWORKS */
 .grid-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 .pitch-circle {
     position: absolute; 
-    width: 104px; height: 104px; 
+    width: 112px; height: 112px; 
     border-radius: 50% !important;
-    background: rgba(11, 26, 48, 0.96) !important; 
+    background: rgba(11, 26, 48, 0.98) !important; 
     border: 3px solid #ffffff !important;
     transform: translate(-50%, -50%) !important; 
     display: flex; flex-direction: column;
     align-items: center; justify-content: center; 
     cursor: pointer; pointer-events: auto; z-index: 50;
     box-shadow: 0 6px 14px rgba(0,0,0,0.4); 
-    transition: transform 0.2s, border-color 0.2s;
+    transition: transform 0.15s, border-color 0.15s;
     box-sizing: border-box; 
-    padding: 6px;
+    padding: 8px;
     text-align: center;
 }
-.pitch-circle:hover { border-color: var(--rwc-gold) !important; transform: translate(-50%, -50%) scale(1.06) !important; }
-.pitch-circle.highlight-eligible { border-color: #38bdf8 !important; box-shadow: 0 0 18px #38bdf8; }
+.pitch-circle:hover { border-color: var(--rwc-gold) !important; transform: translate(-50%, -50%) scale(1.05) !important; }
+.pitch-circle.highlight-eligible { border-color: #38bdf8 !important; box-shadow: 0 0 16px #38bdf8; }
 .pitch-circle.occupied { background: var(--rwc-navy) !important; border-color: var(--rwc-gold) !important; }
 
-.circle-num { font-size: 1.25rem; font-weight: 900; color: #ffffff; line-height: 1.1; pointer-events: none; }
+.circle-num { font-size: 1.3rem; font-weight: 900; color: #ffffff; line-height: 1.1; pointer-events: none; }
 
-/* Multi-line name rendering engine */
+/* CSS line wrapping layer protects name strings across custom boundaries */
 .circle-name { 
     font-size: 0.68rem; 
     font-weight: 700; 
     text-align: center; 
     color: #cbd5e1; 
-    margin-top: 3px; 
+    margin-top: 4px; 
     width: 100%; 
     line-height: 1.2;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Forces text to split into two lines */
+    -webkit-line-clamp: 2; /* Strict capping to protect boundary ceilings */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -235,7 +238,7 @@ body, html {
 }
 
 .pitch-circle.occupied .circle-num { color: var(--rwc-gold); font-size: 1.15rem; }
-.pitch-circle.occupied .circle-name { color: white; font-weight: 800; font-size: 0.64rem; }
+.pitch-circle.occupied .circle-name { color: white; font-weight: 800; font-size: 0.65rem; }
 
 .penalty-tag { font-size: 0.52rem; background: #dc2626; color: white; border-radius: 2px; padding: 1px 4px; margin-top: 2px; font-weight: 900; }
 
