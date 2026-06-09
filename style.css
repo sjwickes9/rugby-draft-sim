@@ -1,120 +1,296 @@
+/* Global Core Settings */
 :root {
-    --bg-primary: #0f172a;
-    --bg-card: #1e293b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --brand-gold: #c99738;
-    --pitch-green: #14532d;
-    --pitch-lines: rgba(255, 255, 255, 0.5);
+    --bg-main: #0f1115;
+    --bg-card: #161920;
     --border-color: rgba(255, 255, 255, 0.08);
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --brand-gold: #c5a059;
+    --brand-gold-hover: #e0b86d;
+    --pitch-green: #1b4329;
+    --pitch-lines: rgba(255, 255, 255, 0.25);
 }
 
 .light-theme {
-    --bg-primary: #f1f5f9;
+    --bg-main: #f4f5f7;
     --bg-card: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --brand-gold: #b45309;
-    --pitch-green: #166534;
-    --pitch-lines: rgba(255, 255, 255, 0.7);
-    --border-color: rgba(0, 0, 0, 0.08);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --brand-gold: #b0873a;
+    --brand-gold-hover: #946f2f;
+    --pitch-green: #27633d;
+    --pitch-lines: rgba(255, 255, 255, 0.4);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-body { background: var(--bg-primary); color: var(--text-main); transition: background 0.3s ease; padding-bottom: 40px; }
-.app-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-.main-container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
-.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-.central-card { max-width: 600px; margin: 0 auto; }
-.central-card-wide { max-width: 1000px; margin: 0 auto; }
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 20px;
+    min-height: 100vh;
+}
+
 .hidden { display: none !important; }
 
-/* UI BUTTON ARCHITECTURES */
-.ui-btn-primary { background: var(--brand-gold); color: #ffffff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 6px; cursor: pointer; transition: opacity 0.2s; }
-.ui-btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: 6px; cursor: pointer; }
-.ui-btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; width: 100%; }
-.ui-btn-success { background: #22c55e; color: white; border: none; padding: 14px 28px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; }
-button.disabled, button:disabled { opacity: 0.4; cursor: not-allowed; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto 20px auto;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
 
-/* FORM LABELS & CONTROL MATRIX SLIDERS */
-.setup-form-layout { display: flex; flex-direction: column; gap: 24px; margin-top: 20px; }
-.group-label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
-.slider-track { display: flex; background: rgba(0,0,0,0.2); border-radius: 30px; padding: 4px; position: relative; cursor: pointer; border: 1px solid var(--border-color); height: 44px; align-items: center; }
-.slider-label { flex: 1; text-align: center; font-size: 0.85rem; font-weight: bold; z-index: 2; color: var(--text-muted); transition: color 0.2s; }
-.slider-label.active { color: #ffffff; }
-.slider-handle { position: absolute; width: 50%; height: 36px; background: var(--brand-gold); border-radius: 25px; left: 4px; transition: transform 0.2s ease; z-index: 1; }
-.slider-track.right-state .slider-handle { transform: translateX(96%); }
+header h1 span { color: var(--brand-gold); }
+.utility-controls { display: flex; gap: 10px; }
 
-/* RADIO ADVANCED CARDS */
-.radio-button-cluster { display: flex; flex-direction: column; gap: 12px; }
-.radio-card { display: flex; align-items: center; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; }
-.radio-card:hover { border-color: var(--brand-gold); }
-.radio-card input { display: none; }
-.radio-design { width: 18px; height: 18px; border: 2px solid var(--text-muted); border-radius: 50%; margin-right: 16px; position: relative; }
-.radio-card input:checked + .radio-design { border-color: var(--brand-gold); }
-.radio-card input:checked + .radio-design::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--brand-gold); border-radius: 50%; top: 2px; left: 2px; }
-.radio-text { display: flex; flex-direction: column; }
-.radio-text .title { font-weight: bold; font-size: 0.95rem; }
-.radio-text .desc { font-size: 0.8rem; color: var(--text-muted); }
+/* Global Button Styles */
+button, .btn {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+button:hover:not(:disabled) {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold);
+}
+button:disabled, button.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.btn-primary {
+    background: var(--brand-gold);
+    color: #000000;
+    border: 1px solid var(--brand-gold);
+}
+.btn-primary:hover:not(:disabled) {
+    background: var(--brand-gold-hover);
+    border-color: var(--brand-gold-hover);
+}
 
-/* DASHBOARD VIEWS AND STREAM LAYOUTS */
-.dashboard-grid { display: grid; grid-template-columns: 400px 1fr; gap: 30px; }
-.panel-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px; }
-.engine-controls { display: flex; gap: 10px; flex: 1; }
-.national-flag { font-size: 1.8rem; min-width: 45px; }
-.status-alert-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; font-size: 0.85rem; color: var(--brand-gold); border-left: 3px solid var(--brand-gold); min-height: 44px; }
-.scrollable-feed-frame { height: 520px; overflow-y: auto; margin-top: 15px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.1); border-radius: 6px; padding: 10px; }
+/* Configurations & Options Toggle Elements */
+.card-container {
+    max-width: 500px;
+    margin: 60px auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+}
+.control-group { margin-bottom: 24px; }
+.control-group label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
 
-/* REVISED TACTICAL RUGBY FIELD LAYOUT GRID */
-.averages-dashboard { display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 20px; }
-.rugby-pitch-layout { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; background: var(--pitch-green); border: 4px double var(--pitch-lines); border-radius: 12px; padding: 20px; position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,0.5); }
+/* Sliding Toggle Tracks */
+.slider-track {
+    width: 100%;
+    height: 42px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+}
+.slider-handle {
+    position: absolute;
+    width: calc(50% - 4px);
+    height: 36px;
+    background: var(--brand-gold);
+    border-radius: 6px;
+    left: 2px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+.slider-track.right-state .slider-handle { transform: translateX(100%); }
+.slider-options {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: flex;
+    z-index: 2;
+    pointer-events: none;
+}
+.slider-opt {
+    flex: 1;
+    text-align: center;
+    line-height: 42px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.slider-opt.active { color: #000000; }
 
-/* Grid mapping positions context directly */
-[data-pos="Loosehead Prop"]  { grid-column: 1 / 3; }
-[data-pos="Hooker"]          { grid-column: 3 / 5; }
-[data-pos="Tighthead Prop"]  { grid-column: 5 / 7; }
-[data-pos="Lock 4"]          { grid-column: 2 / 4; }
-[data-pos="Lock 5"]          { grid-column: 4 / 6; }
-[data-pos="Blindside Flanker"]{ grid-column: 1 / 3; }
-[data-pos="Number 8"]         { grid-column: 3 / 5; }
-[data-pos="Openside Flanker"] { grid-column: 5 / 7; }
-[data-pos="Scrum-half"]      { grid-column: 2 / 4; }
-[data-pos="Fly-half"]        { grid-column: 4 / 6; }
-[data-pos="Inside Centre"]   { grid-column: 2 / 4; }
-[data-pos="Outside Centre"]  { grid-column: 4 / 6; }
-[data-pos="Left Wing"]       { grid-column: 1 / 3; }
-[data-pos="Fullback"]        { grid-column: 3 / 5; }
-[data-pos="Right Wing"]      { grid-column: 5 / 7; }
+.radio-options { display: flex; gap: 10px; }
+.radio-box { flex: 1; position: relative; }
+.radio-box input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.radio-label {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-weight: 600;
+}
+.radio-box input:checked + .radio-label {
+    border-color: var(--brand-gold);
+    background: rgba(197, 160, 89, 0.1);
+    color: var(--brand-gold);
+}
 
-.pitch-circle { background: rgba(255, 255, 255, 0.08); border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: all 0.2s ease; height: 74px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-.pitch-circle .circle-num { font-size: 1.1rem; font-weight: bold; color: var(--pitch-lines); }
-.pitch-circle .circle-name { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* Layout Management Panels */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.left-panel { display: flex; flex-direction: column; gap: 20px; }
+.panel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+.stat-box {
+    background: rgba(0, 0, 0, 0.15);
+    padding: 10px 5px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+.stat-val { font-size: 1.4rem; font-weight: 800; color: var(--brand-gold); }
+.stat-lbl { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
 
-.pitch-circle.highlight-eligible { border-color: var(--brand-gold); background: rgba(201, 151, 56, 0.25); animation: pulse 1.5s infinite; }
-.pitch-circle.occupied { border-style: solid; border-color: #22c55e; background: rgba(34, 197, 94, 0.25); }
-.pitch-circle.occupied .circle-num { color: #4ade80; }
+.action-cluster { display: flex; gap: 10px; margin-bottom: 15px; }
+.action-cluster button { flex: 1; padding: 12px; }
+.status-feed-box {
+    min-height: 75px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--brand-gold);
+}
 
-/* ROSTER RENDERING DESIGN LAYOUTS */
-.roster-group { margin-bottom: 15px; }
-.group-header { background: rgba(255,255,255,0.05); color: var(--brand-gold); font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 5px; }
-.player-row { display: flex; justify-content: space-between; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: background 0.15s; }
+/* Roster Draft Cards List Styling */
+.roster-scroll-boundary { max-height: 480px; overflow-y: auto; }
+.roster-group { margin-bottom: 12px; }
+.group-header {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--brand-gold);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.player-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.1);
+    margin-bottom: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
 .player-row:hover { background: rgba(255,255,255,0.05); }
-.player-row.selected { background: rgba(201, 151, 56, 0.2) !important; border: 1px solid var(--brand-gold); }
-.player-row.claimed-lockout { opacity: 0.4; cursor: not-allowed; }
+.player-row.selected { background: rgba(197,160,89,0.2) !important; border: 1px solid var(--brand-gold); }
+.player-name { font-size: 0.85rem; font-weight: 500; }
+.player-rating { font-family: monospace; font-weight: 700; color: var(--brand-gold); }
 
-/* TOURNAMENT CONSOLE TERMINALS */
-.sim-split-frame { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-top: 20px; }
-.manifest-box { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 15px; border: 1px solid var(--border-color); }
-.terminal-box { display: flex; flex-direction: column; gap: 15px; }
-.terminal-logs { background: #000000; color: #22c55e; font-family: monospace; padding: 15px; border-radius: 6px; height: 350px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; }
-.sim-log-line { display: block; margin-bottom: 4px; }
+.claimed-lockout, .position-filled-lockout { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.spinner-zone { display: flex; justify-content: center; min-height: 40px; }
+.rugby-ball-spinner { font-size: 2rem; animation: ballSpin 0.85s linear infinite; }
+@keyframes ballSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* COMPLEX OVERLAYS */
-.penalty-tag { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.6rem; font-weight: bold; padding: 2px 4px; border-radius: 3px; cursor: help; }
-.penalty-tag .tooltip-box { display: none; position: absolute; background: #1e293b; color: #ffffff; border: 1px solid #ef4444; width: 180px; padding: 8px; border-radius: 4px; font-size: 0.7rem; z-index: 10; bottom: 20px; right: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
-.penalty-tag:hover .tooltip-box { display: block; }
-.rugby-ball-spinner { font-size: 2.5rem; text-align: center; animation: spin-alt 0.8s linear infinite; margin: 20px 0; }
+/* RESTORED: Absolute Traditional Graphical Rugby Field Pitch & Circle Elements */
+.pitch-card { display: flex; justify-content: center; align-items: center; padding: 20px; }
+.rugby-pitch-canvas {
+    width: 100%;
+    max-width: 620px;
+    aspect-ratio: 1 / 1.35;
+    background-color: var(--pitch-green);
+    border: 4px solid #ffffff;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5% 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.4);
+}
 
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(201, 151, 56, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(201, 151, 56, 0); } 100% { box-shadow: 0 0 0 0 rgba(201, 151, 56, 0); } }
-@keyframes spin-alt { 100% { transform: rotate(360deg); } }
+.pitch-line-marking { position: absolute; width: 100%; border-top: 2px dashed var(--pitch-lines); pointer-events: none; }
+.line-dead-top { top: 0; border-top-style: solid; border-top-width: 4px; }
+.line-10m-top { top: 22%; }
+.line-22m-top { top: 36%; }
+.line-halfway { top: 50%; border-top-style: solid; border-top-width: 3px; }
+.line-22m-bottom { bottom: 36%; }
+.line-10m-bottom { bottom: 22%; }
+.line-dead-base { bottom: 0; border-top-style: solid; border-top-width: 4px; }
+
+.pitch-row-tier { display: flex; justify-content: center; width: 100%; z-index: 5; gap: 5%; }
+
+/* The True 100% Circle CSS Elements */
+.pitch-circle {
+    width: 62px;
+    height: 62px;
+    border-radius: 50% !important; /* Locks structural format into perfect circles */
+    background: rgba(0, 0, 0, 0.75);
+    border: 2px solid #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+}
+.pitch-circle::before {
+    content: attr(data-label);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.pitch-circle.highlight-eligible {
+    border-color: var(--brand-gold);
+    background: rgba(197, 160, 89, 0.4);
+    transform: scale(1.15);
+    box-shadow: 0 0 12px var(--brand-gold);
+}
+.pitch-circle.occupied {
+    background: #111317;
+    border: 2px solid var(--brand-gold);
