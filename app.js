@@ -2,25 +2,10 @@
 // RUGBY HYBRID XV DRAFT — APP LOGIC
 // ============================================================
 
-const positionFamilies = {
-    "Loosehead Prop":   "Props",
-    "Tighthead Prop":   "Props",
-    "Hooker":           "Hookers",
-    "Lock":             "Locks",
-    "Blindside Flanker":"Back Row",
-    "Openside Flanker": "Back Row",
-    "Number 8":         "Back Row",
-    "Scrum-half":       "Scrum Halves",
-    "Fly-half":         "Fly Halves",
-    "Inside Centre":    "Centres",
-    "Outside Centre":   "Centres",
-    "Left Wing":        "Back Three",
-    "Right Wing":       "Back Three",
-    "Fullback":         "Back Three"
-};
+const OUT_OF_POSITION_PENALTY = 10;
 
-// Pitch node data-pos -> position family
-const pitchNodePositions = {
+// Pitch node label -> position family
+const pitchNodeFamily = {
     "Loosehead Prop":   "Props",
     "Hooker":           "Hookers",
     "Tighthead Prop":   "Props",
@@ -38,10 +23,46 @@ const pitchNodePositions = {
     "Fullback":         "Back Three"
 };
 
-const forwardPositions = ["Loosehead Prop","Hooker","Tighthead Prop","Lock 4","Lock 5","Blindside Flanker","Openside Flanker","Number 8"];
-const backPositions    = ["Scrum-half","Fly-half","Inside Centre","Outside Centre","Left Wing","Right Wing","Fullback"];
+// Exact position name -> family (for looking up player recognised positions)
+const posFamily = {
+    "Loosehead Prop":   "Props",
+    "Tighthead Prop":   "Props",
+    "Hooker":           "Hookers",
+    "Lock":             "Locks",
+    "Blindside Flanker":"Back Row",
+    "Openside Flanker": "Back Row",
+    "Number 8":         "Back Row",
+    "Scrum-half":       "Scrum Halves",
+    "Fly-half":         "Fly Halves",
+    "Inside Centre":    "Centres",
+    "Outside Centre":   "Centres",
+    "Left Wing":        "Back Three",
+    "Right Wing":       "Back Three",
+    "Fullback":         "Back Three"
+};
 
-let userTeam           = {};
+// Pitch nodes that count as "forwards" vs "backs" for average display
+const forwardNodes = ["Loosehead Prop","Hooker","Tighthead Prop","Lock 4","Lock 5","Blindside Flanker","Openside Flanker","Number 8"];
+const backNodes    = ["Scrum-half","Fly-half","Inside Centre","Outside Centre","Left Wing","Right Wing","Fullback"];
+
+// Given a player and a pitch node position label, is placement in-position?
+function isInPosition(player, nodePos) {
+    const targetFamily = pitchNodeFamily[nodePos];
+    return player.positions.some(p => posFamily[p] === targetFamily);
+}
+
+// Get the display group for a player's PRIMARY position
+function primaryGroup(player) {
+    return posFamily[player.positions[0]] || "Back Three";
+}
+
+// All families a player is recognised in (no penalty)
+function recognisedFamilies(player) {
+    return [...new Set(player.positions.map(p => posFamily[p]).filter(Boolean))];
+}
+
+// ── Runtime state ──────────────────────────────────────────
+let userTeam           = {};       // nodePos -> { name, score, nation, outOfPosition }
 let currentSpunSquad   = [];
 let selectedPlayer     = null;
 let respinsLeft        = 0;
@@ -51,8 +72,8 @@ let spotsFilledCount   = 0;
 let playerSelectedFromCurrentPool = false;
 let globalDraftedNames = new Set();
 let replacedTeam       = "";
-let spinHasBeenLocked  = false;
 
+// ── DOM refs ───────────────────────────────────────────────
 const setupCard       = document.getElementById("setup-card");
 const draftDashboard  = document.getElementById("draft-dashboard");
 const simDashboard    = document.getElementById("sim-dashboard");
@@ -82,20 +103,17 @@ document.addEventListener("DOMContentLoaded", () => {
         teamSelect.value = "England";
     }
 
-    const startBtn = document.getElementById("start-game-btn");
-    if (startBtn) {
-        startBtn.addEventListener("click", e => {
-            e.preventDefault();
-            const diff = document.querySelector('input[name="difficulty"]:checked');
-            const setting = diff ? diff.value : "normal";
-            respinsLeft = setting === "easy" ? 3 : setting === "normal" ? 1 : 0;
-            if (respinCountText) respinCountText.textContent = respinsLeft;
-            replacedTeam = teamSelect ? teamSelect.value : "England";
-            if (setupCard) setupCard.classList.add("hidden");
-            if (draftDashboard) draftDashboard.classList.remove("hidden");
-            recalculateDashboardAverages();
-        });
-    }
+    document.getElementById("start-game-btn").addEventListener("click", e => {
+        e.preventDefault();
+        const diff = document.querySelector('input[name="difficulty"]:checked');
+        const setting = diff ? diff.value : "normal";
+        respinsLeft = setting === "easy" ? 3 : setting === "normal" ? 1 : 0;
+        if (respinCountText) respinCountText.textContent = respinsLeft;
+        replacedTeam = teamSelect ? teamSelect.value : "England";
+        setupCard.classList.add("hidden");
+        draftDashboard.classList.remove("hidden");
+        recalculateDashboardAverages();
+    });
 });
 
 // ============================================================
@@ -184,12 +202,12 @@ function triggerRosterSpinEngine() {
     statusText.textContent = nation.toUpperCase() + " — 2023 World Cup squad. Choose ONE player.";
 
     currentSpunSquad = squad.map(p => ({
-        name:     p.name,
-        pos:      positionFamilies[p.pos] || "Back Three",
-        exactPos: p.pos,
-        num:      p.num,
-        rating:   isCareerMode ? p.careerRating : p.rating,
-        nation:   nation
+        name:      p.name,
+        positions: p.positions,
+        group:     primaryGroup(p),
+        num:       p.num,
+        rating:    isCareerMode ? p.careerRating : p.rating,
+        nation:    nation
     }));
 
     renderRosterList();
@@ -200,53 +218,63 @@ function triggerRosterSpinEngine() {
 // ============================================================
 // RENDER ROSTER LIST
 // ============================================================
-function isNodeFamilyFull(family) {
+
+// Check if ALL pitch nodes for a given family are occupied
+function isFamilyFull(family) {
     return Array.from(pitchCircles)
-        .filter(c => pitchNodePositions[c.dataset.pos] === family)
+        .filter(c => pitchNodeFamily[c.dataset.pos] === family)
         .every(c => c.classList.contains("occupied"));
 }
 
 function renderRosterList() {
     rosterContainer.innerHTML = "";
+
     const groups = {};
     currentSpunSquad.forEach(p => {
-        if (!groups[p.pos]) groups[p.pos] = [];
-        groups[p.pos].push(p);
+        if (!groups[p.group]) groups[p.group] = [];
+        groups[p.group].push(p);
     });
 
-    const order = ["Props","Hookers","Locks","Back Row","Scrum Halves","Fly Halves","Centres","Back Three"];
-    order.forEach(g => {
+    const groupOrder = ["Props","Hookers","Locks","Back Row","Scrum Halves","Fly Halves","Centres","Back Three"];
+    groupOrder.forEach(g => {
         if (!groups[g] || !groups[g].length) return;
         const block = document.createElement("div"); block.className = "roster-group";
         const head = document.createElement("div"); head.className = "group-header"; head.textContent = g;
-        block.appendChild(head); rosterContainer.appendChild(block);
+        block.appendChild(head);
+        rosterContainer.appendChild(block);
 
         groups[g].sort((a,b) => a.num - b.num).forEach(player => {
             const row = document.createElement("div"); row.className = "player-row";
-            const drafted = globalDraftedNames.has(player.name);
-            const posFull = isNodeFamilyFull(player.pos);
-            const locked  = playerSelectedFromCurrentPool;
-            if (drafted || posFull || locked) row.classList.add("claimed-lockout");
 
-            const numSpan  = document.createElement("span"); numSpan.className = "player-num";   numSpan.textContent = player.num;
-            const nameSpan = document.createElement("span"); nameSpan.className = "player-name";  nameSpan.textContent = player.name;
-            const posSpan  = document.createElement("span"); posSpan.className = "player-pos-label"; posSpan.textContent = player.exactPos;
-            const rtgSpan  = document.createElement("span"); rtgSpan.className = "player-rating"; rtgSpan.textContent = isKnowledgeMode ? "??" : player.rating;
+            const drafted  = globalDraftedNames.has(player.name);
+            const allFamilies = recognisedFamilies(player);
+            // A player is selectable if at least one of their recognised families has a free node
+            const anySlotOpen = allFamilies.some(f => !isFamilyFull(f));
+            const locked = playerSelectedFromCurrentPool;
+
+            if (drafted || !anySlotOpen || locked) {
+                row.classList.add("claimed-lockout");
+            }
+
+            const numSpan  = document.createElement("span"); numSpan.className  = "player-num";       numSpan.textContent = player.num;
+            const nameSpan = document.createElement("span"); nameSpan.className = "player-name";      nameSpan.textContent = player.name;
+            const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = player.positions[0];
+            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "??" : player.rating;
 
             row.appendChild(numSpan); row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
             block.appendChild(row);
 
-            if (!drafted && !posFull && !locked) {
+            if (!drafted && anySlotOpen && !locked) {
                 row.addEventListener("click", () => {
                     if (selectedPlayer && selectedPlayer.name === player.name) {
                         row.classList.remove("selected");
                         selectedPlayer = null;
-                        pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
+                        clearPitchHighlights();
                     } else {
                         document.querySelectorAll(".player-row").forEach(r => r.classList.remove("selected"));
                         row.classList.add("selected");
                         selectedPlayer = player;
-                        evaluateEligibilityCircles(player);
+                        highlightEligibleNodes(player);
                     }
                 });
             }
@@ -254,25 +282,43 @@ function renderRosterList() {
     });
 }
 
-function evaluateEligibilityCircles(player) {
+// ============================================================
+// PITCH HIGHLIGHTING — gold (in-position) or amber (out-of-position)
+// ============================================================
+function clearPitchHighlights() {
     pitchCircles.forEach(c => {
-        c.classList.remove("highlight-eligible");
-        if (!c.classList.contains("occupied") && pitchNodePositions[c.dataset.pos] === player.pos) {
-            c.classList.add("highlight-eligible");
+        c.classList.remove("highlight-eligible", "highlight-outofpos");
+        c.removeAttribute("title");
+    });
+}
+
+function highlightEligibleNodes(player) {
+    clearPitchHighlights();
+    const recognised = recognisedFamilies(player);
+    pitchCircles.forEach(circle => {
+        if (circle.classList.contains("occupied")) return;
+        const nodeFamily = pitchNodeFamily[circle.dataset.pos];
+        if (recognised.includes(nodeFamily)) {
+            // In-position — gold highlight
+            circle.classList.add("highlight-eligible");
+        } else {
+            // Out of position — amber highlight, with tooltip
+            circle.classList.add("highlight-outofpos");
+            circle.title = player.name + " is not recognised at " + circle.dataset.pos + ". -" + OUT_OF_POSITION_PENALTY + " rating penalty applies.";
         }
     });
 }
 
 // ============================================================
-// PITCH CIRCLE — PLACE OR UNPLACE PLAYER
+// PITCH CIRCLE CLICK — PLACE OR UNPLACE PLAYER
 // ============================================================
 pitchCircles.forEach(node => {
     node.addEventListener("click", () => {
         const nodePos = node.dataset.pos;
 
+        // Clicking an occupied node — remove player if not locked
         if (node.classList.contains("occupied")) {
             if (!node.dataset.locked) {
-                // Unplace the player
                 const name = node.dataset.occupant;
                 delete userTeam[nodePos];
                 globalDraftedNames.delete(name);
@@ -281,25 +327,49 @@ pitchCircles.forEach(node => {
                 node.classList.remove("occupied");
                 delete node.dataset.occupant;
                 node.innerHTML = "";
+                node.removeAttribute("title");
                 recalculateDashboardAverages();
                 renderRosterList();
             }
             return;
         }
 
-        if (!selectedPlayer || pitchNodePositions[nodePos] !== selectedPlayer.pos) return;
+        // Must have a player selected, and the node must be eligible (either in or out of position)
+        if (!selectedPlayer) return;
+        const nodeFamily = pitchNodeFamily[nodePos];
+        const recognised = recognisedFamilies(selectedPlayer);
+        const eligible = recognised.includes(nodeFamily) || true; // out-of-pos nodes are still clickable
+        // But we only allow it if the node was highlighted (either colour)
+        if (!node.classList.contains("highlight-eligible") && !node.classList.contains("highlight-outofpos")) return;
 
-        userTeam[nodePos] = { name: selectedPlayer.name, score: selectedPlayer.rating, nation: selectedPlayer.nation };
+        const inPos = recognised.includes(nodeFamily);
+        const baseRating = selectedPlayer.rating;
+        const finalRating = inPos ? baseRating : Math.max(0, baseRating - OUT_OF_POSITION_PENALTY);
+
+        userTeam[nodePos] = {
+            name: selectedPlayer.name,
+            score: finalRating,
+            nation: selectedPlayer.nation,
+            outOfPosition: !inPos,
+            originalRating: baseRating
+        };
         globalDraftedNames.add(selectedPlayer.name);
         spotsFilledCount++;
         playerSelectedFromCurrentPool = true;
 
         node.classList.add("occupied");
         node.dataset.occupant = selectedPlayer.name;
-        node.innerHTML = `<div class="circle-num">${selectedPlayer.rating}</div><div class="circle-name">${selectedPlayer.name}</div>`;
+
+        if (!inPos) {
+            node.classList.add("occupied-oop");
+            node.title = selectedPlayer.name + " is out of position here. Rating reduced from " + baseRating + " to " + finalRating + ".";
+            node.innerHTML = `<div class="circle-num oop-num">${finalRating}<span class="oop-icon">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
+        } else {
+            node.innerHTML = `<div class="circle-num">${finalRating}</div><div class="circle-name">${selectedPlayer.name}</div>`;
+        }
 
         selectedPlayer = null;
-        pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
+        clearPitchHighlights();
         recalculateDashboardAverages();
         renderRosterList();
 
@@ -315,14 +385,14 @@ pitchCircles.forEach(node => {
 });
 
 // ============================================================
-// AVERAGES
+// DASHBOARD AVERAGES
 // ============================================================
 function recalculateDashboardAverages() {
     let tS=0,fS=0,bS=0,tC=0,fC=0,bC=0;
     for (let pos in userTeam) {
         const v = userTeam[pos].score; tS+=v; tC++;
-        if (forwardPositions.includes(pos)) { fS+=v; fC++; }
-        if (backPositions.includes(pos))    { bS+=v; bC++; }
+        if (forwardNodes.includes(pos)) { fS+=v; fC++; }
+        if (backNodes.includes(pos))    { bS+=v; bC++; }
     }
     document.getElementById("avg-global-ovr").textContent  = tC>0 ? Math.round(tS/tC)  : "--";
     document.getElementById("avg-forward-ovr").textContent = fC>0 ? Math.round(fS/fC)  : "--";
@@ -330,15 +400,27 @@ function recalculateDashboardAverages() {
 }
 
 // ============================================================
-// MANIFEST
+// MANIFEST (SCREEN 3 SQUAD SUMMARY)
 // ============================================================
 function populateManifestPreviewWindow() {
     if (!manifestTeamBox) return;
-    const order = ["Loosehead Prop","Hooker","Tighthead Prop","Lock 4","Lock 5","Blindside Flanker","Openside Flanker","Number 8","Scrum-half","Fly-half","Left Wing","Inside Centre","Outside Centre","Right Wing","Fullback"];
+    const order = ["Loosehead Prop","Hooker","Tighthead Prop","Lock 4","Lock 5",
+                   "Blindside Flanker","Openside Flanker","Number 8",
+                   "Scrum-half","Fly-half",
+                   "Left Wing","Inside Centre","Outside Centre","Right Wing","Fullback"];
     let html = `<div class="manifest-header">Your Hybrid XV — replacing ${replacedTeam}</div>`;
     order.forEach((pos, i) => {
         const p = userTeam[pos];
-        if (p) html += `<div class="manifest-row"><span class="manifest-num">${i+1}</span><span class="manifest-pos">${pos}</span><span class="manifest-name">${p.name} <span class="manifest-nation">(${p.nation})</span></span><span class="player-rating">${p.score}</span></div>`;
+        if (!p) return;
+        const oopBadge = p.outOfPosition
+            ? `<span class="manifest-oop" title="Out of position: ${p.originalRating} reduced to ${p.score}">⚠ OOP</span>`
+            : "";
+        html += `<div class="manifest-row">
+            <span class="manifest-num">${i+1}</span>
+            <span class="manifest-pos">${pos}</span>
+            <span class="manifest-name">${p.name} <span class="manifest-nation">(${p.nation})</span>${oopBadge}</span>
+            <span class="player-rating${p.outOfPosition ? ' oop-rating' : ''}">${p.score}</span>
+        </div>`;
     });
     manifestTeamBox.innerHTML = html;
 }
@@ -355,21 +437,25 @@ if (runSimBtn) {
 }
 
 function getUserRating() {
-    let s=0, c=0;
-    for (let p in userTeam) { s += userTeam[p].score; c++; }
-    return c > 0 ? Math.round(s/c) : 80;
+    let s=0,c=0;
+    for (let p in userTeam) { s+=userTeam[p].score; c++; }
+    return c>0 ? Math.round(s/c) : 80;
 }
 
 function simulateMatch(userR, oppR) {
     const diff = userR - oppR;
-    const v = () => Math.floor(Math.random()*15) - 7;
+    const v = () => Math.floor(Math.random()*15)-7;
     let uS = Math.max(3, Math.round(22 + diff*0.6 + v()));
     let oS = Math.max(3, Math.round(22 - diff*0.6 + v()));
     if (uS === oS) uS += 3;
-    return { userScore: uS, oppScore: oS, won: uS > oS, margin: Math.abs(uS-oS) };
+    const margin = Math.abs(uS-oS);
+    const won = uS > oS;
+    // bonus point: 4+ tries approximated as margin > 21; losing bonus: margin <=7
+    const pts = won ? (margin>21 ? 5 : 4) : (margin<=7 ? 1 : 0);
+    return { userScore:uS, oppScore:oS, won, margin, pts };
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function delay(ms) { return new Promise(r => setTimeout(r,ms)); }
 
 async function addLog(msg, colour) {
     const line = document.createElement("div");
@@ -378,66 +464,117 @@ async function addLog(msg, colour) {
     line.textContent = msg;
     simResults.appendChild(line);
     simResults.scrollTop = simResults.scrollHeight;
-    await delay(950);
+    await delay(900);
 }
 
 async function runTournamentSimulation() {
     const userR = getUserRating();
     const pool = getPoolFor(replacedTeam);
-
-    await addLog("Initialising simulation...", null);
-    await addLog("Your Hybrid XV (avg rating: " + userR + ") replaces " + replacedTeam + " in Pool " + pool, null);
-    await addLog("--- POOL STAGE: Pool " + pool + " ---", "var(--brand-gold)");
-
     const poolTeams = rwc2023PoolStandings[pool].filter(t => t !== replacedTeam);
-    let poolPoints = 0;
-    const userVsResults = [];
+
+    await addLog("=== POOL STAGE — Pool " + pool + " ===", "var(--brand-gold)");
+    await addLog("Your Hybrid XV (avg: " + userR + ") replaces " + replacedTeam, null);
+    await addLog("", null);
+
+    // ── Run all pool matches ──
+    let userPoolPts = 0;
+    const otherPts  = {};
+    poolTeams.forEach(t => { otherPts[t] = 0; });
 
     for (const opp of poolTeams) {
         const res = simulateMatch(userR, teamStrengths[opp] || 72);
-        let pts = 0;
-        if (res.won) { pts = res.margin > 20 ? 5 : 4; }
-        else if (res.margin <= 7) { pts = 1; }
-        poolPoints += pts;
-        userVsResults.push({ opp, ...res, pts });
-        const icon = res.won ? "WIN" : "LOSS";
-        await addLog(icon + "  vs " + opp + ": " + res.userScore + "-" + res.oppScore + " (" + pts + " pts)", res.won ? "#4ade80" : "#f87171");
+        userPoolPts += res.pts;
+        const icon = res.won ? "WIN " : "LOSS";
+        const colour = res.won ? "#4ade80" : "#f87171";
+        await addLog(icon + "  vs " + opp + "  " + res.userScore + "-" + res.oppScore + "  (" + (res.pts>0?"+":"") + res.pts + " pts)", colour);
     }
 
-    await addLog("Pool points total: " + poolPoints, "var(--brand-gold)");
+    // ── Simulate other pool matches to produce a full standings table ──
+    for (let i=0; i<poolTeams.length; i++) {
+        for (let j=i+1; j<poolTeams.length; j++) {
+            const t1 = poolTeams[i], t2 = poolTeams[j];
+            const r1 = teamStrengths[t1]||72, r2 = teamStrengths[t2]||72;
+            const res = simulateMatch(r1, r2);
+            otherPts[t1] += res.won ? res.pts : res.pts===0 ? 0 : res.pts;
+            otherPts[t2] += res.won ? 0 : res.pts;
+            // Clarify: winner gets their pts; loser gets theirs
+            const t1pts = res.won ? res.pts : (res.margin<=7?1:0);
+            const t2pts = res.won ? (res.margin<=7?1:0) : res.pts;
+            otherPts[t1] = (otherPts[t1] || 0);
+            otherPts[t2] = (otherPts[t2] || 0);
+        }
+    }
+    // Rebuild using proper per-match accounting
+    const otherPtsClean = {};
+    poolTeams.forEach(t => { otherPtsClean[t] = 0; });
+    for (let i=0; i<poolTeams.length; i++) {
+        for (let j=i+1; j<poolTeams.length; j++) {
+            const t1=poolTeams[i], t2=poolTeams[j];
+            const res = simulateMatch(teamStrengths[t1]||72, teamStrengths[t2]||72);
+            const w = res.won ? t1 : t2;
+            const l = res.won ? t2 : t1;
+            otherPtsClean[w] += res.margin>21 ? 5 : 4;
+            otherPtsClean[l] += res.margin<=7 ? 1 : 0;
+        }
+    }
 
-    const qualified = determineQualification(pool, replacedTeam, userVsResults, poolPoints);
-    if (!qualified) {
-        await addLog("ELIMINATED — did not qualify from Pool " + pool, "#ef4444");
+    // ── Print standings table ──
+    await addLog("", null);
+    await addLog("--- Pool " + pool + " Standings ---", "var(--brand-gold)");
+
+    const table = [["Your XV", userPoolPts]];
+    poolTeams.forEach(t => table.push([t, otherPtsClean[t]]));
+    table.sort((a,b) => b[1]-a[1]);
+
+    for (let i=0; i<table.length; i++) {
+        const isUser = table[i][0]==="Your XV";
+        const marker = i===0 ? "1st" : i===1 ? "2nd" : i===2 ? "3rd" : (i+1)+"th";
+        const colour = isUser ? "#f3f4f6" : "var(--text-muted)";
+        await addLog(marker + "  " + table[i][0] + "  —  " + table[i][1] + " pts", colour);
+    }
+
+    const rank = table.findIndex(([t]) => t==="Your XV");
+    if (rank > 1) {
+        await addLog("", null);
+        await addLog("ELIMINATED — Your Hybrid XV did not qualify from Pool " + pool + ".", "#ef4444");
         restartBtn.classList.remove("hidden"); return;
     }
 
-    await addLog("QUALIFIED from Pool " + pool + " in " + qualified + " place", "#4ade80");
-    await addLog("--- QUARTER-FINAL ---", "var(--brand-gold)");
+    const qualified = rank===0 ? "1st" : "2nd";
+    await addLog("", null);
+    await addLog("QUALIFIED — " + qualified + " in Pool " + pool, "#4ade80");
 
-    const qfOpp = getQFOpponent(pool, qualified);
-    const qf = simulateMatch(userR, teamStrengths[qfOpp] || 80);
-    await addLog((qf.won ? "WIN" : "LOSS") + "  vs " + qfOpp + ": " + qf.userScore + "-" + qf.oppScore, qf.won ? "#4ade80" : "#f87171");
-    if (!qf.won) { await addLog("Knocked out in the quarter-finals.", "#ef4444"); restartBtn.classList.remove("hidden"); return; }
+    // ── Quarter-final ──
+    const qfOpp = getQFOpponent(pool, qualified, table);
+    await addLog("", null);
+    await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
+    const qf = simulateMatch(userR, teamStrengths[qfOpp]||80);
+    await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
+    if (!qf.won) { await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444"); restartBtn.classList.remove("hidden"); return; }
 
-    await addLog("--- SEMI-FINAL ---", "var(--brand-gold)");
-    const sfOpp = getSFOpponent(pool);
-    const sf = simulateMatch(userR, teamStrengths[sfOpp] || 86);
-    await addLog((sf.won ? "WIN" : "LOSS") + "  vs " + sfOpp + ": " + sf.userScore + "-" + sf.oppScore, sf.won ? "#4ade80" : "#f87171");
+    // ── Semi-final ──
+    const sfOpp = getSFOpponent(pool, qualified);
+    await addLog("", null);
+    await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
+    const sf = simulateMatch(userR, teamStrengths[sfOpp]||86);
+    await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
 
     if (!sf.won) {
-        await addLog("--- THIRD-PLACE PLAY-OFF ---", "var(--brand-gold)");
-        const tpOpp = getThirdPlaceOpp(pool);
-        const tp = simulateMatch(userR, teamStrengths[tpOpp] || 84);
-        await addLog((tp.won ? "WIN" : "LOSS") + "  vs " + tpOpp + ": " + tp.userScore + "-" + tp.oppScore, tp.won ? "#4ade80" : "#f87171");
-        await addLog(tp.won ? "BRONZE MEDAL — 3rd place at the World Cup!" : "4th place — so close.", tp.won ? "#4ade80" : "#c5a059");
+        const tpOpp = getThirdPlaceOpp(pool, sfOpp);
+        await addLog("", null);
+        await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
+        const tp = simulateMatch(userR, teamStrengths[tpOpp]||84);
+        await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
+        await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
     }
 
-    await addLog("--- FINAL ---", "var(--brand-gold)");
-    const finOpp = getFinalOpp(pool);
-    const fin = simulateMatch(userR, teamStrengths[finOpp] || 90);
-    await addLog((fin.won ? "WIN" : "LOSS") + "  vs " + finOpp + ": " + fin.userScore + "-" + fin.oppScore, fin.won ? "#4ade80" : "#f87171");
+    // ── Final ──
+    const finOpp = getFinalOpp(pool, sfOpp);
+    await addLog("", null);
+    await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
+    const fin = simulateMatch(userR, teamStrengths[finOpp]||90);
+    await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     if (fin.won) {
         await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
     } else {
@@ -446,49 +583,36 @@ async function runTournamentSimulation() {
     restartBtn.classList.remove("hidden");
 }
 
+// ============================================================
+// BRACKET HELPERS
+// ============================================================
 function getPoolFor(team) {
-    for (const [k, v] of Object.entries(rwc2023PoolStandings)) { if (v.includes(team)) return k; }
+    for (const [k,v] of Object.entries(rwc2023PoolStandings)) { if (v.includes(team)) return k; }
     return "A";
 }
 
-function determineQualification(pool, replaced, userResults, userPts) {
-    const actual = {
-        A: {"France":18,"New Zealand":15,"Italy":10,"Uruguay":5,"Namibia":0},
-        B: {"Ireland":19,"South Africa":15,"Scotland":10,"Tonga":5,"Romania":0},
-        C: {"Wales":16,"Fiji":15,"Australia":8,"Georgia":5,"Portugal":6},
-        D: {"England":16,"Argentina":15,"Japan":12,"Samoa":8,"Chile":0}
-    };
-    const pts = {};
-    rwc2023PoolStandings[pool].filter(t => t !== replaced).forEach(t => {
-        pts[t] = Math.max(0, (actual[pool][t] || 8) - (userResults.find(r => r.opp === t) ? 2 : 0));
-    });
-    pts["Your XV"] = userPts;
-    const sorted = Object.entries(pts).sort((a,b) => b[1]-a[1]);
-    const rank = sorted.findIndex(([t]) => t === "Your XV");
-    if (rank === 0) return "1st";
-    if (rank === 1) return "2nd";
-    return null;
+function getQFOpponent(pool, qualified, table) {
+    // 2023 bracket: A1vD2, D1vA2, B1vC2, C1vB2
+    const crossMap = {A:"D", D:"A", B:"C", C:"B"};
+    const crossPool = crossMap[pool];
+    const crossRank = qualified==="1st" ? 1 : 0; // 0-indexed: 0=1st, 1=2nd
+    return rwc2023PoolStandings[crossPool][crossRank];
 }
 
-function getQFOpponent(pool, qualified) {
-    const cross = {A:"D",B:"C",C:"B",D:"A"}[pool];
-    const idx = qualified === "1st" ? 1 : 0;
-    return rwc2023PoolStandings[cross][idx];
-}
-
-function getSFOpponent(pool) {
-    // Return the actual 2023 QF winner from the paired bracket side
-    const sfOpps = {A:"New Zealand",B:"South Africa",C:"England",D:"Argentina"};
+function getSFOpponent(pool, qualified) {
+    // After QFs, semi-finalists from the same bracket side meet
+    // Bracket: (A1/D2 winner) v (D1/A2 winner); (B1/C2 winner) v (C1/B2 winner)
+    const sfOpps = {A:"Argentina", B:"South Africa", C:"England", D:"New Zealand"};
     return sfOpps[pool] || "South Africa";
 }
 
-function getThirdPlaceOpp(pool) {
-    const tpOpps = {A:"Argentina",B:"England",C:"Argentina",D:"England"};
+function getThirdPlaceOpp(pool, sfOpp) {
+    const tpOpps = {A:"England", B:"New Zealand", C:"Argentina", D:"South Africa"};
     return tpOpps[pool] || "Argentina";
 }
 
-function getFinalOpp(pool) {
-    const finOpps = {A:"South Africa",B:"New Zealand",C:"South Africa",D:"New Zealand"};
+function getFinalOpp(pool, sfOpp) {
+    const finOpps = {A:"South Africa", B:"New Zealand", C:"South Africa", D:"New Zealand"};
     return finOpps[pool] || "South Africa";
 }
 
