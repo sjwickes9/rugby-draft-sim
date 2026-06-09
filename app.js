@@ -10,10 +10,10 @@ const positionFamilies = {
     "Repl. Scrum-half": "Bench Backs", "Repl. Back Utility 1": "Bench Backs", "Repl. Back Utility 2": "Bench Backs"
 };
 
-const forwardPositions = ["Loosehead Prop", "Tighthead Prop", "Hooker", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8", "Repl. Hooker", "Repl. Prop 1", "Repl. Prop 2", "Repl. Lock", "Repl. Back Row"];
-const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback", "Repl. Scrum-half", "Repl. Back Utility 1", "Repl. Back Utility 2"];
+const forwardPositions = ["Loosehead Prop", "Tighthead Prop", "Hooker", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
+const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
-// 23-MAN HISTORIC ROSTERS W/ ELITE BALANCING OVERHAULS
+// 23-MAN ROSTERS W/ MASTER ROLES (Prevents wrong penalties on cross-functional players)
 const historicalNations = [
     { 
         country: "New Zealand", flag: "🇳🇿", tier: 1, 
@@ -22,7 +22,9 @@ const historicalNations = [
             "Scrum Halves": ["A. Smith"], "Fly Halves": ["D. Carter"], "Centres": ["M. Nonu", "C. Smith"], "Back Three": ["J. Savea", "B. Smith", "J. Lomu"],
             "Bench Forwards": ["D. Coles", "W. Crockett", "C. Faumuina", "L. Romano"], "Bench Backs": ["V. Vito", "T. Perenara", "B. Barrett", "S.B. Williams"]
         },
-        overrideRatings: { "R. McCaw": 98, "D. Carter": 98, "B. Retallick": 95, "J. Lomu": 96, "A. Smith": 94, "B. Barrett": 93 }
+        baseRatings: { "R. McCaw": 94, "D. Carter": 95, "B. Retallick": 91, "J. Lomu": 93, "A. Smith": 90, "B. Barrett": 89 },
+        careerRatings: { "R. McCaw": 98, "D. Carter": 98, "B. Retallick": 95, "J. Lomu": 96, "A. Smith": 94, "B. Barrett": 93 },
+        canPlayAllBackRow: ["R. McCaw", "K. Read"]
     },
     { 
         country: "South Africa", flag: "🇿🇦", tier: 1, 
@@ -31,43 +33,53 @@ const historicalNations = [
             "Scrum Halves": ["F. de Klerk"], "Fly Halves": ["H. Pollard"], "Centres": ["D. de Allende", "L. Am"], "Back Three": ["B. Habana", "C. Kolbe", "P. Montgomery"],
             "Bench Forwards": ["M. Marx", "S. Kitshoff", "V. Koch", "R. Snyman"], "Bench Backs": ["P.S. du Toit", "H. Jantjies", "F. Steyn", "D. Willemse"]
         },
-        overrideRatings: { "B. Habana": 95, "E. Etzebeth": 96, "V. Matfield": 95, "O. du Randt": 94, "S. Burger": 93, "C. Kolbe": 93 }
+        baseRatings: { "B. Habana": 91, "E. Etzebeth": 92, "V. Matfield": 91, "O. du Randt": 90, "S. Burger": 89, "C. Kolbe": 89 },
+        careerRatings: { "B. Habana": 95, "E. Etzebeth": 96, "V. Matfield": 95, "O. du Randt": 94, "S. Burger": 93, "C. Kolbe": 93 },
+        canPlayAllBackRow: ["P.S. du Toit", "S. Burger"]
     },
     { 
-        country: "England", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E006E}\u{E0067}\u{E007F}", tier: 1, 
+        country: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1, 
         dynamicSquad: { 
             "Props": ["P. Vickery", "J. Leonard"], "Hooker": ["S. Thompson"], "Second Rows": ["M. Johnson", "B. Kay"], "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], 
             "Scrum Halves": ["M. Dawson"], "Fly Halves": ["J. Wilkinson"], "Centres": ["W. Greenwood", "M. Tindall"], "Back Three": ["J. Robinson", "B. Cohen", "M. Cueto"],
-            "Bench Forwards": ["D. West", "T. Woodman", "J. White", "S. Shaw"], "Bench Backs": ["L. Moody", "A. Gomarsall", "P. Grayson"], "Bench Backs": ["I. Balshaw"]
+            "Bench Forwards": ["D. West", "T. Woodman", "J. White", "S. Shaw"], "Bench Backs": ["L. Moody", "A. Gomarsall", "P. Grayson", "I. Balshaw"]
         },
-        overrideRatings: { "J. Wilkinson": 97, "M. Johnson": 95, "J. Robinson": 93, "L. Dallaglio": 92, "N. Back": 91, "R. Hill": 90, "S. Thompson": 91, "B. Cohen": 88 }
+        baseRatings: { "J. Wilkinson": 93, "M. Johnson": 91, "J. Robinson": 89, "L. Dallaglio": 89, "N. Back": 88, "R. Hill": 87 },
+        careerRatings: { "J. Wilkinson": 97, "M. Johnson": 95, "J. Robinson": 93, "L. Dallaglio": 94, "N. Back": 91, "R. Hill": 90 },
+        canPlayAllBackRow: ["L. Dallaglio"]
     },
     { 
         country: "France", flag: "🇫🇷", tier: 1, 
         dynamicSquad: { 
             "Props": ["S. Marconnet", "N. Mas"], "Hooker": ["W. Servat"], "Second Rows": ["F. Pelous", "L. Nallet"], "Back Row": ["T. Dusautoir", "I. Harinordoquy", "G. Alldritt"], 
             "Scrum Halves": ["A. Dupont"], "Fly Halves": ["F. Michalak"], "Centres": ["Y. Jauzion", "G. Fickou"], "Back Three": ["V. Clerc", "D. Penaud", "T. Ramos"],
-            "Bench Forwards": ["P. Bourgarit", "C. Baille"], "Bench Forwards": ["R. Slimani", "C. Taofifénua", "C. Ollivon"], "Bench Backs": ["M. Lucu", "R. Ntamack", "D. circuitry"]
+            "Bench Forwards": ["P. Bourgarit", "C. Baille", "R. Slimani", "C. Taofifénua"], "Bench Backs": ["C. Ollivon", "M. Lucu", "R. Ntamack", "D. Yachvili"]
         },
-        overrideRatings: { "A. Dupont": 97, "T. Dusautoir": 94, "F. Pelous": 93, "Y. Jauzion": 92, "D. Penaud": 91 }
+        baseRatings: { "A. Dupont": 94, "T. Dusautoir": 90, "F. Pelous": 89, "Y. Jauzion": 88, "D. Penaud": 87 },
+        careerRatings: { "A. Dupont": 97, "T. Dusautoir": 94, "F. Pelous": 93, "Y. Jauzion": 92, "D. Penaud": 91 },
+        canPlayAllBackRow: ["T. Dusautoir", "G. Alldritt"]
     },
     { 
-        country: "Ireland", flag: "☘️\u{1F3F3}\u{FE0F}", tier: 1, 
+        country: "Ireland", flag: "☘️", tier: 1, 
         dynamicSquad: { 
             "Props": ["A. Porter", "T. Furlong"], "Hooker": ["D. Sheehan"], "Second Rows": ["P. O'Connell", "J. Ryan"], "Back Row": ["P. O'Mahony", "J. van der Flier", "C. Doris"], 
             "Scrum Halves": ["J. Gibson-Park"], "Fly Halves": ["J. Sexton"], "Centres": ["B. O'Driscoll", "B. Aki"], "Back Three": ["M. Hansen", "J. Lowe", "H. Keenan"],
-            "Bench Forwards": ["R. Kelleher", "C. Healy", "Finlay Bealham", "I. Henderson"], "Bench Backs": ["Jack Conan", "C. Murray", "J. Crowley", "G. Ringrose"]
+            "Bench Forwards": ["R. Kelleher", "C. Healy", "F. Bealham", "I. Henderson"], "Bench Backs": ["J. Conan", "C. Murray", "J. Crowley", "G. Ringrose"]
         },
-        overrideRatings: { "B. O'Driscoll": 97, "J. Sexton": 95, "P. O'Connell": 94, "T. Furlong": 93, "J. van der Flier": 92, "C. Doris": 92 }
+        baseRatings: { "B. O'Driscoll": 93, "J. Sexton": 91, "P. O'Connell": 90, "T. Furlong": 89, "J. van der Flier": 88 },
+        careerRatings: { "B. O'Driscoll": 97, "J. Sexton": 95, "P. O'Connell": 94, "T. Furlong": 93, "J. van der Flier": 92 },
+        canPlayAllBackRow: ["C. Doris", "J. Conan"]
     },
     { 
         country: "Australia", flag: "🇦🇺", tier: 1, 
         dynamicSquad: { 
             "Props": ["E. McKenzie", "A. Baxter"], "Hooker": ["P. Kearns"], "Second Rows": ["J. Eales", "N. Sharpe"], "Back Row": ["O. Finegan", "G. Smith", "T. Kefu"], 
             "Scrum Halves": ["G. Gregan"], "Fly Halves": ["S. Larkham"], "Centres": ["T. Horan", "S. Mortlock"], "Back Three": ["D. Campese", "L. Tuqiri", "C. Latham"],
-            "Bench Forwards": ["B. Cannon"], "Bench Forwards": ["D. Crowley", "A. Alaalatoa", "R. Simmons", "W. Palu"], "Bench Backs": ["W. Genia", "Q. Cooper", "A. Ashley-Cooper"]
+            "Bench Forwards": ["B. Cannon", "D. Crowley", "A. Alaalatoa", "R. Simmons"], "Bench Backs": ["W. Palu", "W. Genia", "Q. Cooper", "A. Ashley-Cooper"]
         },
-        overrideRatings: { "J. Eales": 96, "G. Gregan": 95, "T. Horan": 94, "S. Larkham": 93, "D. Campese": 95, "G. Smith": 92 }
+        baseRatings: { "J. Eales": 92, "G. Gregan": 91, "T. Horan": 90, "S. Larkham": 89, "D. Campese": 91 },
+        careerRatings: { "J. Eales": 96, "G. Gregan": 95, "T. Horan": 94, "S. Larkham": 93, "D. Campese": 95 },
+        canPlayAllBackRow: ["G. Smith"]
     }
 ];
 
@@ -80,10 +92,7 @@ let respinsLeft = 0;
 let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
-
-// LOCK TRACKING ARRAYS: Prevents older spins from altering positions
-let permanentlyLockedPositions = new Set();
-let activeSpinSessionSelections = new Set();
+let playerSelectedFromCurrentPool = false; // Turn logic track
 
 const setupCard = document.getElementById("setup-card");
 const draftDashboard = document.getElementById("draft-dashboard");
@@ -97,7 +106,7 @@ const statusText = document.getElementById("status-text");
 const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
-// APPLICATION SETUP TRIGGERS
+// INTERFACE TRACK HANDLERS
 document.getElementById("theme-toggle").addEventListener("click", () => {
     document.body.classList.toggle("light-theme");
     document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
@@ -118,13 +127,12 @@ function setupSlider(trackId, handleId, optionIds, onChange) {
     const opt0 = document.getElementById(optionIds[0]);
     const opt1 = document.getElementById(optionIds[1]);
     let activeIndex = 0;
-    function updateUI(idx) {
-        activeIndex = idx;
-        if (idx === 0) { track.classList.remove("right-state"); opt0.classList.add("active"); opt1.classList.remove("active"); }
+    track.addEventListener("click", () => {
+        activeIndex = activeIndex === 0 ? 1 : 0;
+        if (activeIndex === 0) { track.classList.remove("right-state"); opt0.classList.add("active"); opt1.classList.remove("active"); }
         else { track.classList.add("right-state"); opt0.classList.remove("active"); opt1.classList.add("active"); }
         onChange(activeIndex);
-    }
-    track.addEventListener("click", () => updateUI(activeIndex === 0 ? 1 : 0));
+    });
 }
 
 document.getElementById("start-game-btn").addEventListener("click", () => {
@@ -136,21 +144,36 @@ document.getElementById("start-game-btn").addEventListener("click", () => {
     recalculateDashboardAverages();
 });
 
-// CORE SPIN ENGINE W/ SPINNING BALL VISUAL EFFECTS
+// CORE ENGINE SPIN LOCK OUTS & SKIPPING RULES
 spinBtn.addEventListener("click", () => {
-    // Commit previous picks permanently so they can no longer be modified
-    activeSpinSessionSelections.forEach(pos => {
-        permanentlyLockedPositions.add(pos);
-    });
-    activeSpinSessionSelections.clear();
+    // BLOCK SPIN: User must select a player first, unless this is the start of the draft
+    if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
+        statusText.textContent = "⚠️ Selection Required! You must draft a player from this team before spinning. Use 'Respin' if you want a fresh pool.";
+        return;
+    }
 
+    triggerRosterSpinEngine();
+});
+
+// RESPIN TRIGGER: Allowed any time, doesn't force a pick selection
+respinBtn.addEventListener("click", () => {
+    if (respinsLeft <= 0) return;
+    respinsLeft--;
+    respinCountText.textContent = respinsLeft;
+    if (respinsLeft <= 0) { respinBtn.classList.add("disabled"); respinBtn.disabled = true; }
+
+    triggerRosterSpinEngine();
+});
+
+function triggerRosterSpinEngine() {
     selectedPlayer = null;
+    playerSelectedFromCurrentPool = false;
     spinBtn.classList.add("disabled"); spinBtn.disabled = true;
     respinBtn.classList.add("disabled"); respinBtn.disabled = true;
     rosterContainer.innerHTML = ""; rosterContainer.classList.add("locked");
     
     flagIndicator.textContent = ""; 
-    statusText.textContent = "Spinning the historic registry...";
+    statusText.textContent = "";
     spinnerAnchor.innerHTML = '<div class="rugby-ball-spinner">🏉</div>';
 
     setTimeout(() => {
@@ -159,22 +182,27 @@ spinBtn.addEventListener("click", () => {
         
         const rolledNation = historicalNations[Math.floor(Math.random() * historicalNations.length)];
         flagIndicator.textContent = rolledNation.flag;
-        statusText.textContent = `${rolledNation.country.toUpperCase()} Pool opened. Select one player to place into an eligible slot.`;
+        statusText.textContent = `${rolledNation.country.toUpperCase()} Pool opened. Select exactly ONE player to claim.`;
         
         currentSpunSquad = [];
-        let baseMod = rolledNation.tier === 1 ? 86 : 76;
+        let baseMod = rolledNation.tier === 1 ? 84 : 74;
 
         displayOrder.forEach(posGroup => {
             const names = rolledNation.dynamicSquad[posGroup] || [];
             names.forEach(realName => {
-                let rating = baseMod + Math.floor(Math.random() * 5);
-                if (rolledNation.overrideRatings && rolledNation.overrideRatings[realName] !== undefined) {
-                    rating = rolledNation.overrideRatings[realName];
+                let rating = baseMod + Math.floor(Math.random() * 4);
+                
+                // Route between standard tournament or absolute highest historic career ratings
+                const ratingMatrix = isCareerMode ? rolledNation.careerRatings : rolledNation.baseRatings;
+                if (ratingMatrix && ratingMatrix[realName] !== undefined) {
+                    rating = ratingMatrix[realName];
                 }
+
                 currentSpunSquad.push({
                     name: realName, 
                     pos: posGroup,
-                    rating: isCareerMode ? rating + 3 : rating
+                    rating: rating,
+                    crossFunctionalBackRow: (rolledNation.canPlayAllBackRow && rolledNation.canPlayAllBackRow.includes(realName))
                 });
             });
         });
@@ -182,18 +210,14 @@ spinBtn.addEventListener("click", () => {
         renderRosterList();
         rosterContainer.classList.remove("locked");
         if (respinsLeft > 0) { respinBtn.classList.remove("disabled"); respinBtn.disabled = false; }
-    }, 900);
-});
+    }, 850);
+}
 
 function renderRosterList() {
     rosterContainer.innerHTML = "";
     let currentCategory = ""; let block = null;
 
-    // Filter out players already taken in the final team line-up
-    const takenNames = Object.values(userTeam).map(p => p.name);
-    const availablePlayers = currentSpunSquad.filter(p => !takenNames.includes(p.name));
-
-    availablePlayers.forEach(player => {
+    currentSpunSquad.forEach(player => {
         if (player.pos !== currentCategory) {
             currentCategory = player.pos;
             block = document.createElement("div"); block.className = "roster-group";
@@ -202,12 +226,19 @@ function renderRosterList() {
         }
 
         const row = document.createElement("div"); row.className = "player-row";
+        
+        // LOCKOUT RULE: Dim out the rest of the pool if a player has already been picked this spin
+        if (playerSelectedFromCurrentPool) {
+            row.classList.add("claimed-lockout");
+        }
+
         const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
         const r = document.createElement("span"); r.className = "player-rating"; r.textContent = isKnowledgeMode ? "??" : player.rating;
 
         row.appendChild(n); row.appendChild(r); block.appendChild(row);
 
         row.addEventListener("click", () => {
+            if (playerSelectedFromCurrentPool) return; // Block double drafting
             document.querySelectorAll(".player-row").forEach(el => el.classList.remove("selected"));
             row.classList.add("selected"); 
             selectedPlayer = player;
@@ -219,9 +250,12 @@ function renderRosterList() {
 function evaluateEligibilityCircles(player) {
     pitchCircles.forEach(circle => {
         circle.classList.remove("highlight-eligible");
+        if (circle.classList.contains("occupied")) return; // Cannot override occupied nodes
+        
         const bPos = circle.dataset.pos;
-        if (permanentlyLockedPositions.has(bPos)) return; // Lock check
-        if (positionFamilies[bPos] === player.pos) circle.classList.add("highlight-eligible");
+        if (positionFamilies[bPos] === player.pos) {
+            circle.classList.add("highlight-eligible");
+        }
     });
 }
 
@@ -238,33 +272,16 @@ function recalculateDashboardAverages() {
 
     document.getElementById("avg-global-ovr").textContent = tCount > 0 ? Math.round(tSum / tCount) : "--";
     document.getElementById("avg-forward-ovr").textContent = fCount > 0 ? Math.round(fSum / fCount) : "--";
-    document.getElementById("avg-back-ovr").textContent = bCount > 0 ? Math.round(bSum / bCount) : "--";
+    document.getElementById("avg-back-ovr").textContent = bSum += bCount > 0 ? Math.round(bSum / bCount) : "--";
 }
 
-// CLICK INTERACTION: SELECTION AND ROLLBACK MECHANICS
+// FIELD INTERACTION LAW RUNTIMES
 pitchCircles.forEach(node => {
     node.addEventListener("click", () => {
         const bPos = node.dataset.pos;
 
-        // PERMANENT LOCK CHECK
-        if (permanentlyLockedPositions.has(bPos)) {
-            statusText.textContent = "This player was locked in from a previous spin and cannot be changed.";
-            return;
-        }
-
-        // ROLLBACK / UNSELECT: Allowed since player belongs to the current spin pool
+        // BLOCK MODIFICATION: Once locked down by a spin progression, nodes cannot be untaken
         if (node.classList.contains("occupied")) {
-            const removedName = userTeam[bPos].name;
-            delete userTeam[bPos];
-            spotsFilledCount--;
-            activeSpinSessionSelections.delete(bPos);
-
-            node.classList.remove("occupied");
-            node.innerHTML = "";
-            
-            recalculateDashboardAverages();
-            statusText.textContent = `Returned ${removedName} to selection list.`;
-            renderRosterList();
             return;
         }
 
@@ -272,29 +289,32 @@ pitchCircles.forEach(node => {
         if (positionFamilies[bPos] !== selectedPlayer.pos) return;
 
         let finalValue = selectedPlayer.rating;
-        let penaltyTag = false;
+        let penaltyActive = false;
         let penaltyDesc = "";
 
-        // Positional variance calculation offsets
-        if (selectedPlayer.pos === "Props" && bPos === "Loosehead Prop" && Math.random() > 0.6) {
-            finalValue -= 4; penaltyTag = true;
-            penaltyDesc = "Loosehead Prop offset variance: OVR drops by 4.";
+        // STRICT RE-MAPPED STRUCTURAL PENALTIES
+        if (selectedPlayer.pos === "Props" && bPos === "Loosehead Prop" && Math.random() > 0.7) {
+            finalValue -= 4; penaltyActive = true;
+            penaltyDesc = "Loosehead Prop tactical offset adjustment: OVR drops by 4.";
         }
-        if (selectedPlayer.pos === "Back Row") {
-            if (bPos === "Number 8" && Math.random() > 0.5) {
-                finalValue -= 5; penaltyTag = true;
-                penaltyDesc = "Flanker shifted to Number 8 core anchor: OVR drops by 5.";
+        
+        // Smart Back-Row Penalty Check
+        if (selectedPlayer.pos === "Back Row" && bPos === "Number 8") {
+            if (!selectedPlayer.crossFunctionalBackRow) {
+                finalValue -= 5; penaltyActive = true;
+                penaltyDesc = "Specialist flanker moved out of position to Number 8: OVR drops by 5.";
             }
         }
 
+        // Lock in selection state parameters
         userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        activeSpinSessionSelections.add(bPos);
         spotsFilledCount++;
+        playerSelectedFromCurrentPool = true; // Locks pool box down completely
 
         node.classList.add("occupied");
         node.innerHTML = `<div class="circle-num">${finalValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
 
-        if (penaltyTag) {
+        if (penaltyActive) {
             const badge = document.createElement("div"); badge.className = "penalty-tag"; badge.textContent = "OVR -";
             const box = document.createElement("span"); box.className = "tooltip-box"; box.textContent = penaltyDesc;
             badge.appendChild(box); node.appendChild(badge);
@@ -303,7 +323,7 @@ pitchCircles.forEach(node => {
         selectedPlayer = null;
         pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
         recalculateDashboardAverages();
-        renderRosterList(); // Redraw menu cleanly to obscure selected options
+        renderRosterList(); // Redraw immediately locks down alternatives
 
         if (spotsFilledCount === 15) {
             statusText.textContent = "All 15 field nodes assigned! Generating rosters...";
@@ -316,15 +336,12 @@ pitchCircles.forEach(node => {
     });
 });
 
-// SIMULATION ENGINE WINDOW RENDERING
 function populateManifestPreviewWindow() {
     const windowContainer = document.getElementById("manifest-team-box");
-    windowContainer.innerHTML = "<h3>Your Selected XV Lineup</h3>";
+    windowContainer.innerHTML = "<h3>Your Final Drafted XV</h3>";
     
     const table = document.createElement("table");
-    table.style.width = "100%";
-    table.style.borderCollapse = "collapse";
-    table.style.fontSize = "0.8rem";
+    table.style.width = "100%"; table.style.borderCollapse = "collapse"; table.style.fontSize = "0.8rem";
 
     for (let pos in userTeam) {
         const row = document.createElement("tr");
@@ -345,18 +362,54 @@ function populateManifestPreviewWindow() {
     windowContainer.appendChild(table);
 }
 
+// LAW-COMPLIANT RUGBY SCORING GENERATOR (Allows 5 points for an unconverted try!)
+function generateLawfulRugbyScore(weightSpread, isUser) {
+    let baseChance = isUser ? 20 + (weightSpread * 1.1) : 15 - (weightSpread * 0.7);
+    let scoreTarget = Math.max(0, Math.round(baseChance + (Math.random() * 12 - 6)));
+    
+    if (scoreTarget < 3) return 0; // 0 is valid, but 1 or 2 are impossible
+    
+    let totalScore = 0;
+    let tries = 0;
+    
+    // Convert target score down into real score metrics
+    while (scoreTarget >= 5) {
+        tries++;
+        totalScore += 5; // Unconverted Try
+        scoreTarget -= 7; 
+        
+        if (Math.random() > 0.4) {
+            totalScore += 2; // Conversion kick addition (7 points total)
+        }
+    }
+    
+    // Distribute remaining numbers cleanly via penalties/drop goals (3 points each)
+    while (scoreTarget >= 3) {
+        totalScore += 3;
+        scoreTarget -= 3;
+    }
+    
+    // Final check to fix impossible single-digit values
+    if (totalScore === 1 || totalScore === 2 || totalScore === 4) {
+        return tries > 0 ? 5 : 3; // Force up to a standard Try or Penalty Goal
+    }
+    
+    return totalScore;
+}
+
 document.getElementById("run-sim-btn").addEventListener("click", () => {
     let sum = 0; for (let k in userTeam) sum += userTeam[k].score;
     const squadOvr = Math.round(sum / 15);
     const logs = document.getElementById("sim-results");
     
     document.getElementById("run-sim-btn").classList.add("disabled");
-    logs.innerHTML = `<span class="sim-log-line">Starting Tournament Schedule with ${squadOvr} OVR Match Weight...</span><br>`;
+    document.getElementById("run-sim-btn").disabled = true;
+    logs.innerHTML = `<span class="sim-log-line">Kicking off World Cup Tournament finals stream... [Match Rating: OVR ${squadOvr}]</span><br>`;
 
     const matches = [
-        { name: "POOL FIXTURE 1", opp: "🇼🇸 Samoa", rtg: 74 },
-        { name: "POOL FIXTURE 2", opp: "🇫🇷 France", rtg: 88 },
-        { name: "QUARTER FINAL", opp: "🇦🇺 Australia", rtg: 89 },
+        { name: "POOL STAGE MATCH", opp: "🇼🇸 Samoa", rtg: 75 },
+        { name: "POOL STAGE FIXTURE", opp: "🇺🇸 USA", rtg: 72 },
+        { name: "QUARTER FINAL", opp: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England", rtg: 89 },
         { name: "SEMI FINAL", opp: "🇮🇪 Ireland", rtg: 92 },
         { name: "WORLD CUP FINAL", opp: "🇳🇿 New Zealand", rtg: 95 }
     ];
@@ -364,4 +417,37 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
     let currentStep = 0;
     function executeStep() {
         if (currentStep >= matches.length) {
-            logs.innerHTML += `<br><span class="sim-log-line" style="color:#
+            logs.innerHTML += `<br><span class="sim-log-line" style="color:#c99738; font-weight:bold;">🏆 THE FINAL WHISTLE: YOU ARE THE WORLD CUP CHAMPIONS!</span>`;
+            document.getElementById("restart-btn").classList.remove("hidden");
+            return;
+        }
+
+        const m = matches[currentStep];
+        logs.innerHTML += `<span class="sim-log-line" style="color:var(--text-muted);">Running ${m.name} vs ${m.opp}...</span>`;
+        logs.scrollTop = logs.scrollHeight;
+
+        setTimeout(() => {
+            const spread = squadOvr - m.rtg;
+            
+            let userScore = generateLawfulRugbyScore(spread, true);
+            let oppScore = generateLawfulRugbyScore(spread, false);
+
+            // Break deadlocks cleanly
+            if (userScore === oppScore) userScore += Math.random() > 0.5 ? 3 : 5;
+
+            logs.innerHTML += `<span class="sim-log-line" style="color:#f8fafc; font-weight:bold;">FT: Drafted Hybrid XV ${userScore} - ${oppScore} ${m.opp}</span>`;
+            
+            if (userScore <= oppScore) {
+                logs.innerHTML += `<br><span class="sim-log-line" style="color:#ef4444; font-weight:bold;">❌ KNOCKOUT DEFEAT. Your tournament is over.</span>`;
+                document.getElementById("restart-btn").classList.remove("hidden");
+                return;
+            }
+
+            currentStep++;
+            executeStep();
+        }, 1200);
+    }
+    executeStep();
+});
+
+document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
