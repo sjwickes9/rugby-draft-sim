@@ -15,11 +15,19 @@
         </div>
     </header>
     <main>
+        <!-- SCREEN 1: SETUP -->
         <div id="setup-card" class="card-container">
             <div class="setup-title">
                 <h2>Configure Selection Matrix</h2>
                 <p>Set parameters to generate historical tournament pathways.</p>
             </div>
+
+            <div class="control-group">
+                <label>Replace Which Team</label>
+                <select id="team-select" class="team-select"></select>
+                <p class="control-hint">Your Hybrid XV takes this team's place in the 2023 World Cup.</p>
+            </div>
+
             <div class="control-group">
                 <label>Match Variant Engine</label>
                 <div id="variant-slider-track" class="slider-track">
@@ -29,71 +37,65 @@
                         <div id="variant-career" class="slider-opt">Career Peak</div>
                     </div>
                 </div>
-                <p class="control-hint" id="variant-hint">Players are rated as they were at that specific World Cup.</p>
+                <p class="control-hint" id="variant-hint">Players are rated as they were at the 2023 World Cup.</p>
             </div>
+
             <div class="control-group">
-                <label>Rating Visibility Control</label>
+                <label>Rating Visibility</label>
                 <div id="rating-slider-track" class="slider-track">
                     <div id="rating-handle" class="slider-handle"></div>
                     <div class="slider-options">
-                        <div id="lbl-reveal" class="slider-opt active">Live Ratings</div>
-                        <div id="lbl-knowledge" class="slider-opt">Blind Knowledge</div>
+                        <div id="lbl-reveal" class="slider-opt active">Show Ratings</div>
+                        <div id="lbl-knowledge" class="slider-opt">Hide Ratings</div>
                     </div>
                 </div>
             </div>
+
             <div class="control-group">
-                <label>Campaign Difficulty Strategy</label>
+                <label>Campaign Difficulty</label>
                 <div class="radio-options">
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="easy" id="diff-easy">
-                        <label for="diff-easy" class="radio-label">Easy Tier<br><span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">Provides 3 Squad Respins</span></label>
+                        <label for="diff-easy" class="radio-label">Easy<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">3 Squad Respins</span></label>
                     </div>
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="normal" id="diff-normal" checked>
-                        <label for="diff-normal" class="radio-label">Normal Tier<br><span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">Provides 1 Squad Respin</span></label>
+                        <label for="diff-normal" class="radio-label">Normal<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">1 Squad Respin</span></label>
                     </div>
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="hard" id="diff-hard">
-                        <label for="diff-hard" class="radio-label">Hardcore Tier<br><span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">No Respins Allowed</span></label>
+                        <label for="diff-hard" class="radio-label">Hardcore<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">No Respins</span></label>
                     </div>
                 </div>
             </div>
+
             <button id="start-game-btn" class="btn-primary btn-full">Start drafting my team</button>
         </div>
 
+        <!-- SCREEN 2: DRAFT DASHBOARD -->
         <div id="draft-dashboard" class="dashboard-grid hidden">
             <div class="left-panel">
                 <div class="panel-card">
                     <div class="stats-row">
-                        <div class="stat-box">
-                            <div id="avg-global-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Global OVR</div>
-                        </div>
-                        <div class="stat-box">
-                            <div id="avg-forward-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Forwards</div>
-                        </div>
-                        <div class="stat-box">
-                            <div id="avg-back-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Backs</div>
-                        </div>
+                        <div class="stat-box"><div id="avg-global-ovr" class="stat-val">--</div><div class="stat-lbl">Global OVR</div></div>
+                        <div class="stat-box"><div id="avg-forward-ovr" class="stat-val">--</div><div class="stat-lbl">Forwards</div></div>
+                        <div class="stat-box"><div id="avg-back-ovr" class="stat-val">--</div><div class="stat-lbl">Backs</div></div>
                     </div>
                 </div>
                 <div class="panel-card">
                     <div class="action-cluster">
-                        <button id="spin-btn" class="btn-primary">Generate Pool</button>
-                        <button id="respin-btn" class="disabled" disabled>Respin Pool (<span id="respin-count">1</span>)</button>
+                        <button id="spin-btn" class="btn-primary">Spin Team</button>
+                        <button id="respin-btn" class="disabled" disabled>Respin (<span id="respin-count">1</span>)</button>
                     </div>
                     <div class="status-feed-box">
                         <div id="flag-indicator" class="flag-wrapper"></div>
-                        <div id="status-text">Click "Generate Pool" to open up international historical rugby alignments.</div>
+                        <div id="status-text">Click "Spin Team" to draw a 2023 World Cup squad.</div>
                     </div>
-                    <div id="spinner-anchor" class="spinner-zone"></div>
                 </div>
-                <div class="panel-card" style="flex: 1; min-height: 350px;">
+                <div class="panel-card" style="flex:1;min-height:350px;">
                     <div class="roster-scroll-boundary" id="roster-container"></div>
                 </div>
-                <button class="abort-reset-btn" style="background: #db5a42; color: #fff; border: none; padding: 10px; width: 100%;">Abandon Campaign</button>
+                <button class="abort-reset-btn" style="background:#db5a42;color:#fff;border:none;padding:10px;width:100%;">Abandon Campaign</button>
             </div>
 
             <div class="panel-card pitch-card">
@@ -136,19 +138,18 @@
             </div>
         </div>
 
+        <!-- SCREEN 3: SIMULATION -->
         <div id="sim-dashboard" class="sim-layout-container hidden">
-            <div class="panel-card" id="manifest-team-box" style="overflow-y: auto; max-height: 520px;"></div>
-            <div class="panel-card flex-direction-column">
+            <div class="panel-card" id="manifest-team-box" style="overflow-y:auto;max-height:520px;"></div>
+            <div class="panel-card">
                 <div class="terminal-window-shell">
                     <div class="terminal-header-bar">
                         <div class="terminal-title">Match Simulation Processor</div>
                         <button id="run-sim-btn" class="btn-primary">Kick Off Tournament</button>
                     </div>
-                    <div id="sim-results" class="terminal-logs-viewport">
-Ready to begin simulation...
-                    </div>
+                    <div id="sim-results" class="terminal-logs-viewport">Ready to begin simulation...</div>
                 </div>
-                <button id="restart-btn" class="btn-primary hidden" style="margin-top: 15px; width: 100%;">Restart Game</button>
+                <button id="restart-btn" class="btn-primary hidden" style="margin-top:15px;width:100%;">Play Again</button>
             </div>
         </div>
     </main>
