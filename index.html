@@ -15,7 +15,6 @@
 
     <main class="main-container">
 
-        <!-- CONFIGURATION SCREEN -->
         <section id="setup-card" class="config-card">
             <h2>Draft Configuration</h2>
             
@@ -68,10 +67,8 @@
             <button id="start-game-btn" class="action-btn">Initialize Draft Bucket</button>
         </section>
 
-        <!-- MAIN ACTIVE DRAFT INTERFACE -->
         <section id="draft-dashboard" class="dashboard-grid hidden">
             
-            <!-- LEFT: PITCH & SQUAD AVERAGES -->
             <div class="pitch-container">
                 <div class="live-dashboard-stats">
                     <div class="stat-box">
@@ -123,7 +120,6 @@
                 </div>
             </div>
 
-            <!-- RIGHT: THE CONTROL SIDEBAR -->
             <aside class="control-sidebar">
                 <div class="engine-console">
                     <div id="status-text">Click 'Spin Squad' to pull players.</div>
@@ -144,9 +140,12 @@
             </aside>
         </section>
 
-        <!-- TOURNAMENT SIMULATOR -->
         <section id="sim-dashboard" class="tournament-panel hidden">
             <h2>Tournament Simulator</h2>
+            
+            <div id="manifest-team-box" class="manifest-preview-box">
+                </div>
+
             <button id="run-sim-btn" class="success-btn">Kick Off Tournament</button>
             <div id="sim-results" class="terminal-stream"></div>
             <button id="restart-btn" class="action-btn hidden">Return to Main Menu</button>
