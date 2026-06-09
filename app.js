@@ -106,8 +106,8 @@ const statusText = document.getElementById("status-text");
 const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
-// Make sure setup button text matches prompt updates
-const startGameBtn = document.getElementById("start-game-btn");
+// Clean element lookup for the initialization action button
+const startGameBtn = document.getElementById("start-game-btn") || document.querySelector(".setup-card button");
 if (startGameBtn) {
     startGameBtn.textContent = "Draft my team";
 }
@@ -129,24 +129,29 @@ setupSlider("rating-slider-track", "rating-handle", ["lbl-reveal", "lbl-knowledg
 
 function setupSlider(trackId, handleId, optionIds, onChange) {
     const track = document.getElementById(trackId);
+    if (!track) return;
     const opt0 = document.getElementById(optionIds[0]);
     const opt1 = document.getElementById(optionIds[1]);
     let activeIndex = 0;
     track.addEventListener("click", () => {
         activeIndex = activeIndex === 0 ? 1 : 0;
-        if (activeIndex === 0) { track.classList.remove("right-state"); opt0.classList.add("active"); opt1.classList.remove("active"); }
-        else { track.classList.add("right-state"); opt0.classList.remove("active"); opt1.classList.add("active"); }
+        if (activeIndex === 0) { track.classList.remove("right-state"); if(opt0) opt0.classList.add("active"); if(opt1) opt1.classList.remove("active"); }
+        else { track.classList.add("right-state"); if(opt0) opt0.classList.remove("active"); if(opt1) opt1.classList.add("active"); }
         onChange(activeIndex);
     });
 }
 
+// Fixed click setup handler that protects against missing DOM properties
 if (startGameBtn) {
     startGameBtn.addEventListener("click", () => {
-        const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
+        const difficultyChecked = document.querySelector('input[name="difficulty"]:checked');
+        const difficultySetting = difficultyChecked ? difficultyChecked.value : "normal";
+        
         respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
-        respinCountText.textContent = respinsLeft;
-        setupCard.classList.add("hidden");
-        draftDashboard.classList.remove("hidden");
+        if (respinCountText) respinCountText.textContent = respinsLeft;
+        
+        if (setupCard) setupCard.classList.add("hidden");
+        if (draftDashboard) draftDashboard.classList.remove("hidden");
         recalculateDashboardAverages();
     });
 }
@@ -267,9 +272,13 @@ function recalculateDashboardAverages() {
         if (backPositions.includes(pos)) { bSum += val; bCount++; }
     }
 
-    document.getElementById("avg-global-ovr").textContent = tCount > 0 ? Math.round(tSum / tCount) : "--";
-    document.getElementById("avg-forward-ovr").textContent = fCount > 0 ? Math.round(fSum / fCount) : "--";
-    document.getElementById("avg-back-ovr").textContent = bCount > 0 ? Math.round(bSum / bCount) : "--";
+    const gOvr = document.getElementById("avg-global-ovr");
+    const fOvr = document.getElementById("avg-forward-ovr");
+    const bOvr = document.getElementById("avg-back-ovr");
+
+    if (gOvr) gOvr.textContent = tCount > 0 ? Math.round(tSum / tCount) : "--";
+    if (fOvr) fOvr.textContent = fCount > 0 ? Math.round(fSum / fCount) : "--";
+    if (bOvr) bOvr.textContent = bCount > 0 ? Math.round(bSum / bCount) : "--";
 }
 
 pitchCircles.forEach(node => {
@@ -326,6 +335,7 @@ pitchCircles.forEach(node => {
 
 function populateManifestPreviewWindow() {
     const windowContainer = document.getElementById("manifest-team-box");
+    if (!windowContainer) return;
     windowContainer.innerHTML = "<h3>Your Final Drafted XV</h3>";
     
     const table = document.createElement("table");
@@ -380,55 +390,65 @@ function generateLawfulRugbyScore(weightSpread, isUser) {
     return totalScore;
 }
 
-document.getElementById("run-sim-btn").addEventListener("click", () => {
-    let sum = 0; for (let k in userTeam) sum += userTeam[k].score;
-    const squadOvr = Math.round(sum / 15);
-    const logs = document.getElementById("sim-results");
-    
-    document.getElementById("run-sim-btn").classList.add("disabled");
-    document.getElementById("run-sim-btn").disabled = true;
-    logs.innerHTML = `<span class="sim-log-line">Kicking off World Cup Tournament finals stream... [Match Rating: OVR ${squadOvr}]</span><br>`;
+const runSimBtn = document.getElementById("run-sim-btn");
+if (runSimBtn) {
+    runSimBtn.addEventListener("click", () => {
+        let sum = 0; for (let k in userTeam) sum += userTeam[k].score;
+        const squadOvr = Math.round(sum / 15);
+        const logs = document.getElementById("sim-results");
+        
+        runSimBtn.classList.add("disabled");
+        runSimBtn.disabled = true;
+        if (logs) logs.innerHTML = `<span class="sim-log-line">Kicking off World Cup Tournament finals stream... [Match Rating: OVR ${squadOvr}]</span><br>`;
 
-    const matches = [
-        { name: "POOL STAGE MATCH", opp: "Samoa", rtg: 75 },
-        { name: "POOL STAGE FIXTURE", opp: "USA", rtg: 72 },
-        { name: "QUARTER FINAL", opp: "England", rtg: 89 },
-        { name: "SEMI FINAL", opp: "Ireland", rtg: 92 },
-        { name: "WORLD CUP FINAL", opp: "New Zealand", rtg: 95 }
-    ];
+        const matches = [
+            { name: "POOL STAGE MATCH", opp: "Samoa", rtg: 75 },
+            { name: "POOL STAGE FIXTURE", opp: "USA", rtg: 72 },
+            { name: "QUARTER FINAL", opp: "England", rtg: 89 },
+            { name: "SEMI FINAL", opp: "Ireland", rtg: 92 },
+            { name: "WORLD CUP FINAL", opp: "New Zealand", rtg: 95 }
+        ];
 
-    let currentStep = 0;
-    function executeStep() {
-        if (currentStep >= matches.length) {
-            logs.innerHTML += `<br><span class="sim-log-line" style="color:#c99738; font-weight:bold;">🏆 THE FINAL WHISTLE: YOU ARE THE WORLD CUP CHAMPIONS!</span>`;
-            document.getElementById("restart-btn").classList.remove("hidden");
-            return;
-        }
-
-        const m = matches[currentStep];
-        logs.innerHTML += `<span class="sim-log-line" style="color:var(--text-muted);">Running ${m.name} vs ${m.opp}...</span>`;
-        logs.scrollTop = logs.scrollHeight;
-
-        setTimeout(() => {
-            const spread = squadOvr - m.rtg;
-            let userScore = generateLawfulRugbyScore(spread, true);
-            let oppScore = generateLawfulRugbyScore(spread, false);
-
-            if (userScore === oppScore) userScore += Math.random() > 0.5 ? 3 : 5;
-
-            logs.innerHTML += `<span class="sim-log-line" style="color:#f8fafc; font-weight:bold;">FT: Drafted Hybrid XV ${userScore} - ${oppScore} ${m.opp}</span>`;
-            
-            if (userScore <= oppScore) {
-                logs.innerHTML += `<br><span class="sim-log-line" style="color:#ef4444; font-weight:bold;">❌ KNOCKOUT DEFEAT. Your tournament is over.</span>`;
-                document.getElementById("restart-btn").classList.remove("hidden");
+        let currentStep = 0;
+        function executeStep() {
+            if (currentStep >= matches.length) {
+                if (logs) logs.innerHTML += `<br><span class="sim-log-line" style="color:#c99738; font-weight:bold;">🏆 THE FINAL WHISTLE: YOU ARE THE WORLD CUP CHAMPIONS!</span>`;
+                const rBtn = document.getElementById("restart-btn");
+                if (rBtn) rBtn.classList.remove("hidden");
                 return;
             }
 
-            currentStep++;
-            executeStep();
-        }, 1200);
-    }
-    executeStep();
-});
+            const m = matches[currentStep];
+            if (logs) {
+                logs.innerHTML += `<span class="sim-log-line" style="color:var(--text-muted);">Running ${m.name} vs ${m.opp}...</span>`;
+                logs.scrollTop = logs.scrollHeight;
+            }
 
-document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
+            setTimeout(() => {
+                const spread = squadOvr - m.rtg;
+                let userScore = generateLawfulRugbyScore(spread, true);
+                let oppScore = generateLawfulRugbyScore(spread, false);
+
+                if (userScore === oppScore) userScore += Math.random() > 0.5 ? 3 : 5;
+
+                if (logs) logs.innerHTML += `<span class="sim-log-line" style="color:#f8fafc; font-weight:bold;">FT: Drafted Hybrid XV ${userScore} - ${oppScore} ${m.opp}</span>`;
+                
+                if (userScore <= oppScore) {
+                    if (logs) logs.innerHTML += `<br><span class="sim-log-line" style="color:#ef4444; font-weight:bold;">❌ KNOCKOUT DEFEAT. Your tournament is over.</span>`;
+                    const rBtn = document.getElementById("restart-btn");
+                    if (rBtn) rBtn.classList.remove("hidden");
+                    return;
+                }
+
+                currentStep++;
+                executeStep();
+            }, 1200);
+        }
+        executeStep();
+    });
+}
+
+const restartBtn = document.getElementById("restart-btn");
+if (restartBtn) {
+    restartBtn.addEventListener("click", () => { location.reload(); });
+}
