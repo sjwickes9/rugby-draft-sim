@@ -13,10 +13,9 @@
     </header>
 
     <main class="main-container">
-        <!-- SETUP VIEW (Always active with explicit defaults) -->
         <section id="setup-card" class="card central-card">
             <h2>Configure Selection Matrix</h2>
-            <p class="subtitle">Set your parameters to generate historical tournament pathways.</p>
+            <p class="subtitle">Set parameters to generate historical tournament pathways.</p>
             
             <form id="setup-form" class="setup-form-layout">
                 <div class="form-group">
@@ -69,14 +68,11 @@
                     </div>
                 </div>
 
-                <!-- Fix applied: Safe internal container tag lookup fallback target -->
                 <button type="button" id="start-game-btn" class="ui-btn-primary full-width">Start drafting my team</button>
             </form>
         </section>
 
-        <!-- DRAFT HUB VIEW -->
         <section id="draft-dashboard" class="hidden dashboard-grid">
-            <!-- Left Panel: Control & Pool Feed -->
             <div class="control-panel card">
                 <div class="panel-header">
                     <div class="national-flag" id="flag-indicator"></div>
@@ -95,7 +91,6 @@
                 <button class="abort-reset-btn ui-btn-danger">Abandon Campaign</button>
             </div>
 
-            <!-- Right Panel: Dynamic Tactical Pitch Selection Interface -->
             <div class="pitch-container card">
                 <div class="averages-dashboard">
                     <div class="avg-box"><strong>Global:</strong> <span id="avg-global-ovr">--</span></div>
@@ -104,29 +99,23 @@
                 </div>
 
                 <div class="rugby-pitch-layout">
-                    <!-- Front Row Row -->
                     <div class="pitch-circle" data-pos="Loosehead Prop"><div class="circle-num">1</div><div class="circle-name">Loosehead Prop</div></div>
                     <div class="pitch-circle" data-pos="Hooker"><div class="circle-num">2</div><div class="circle-name">Hooker</div></div>
                     <div class="pitch-circle" data-pos="Tighthead Prop"><div class="circle-num">3</div><div class="circle-name">Tighthead Prop</div></div>
 
-                    <!-- Locks Row -->
                     <div class="pitch-circle" data-pos="Lock 4"><div class="circle-num">4</div><div class="circle-name">Lock 4</div></div>
                     <div class="pitch-circle" data-pos="Lock 5"><div class="circle-num">5</div><div class="circle-name">Lock 5</div></div>
 
-                    <!-- Back Row Forwards -->
                     <div class="pitch-circle" data-pos="Blindside Flanker"><div class="circle-num">6</div><div class="circle-name">Blindside Flanker</div></div>
                     <div class="pitch-circle" data-pos="Number 8"><div class="circle-num">8</div><div class="circle-name">Number 8</div></div>
                     <div class="pitch-circle" data-pos="Openside Flanker"><div class="circle-num">7</div><div class="circle-name">Openside Flanker</div></div>
 
-                    <!-- Halfbacks -->
                     <div class="pitch-circle" data-pos="Scrum-half"><div class="circle-num">9</div><div class="circle-name">Scrum-half</div></div>
                     <div class="pitch-circle" data-pos="Fly-half"><div class="circle-num">10</div><div class="circle-name">Fly-half</div></div>
 
-                    <!-- Centres -->
                     <div class="pitch-circle" data-pos="Inside Centre"><div class="circle-num">12</div><div class="circle-name">Inside Centre</div></div>
                     <div class="pitch-circle" data-pos="Outside Centre"><div class="circle-num">13</div><div class="circle-name">Outside Centre</div></div>
 
-                    <!-- Back Three Layer -->
                     <div class="pitch-circle" data-pos="Left Wing"><div class="circle-num">11</div><div class="circle-name">Left Wing</div></div>
                     <div class="pitch-circle" data-pos="Fullback"><div class="circle-num">15</div><div class="circle-name">Fullback</div></div>
                     <div class="pitch-circle" data-pos="Right Wing"><div class="circle-num">14</div><div class="circle-name">Right Wing</div></div>
@@ -134,11 +123,10 @@
             </div>
         </section>
 
-        <!-- TOURNAMENT SIMULATION ENGINE DASHBOARD -->
         <section id="sim-dashboard" class="hidden central-card-wide card">
             <h2>IRB World Cup Tournament Simulator Engine</h2>
             <div class="sim-split-frame">
-                <div id="manifest-team-box" class="manifest-box"></div>
+                <div id="manifest-team-box" class="manifest-box no-scroll"></div>
                 <div class="terminal-box">
                     <button id="run-sim-btn" class="ui-btn-success large-btn">Kickoff Campaign Stream</button>
                     <div id="sim-results" class="terminal-logs"></div>
@@ -147,9 +135,7 @@
             </div>
         </section>
     </main>
-<!-- ... Rest of your index.html markup code stays identical ... -->
-    <script src="data.js"></script>
+
     <script src="app.js"></script>
 </body>
-</html>
 </html>
