@@ -8,6 +8,42 @@ const positionFamilies = {
 };
 
 const displayOrder = ["Props", "Hookers", "Locks", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
+
+// COMPREHENSIVE RUGBY WORLD CUP ALL-TIME COMPETITORS
+// Divided by Tiers to implement the random team generator weighting
+const tier1Nations = [
+    { country: "New Zealand", flag: "🇳🇿", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["McCaw", "Carter", "Whitelock", "Read", "Nonu", "Smith", "Savea", "Mealamu", "Franks", "Retallick", "Barrett", "Woodcock", "Kaino", "Perenara", "Williams"] },
+    { country: "South Africa", flag: "🇿🇦", years: ["1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Etzebeth", "Vermeulen", "Kolbe", "du Toit", "Habana", "de Klerk", "Pollard", "Mtawarira", "Am", "de Allende", "Marx", "Malherbe", "Kitshoff", "Mostert", "Kolisi"] },
+    { country: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Wilkinson", "Johnson", "Dallaglio", "Robinson", "Greenwood", "Back", "Hill", "Vickery", "Thompson", "Dawson", "Tindall", "Farrell", "Itoje", "Tuilagi", "Underhill"] },
+    { country: "France", flag: "🇫🇷", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Dupont", "Alldritt", "Penaud", "Ntamack", "Fickou", "Baille", "Atonio", "Marchand", "Flament", "Ramos", "Jalibert", "Ollivon", "Cros", "Danty", "Willemse"] },
+    { country: "Ireland", flag: "🇮🇪", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Sexton", "Furlong", "Aki", "van der Flier", "Porter", "Sheehan", "Ryan", "Beirne", "Doris", "Gibson-Park", "Lowe", "Keenan", "O'Mahony", "Hansen", "Ringrose"] },
+    { country: "Australia", flag: "🇦🇺", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Eales", "Gregan", "Horan", "Larkham", "Mortlock", "Smith", "Kefu", "Finegan", "Sharpe", "Campese", "Hooper", "Pocock", "Genia", "Cooper", "Ashley-Cooper"] },
+    { country: "Wales", flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["A.W. Jones", "Warburton", "Faletau", "Halfpenny", "North", "Roberts", "Davies", "Jenkins", "Jones", "Phillips", "Williams", "Tipuric", "Biggar", "Owens", "Davies"] },
+    { country: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Hogg", "Russell", "Van der Merwe", "Schoeman", "Turner", "Z. Fagerson", "Gray", "Gilchrist", "Ritchie", "Darge", "Dempsey", "Price", "Jones", "Tuipulotu", "Kinghorn"] },
+    { country: "Argentina", flag: "🇦🇷", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Pichot", "Contepomi", "Hernandez", "Lobbe", "Ronceron", "Creevy", "Montoya", "Gallo", "Lavanini", "Matera", "Kremer", "Bertranou", "Carreras", "Chocobares", "Boffelli"] },
+    { country: "Italy", flag: "🇮🇹", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Parisse", "Castrogiovanni", "Zanni", "Ghiraldini", "Troncon", "Dominguez", "Masi", "Fischetti", "Nicotera", "Ruzza", "Cannone", "Negri", "Lamaro", "Garbisi", "Capuozzo"] }
+];
+
+const tier2Nations = [
+    { country: "Japan", flag: "🇯🇵", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Leitch", "Horie", "Inagaki", "Valu", "Dearns", "姬野", "Labuschagne", "Nagare", "Matsuda", "Nakamura", "Riley", "Naikabula", "Matsushima", "Yamanaka", "Tamura"] },
+    { country: "Fiji", flag: "🇫🇯", years: ["1987", "1991", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Nayacalevu", "Radradra", "Tuisova", "Mata", "Botia", "Mawi", "Ikanivere", "Tagi", "Nasilasila", "Cirikidaveta", "Derenalagi", "Kuruvoli", "Tela", "Habosi", "Droasese"] },
+    { country: "Samoa", flag: "🇼🇸", years: ["1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Tuilagi", "Alatimu", "Taumateine", "Seuteni", "Manu", "Fidow", "Lay", "Malolo", "Alaalatoa", "Vui", "McFarland", "Luatua", "Lee", "Mapusua", "Treformat"] },
+    { country: "Tonga", flag: "🇹🇴", years: ["1987", "1995", "1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Piutau", "Fekitoa", "Ahki", "Taumalolo", "Mafi", "Fisi'ihoi", "Ngauamo", "Tameifuna", "Lousi", "Fifita", "Halaifonua", "Takulua", "Havili", "Kata", "Veainu"] },
+    { country: "Georgia", flag: "🇬🇪", years: ["2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Gorgodze", "Niniashvili", "Lobzhanidze", "Sharikadze", "Abzhandadze", "Nariashvili", "Mamukashvili", "Gigashvili", "Cheishvili", "Mikautadze", "T堅持adze", "Saghinadze", "Jalagonia", "Tabutsadze", "Todua"] },
+    { country: "Romania", flag: "🇷🇴", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2023"], rawNames: ["Gajion", "Cojocaru", "Gordas", "Iftimiciuc", "Motoc", "Gorcioaia", "Neculau", "Chirica", "Rupanu", "Boldor", "Tangimana", "Gafurova", "Manumua", "Simionescu", "Conache"] },
+    { country: "Canada", flag: "🇨🇦", years: ["1987", "1991", "1995", "1999", "2003", "2007", "2011", "2015", "2019"], rawNames: ["Cudmore", "Ardron", "Olmstead", "Blevins", "Hearn", "Paris", "Mack", "McRorie", "Braid", "Evans", "Barkwill", "Sears", "Buydens", "Djustice", "Tierney"] },
+    { country: "USA", flag: "🇺🇸", years: ["1987", "1991", "1999", "2003", "2007", "2011", "2015", "2019"], rawNames: ["Scully", "MacGinty", "Maninoa", "Lamositele", "Taufete'e", "Civetta", "Fry", "Dolan", "Blaine", "Augspurger", "Campbell", "Brache", "Iosefo", "Te'o", "Wyles"] },
+    { country: "Namibia", flag: "🇳🇦", years: ["1999", "2003", "2007", "2011", "2015", "2019", "2023"], rawNames: ["Burger", "Coetzee", "Deysel", "Stevens", "van Jaarsveld", "Sethie", "Nortje", "Gaoseb", "Katjijeko", "Conradie", "Loubser", "De la Harpe", "Greyling", "van der Westhuizen", "Tromp"] },
+    { country: "Uruguay", flag: "🇺🇾", years: ["1999", "2003", "2015", "2019", "2023"], rawNames: ["Ormaechea", "Berchesi", "Magno", "Sanguinetti", "Kessler", "Peculo", "Aliaga", "Leindekar", "Ardao", "Civetta", "Arata", "Etcheverry", "Vilaseca", "Inciarte", "Amaya"] },
+    { country: "Spain", flag: "🇪🇸", years: ["1999"], rawNames: ["Alvarado", "Zapata", "Feijoo", "Souto", "Moreno", "Guzman", "del Valle", "Bonan", "Guillaume", "Rouet", "Linklater", "Lopez", "Malie", "Gavin", "Contardi"] },
+    { country: "Portugal", flag: "🇵🇹", years: ["2007", "2023"], rawNames: ["Marques", "Storti", "Tadjer", "Fernandes", "Madeira", "Martins", "Wallis", "Granate", "Simões", "Lucas", "Jerónimo", "Lima", "Bettencourt", "Marta", "Sousa"] },
+    { country: "Russia", flag: "🇷🇺", years: ["2011", "2019"], rawNames: ["Artemyev", "Ostrikov", "Kushnarev", "Yanyushkin", "Galinovskiy", "Gerasimov", "Ostroushko", "Bitiev", "Matveev", "Gotovtsev", "Fedotko", "Gadjiev", "Vavilin", "Perov", "Davydov"] },
+    { country: "Zimbabwe", flag: "🇿🇼", years: ["1987", "1991"], rawNames: ["Grobler", "Tsimba", "Chiutsi", "Olonga", "Mberi", "Buitendag", "Chivandire", "Mutamangira", "Makwanya", "Hondo", "Sibanda", "Nyamutsamba", "Mudariki", "Ndlovu", "Chitokwindo"] },
+    { country: "Ivory Coast", flag: "🇨🇮", years: ["1995"], rawNames: ["Okou", "Dali", "Niakou", "Camara", "N'Goran", "Pere", "Kone", "Gamba", "Bile", "Quansah", "N'Guessan", "Lath", "Zahui", "Dago", "Kouassi"] },
+    { country: "Chile", flag: "🇨🇱", years: ["2023"], rawNames: ["Lues", "Bohme", "Inostroza", "Eissmann", "Pedrero", "Saavedra", "Martinez", "Sigren", "Videla", "Carvallo", "Garafulic", "Fernandez", "Ayarza", "Velarde", "Larenas"] }
+];
+
+// RE-USABLE CONSTANTS FOR FORWARDS AND BACKS SPLITS
 const forwardPositions = ["Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
 const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
@@ -36,7 +72,10 @@ const pitchCircles = document.querySelectorAll(".pitch-circle");
 
 document.addEventListener("DOMContentLoaded", () => {
     const startGameBtn = document.getElementById("start-game-btn");
+    
     if (startGameBtn) {
+        startGameBtn.textContent = "Start drafting my team";
+
         startGameBtn.addEventListener("click", (e) => {
             e.preventDefault();
             const difficultyChecked = document.querySelector('input[name="difficulty"]:checked');
@@ -103,6 +142,7 @@ respinBtn.addEventListener("click", () => {
     triggerRosterSpinEngine();
 });
 
+// GENERATOR FEATURING 75% TIER 1 / 25% TIER 2 RANDOM WEIGHTING CONTEXT
 function triggerRosterSpinEngine() {
     selectedPlayer = null;
     playerSelectedFromCurrentPool = false;
@@ -110,7 +150,7 @@ function triggerRosterSpinEngine() {
     respinBtn.classList.add("disabled"); respinBtn.disabled = true;
     rosterContainer.innerHTML = "";
     
-    flagIndicator.innerHTML = ""; 
+    flagIndicator.textContent = ""; 
     statusText.textContent = "";
     spinnerAnchor.innerHTML = '<div class="rugby-ball-spinner">🏉</div>';
 
@@ -118,18 +158,18 @@ function triggerRosterSpinEngine() {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         
-        // 75% Tier 1 Weighted Probability Distribution Matrix
+        // 75% Tier 1 powerhouse weighting constraint logic
         const isTier1 = Math.random() < 0.75;
         const targetPool = isTier1 ? tier1Nations : tier2Nations;
         const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
         const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
         
-        // Dynamic flag delivery from isolated data layer
-        flagIndicator.innerHTML = getFlagEmbed(selectedNation.country);
+        flagIndicator.textContent = selectedNation.flag;
         statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
         
         currentSpunSquad = [];
         
+        // Populate exactly 23 structured positions allocated cleanly via positional brackets
         const positionDistribution = [
             { group: "Props", count: 4, prefixes: ["P. ", "O. ", "M. ", "T. "] },
             { group: "Hookers", count: 2, prefixes: ["H. ", "K. "] },
@@ -148,7 +188,10 @@ function triggerRosterSpinEngine() {
                 const finalName = (dist.prefixes[i] || "J. ") + baseSur;
                 nameIndex++;
 
+                // Build performance baseline indexing systems scaled safely to separate tier distributions
                 let baseValue = isTier1 ? (84 + Math.floor(Math.random() * 9)) : (72 + Math.floor(Math.random() * 10));
+                
+                // Scale peaks uniquely whenever structural configurations switch inside setup panels
                 if (isCareerMode) {
                     baseValue += Math.floor(Math.random() * 5);
                 }
@@ -183,10 +226,14 @@ function renderRosterList() {
         const isBlacklisted = draftedPlayersBlacklist.includes(player.name);
         const isRoleGroupFull = isPositionFamilyFullyOccupied(player.pos);
 
-        if (playerSelectedFromCurrentPool || isBlacklisted) {
+        if (playerSelectedFromCurrentPool) {
             row.classList.add("claimed-lockout");
+        } else if (isBlacklisted) {
+            row.classList.add("claimed-lockout");
+            row.title = "Player already drafted in your squad";
         } else if (isRoleGroupFull) {
             row.classList.add("position-filled-lockout");
+            row.title = `Your team's ${player.pos} slots are already fully occupied`;
         }
 
         const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
@@ -216,7 +263,7 @@ function evaluateEligibilityCircles(player) {
         circle.classList.remove("highlight-eligible");
         if (circle.classList.contains("occupied")) return;
         if (positionFamilies[circle.dataset.pos] === player.pos) {
-            circle.add("highlight-eligible");
+            circle.classList.add("highlight-eligible");
         }
     });
 }
@@ -291,8 +338,10 @@ pitchCircles.forEach(node => {
 });
 
 const chronologicalFieldPositions = [
-    "Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5",
-    "Blindside Flanker", "Openside Flanker", "Number 8", "Scrum-half", "Fly-half",
+    "Loosehead Prop", "Hooker", "Tighthead Prop",
+    "Lock 4", "Lock 5",
+    "Blindside Flanker", "Openside Flanker", "Number 8",
+    "Scrum-half", "Fly-half",
     "Left Wing", "Inside Centre", "Outside Centre", "Right Wing", "Fullback"
 ];
 
@@ -313,6 +362,7 @@ function populateManifestPreviewWindow() {
 
     chronologicalFieldPositions.forEach(pos => {
         if (!userTeam[pos]) return;
+        
         const row = document.createElement("tr");
         row.style.borderBottom = "1px solid var(--border-color)";
         
