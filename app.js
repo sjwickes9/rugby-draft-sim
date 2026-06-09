@@ -86,7 +86,6 @@ function isPositionFamilyFullyOccupied(family) {
     return spotsInFamily.every(pos => userTeam[pos] !== undefined);
 }
 
-// RESTORED LABEL CONTROL: "Spin Team"
 spinBtn.addEventListener("click", () => {
     if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
         statusText.textContent = "⚠️ Selection Required! You must draft a player from this team before spinning. Use 'Respin' if you want a fresh pool.";
@@ -416,7 +415,6 @@ if (runSimBtn) {
     });
 }
 
-// RESTORED LABEL CONTROL: "Restart Game"
 const restartBtn = document.getElementById("restart-btn");
 if (restartBtn) {
     restartBtn.addEventListener("click", () => { location.reload(); });
