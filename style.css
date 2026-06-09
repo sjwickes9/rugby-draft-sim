@@ -43,7 +43,7 @@ select { width: 100%; background: var(--bg-element); border: 1px solid var(--bor
 .custom-slider-track { background: var(--bg-element); border: 1px solid var(--border); border-radius: 20px; height: 34px; position: relative; cursor: pointer; display: flex; align-items: center; }
 .custom-slider-handle { position: absolute; height: 28px; width: calc(50% - 2px); background: var(--gold); border-radius: 20px; left: 2px; transition: transform 0.2s; }
 .custom-slider-track.right-state .custom-slider-handle { transform: translateX(100%); }
-.slider-option { flex: 1; text-align: center; font-size: 0.75rem; font-weight: bold; z-index: 2; color: var(--text-muted); }
+.slider-option { flex: 1; text-align: center; font-size: 0.72rem; font-weight: bold; z-index: 2; color: var(--text-muted); padding: 0 4px; }
 .slider-option.active { color: #000 !important; }
 
 .radio-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -52,9 +52,8 @@ select { width: 100%; background: var(--bg-element); border: 1px solid var(--bor
 .radio-tile { background: var(--bg-element); border: 1px solid var(--border); border-radius: 4px; padding: 8px; text-align: center; font-size: 0.75rem; }
 .radio-box input:checked + .radio-tile { border-color: var(--gold); background: rgba(201,151,56,0.1); }
 
-/* UNBOUNDED FLUID GRID ARCHITECTURE */
+/* DASHBOARD GRID SYSTEM */
 .dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 15px; width: 100%; margin: 10px auto; }
-
 .pitch-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; }
 
 .live-dashboard-stats { display: flex; justify-content: space-around; background: var(--bg-element); padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid var(--border); }
@@ -62,64 +61,64 @@ select { width: 100%; background: var(--bg-element); border: 1px solid var(--bor
 .stat-lbl { color: var(--text-muted); margin-right: 4px; }
 .stat-val { color: var(--gold); }
 
-/* Pitch Layout: Removed the restrictive constraints to let circles sit naturally */
-.rugby-pitch { background: #14532d; border: 3px solid rgba(255,255,255,0.7); border-radius: 4px; position: relative; display: flex; flex-direction: column; gap: 24px; padding: 25px 0; }
+/* Pitch Surfaces Layout & Enlarged Field Elements */
+.rugby-pitch { background: #14532d; border: 3px solid rgba(255,255,255,0.7); border-radius: 4px; position: relative; display: flex; flex-direction: column; gap: 32px; padding: 30px 0; }
 .pitch-line-half { position: absolute; top: 50%; width: 100%; height: 2px; background: rgba(255,255,255,0.3); transform: translateY(-50%); }
 .pitch-line-22m-top { position: absolute; top: 20%; width: 100%; height: 1px; background: rgba(255,255,255,0.2); }
 .pitch-line-22m-bot { position: absolute; bottom: 20%; width: 100%; height: 1px; background: rgba(255,255,255,0.2); }
 
-.pitch-row { display: flex; justify-content: center; gap: 18px; z-index: 2; }
-.pitch-circle { width: 56px; height: 56px; border-radius: 50%; background: rgba(6,13,23,0.95); border: 2px dashed rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: transform 0.15s; }
-.pitch-circle::before { content: attr(data-pos); font-size: 0.55rem; color: var(--text-muted); text-align: center; font-weight: bold; line-height: 1.1; }
+.pitch-row { display: flex; justify-content: center; gap: 24px; z-index: 2; }
+.pitch-circle { width: 68px; height: 68px; border-radius: 50%; background: rgba(6,13,23,0.95); border: 2px dashed rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: transform 0.15s; }
+.pitch-circle::before { content: attr(data-pos); font-size: 0.58rem; color: var(--text-muted); text-align: center; font-weight: bold; line-height: 1.1; padding: 0 4px; }
 
 .pitch-circle.highlight-eligible { border: 2px solid var(--gold); background: rgba(201,151,56,0.25); cursor: pointer; transform: scale(1.05); }
 .pitch-circle.occupied { background: var(--bg-element); border: 2px solid var(--gold); cursor: pointer; }
 .pitch-circle.occupied::before { display: none; }
 
-.circle-num { font-size: 0.9rem; font-weight: bold; color: var(--gold); }
-.circle-name { font-size: 0.55rem; color: #fff; max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.circle-num { font-size: 0.95rem; font-weight: bold; color: var(--gold); }
+.circle-name { font-size: 0.58rem; color: #fff; max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; }
 
 /* Tooltips */
-.penalty-tag { position: absolute; bottom: -4px; background: var(--danger); color: white; font-size: 0.5rem; padding: 1px 3px; border-radius: 2px; font-weight: bold; cursor: help; }
-.penalty-tag .tooltip-box { display: none; width: 150px; background: #1e293b; color: #fff; text-align: center; padding: 6px; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); border-radius: 4px; font-size: 0.65rem; border: 1px solid var(--danger); z-index: 10; }
+.penalty-tag { position: absolute; bottom: -4px; background: var(--danger); color: white; font-size: 0.5rem; padding: 1px 4px; border-radius: 2px; font-weight: bold; cursor: help; }
+.penalty-tag .tooltip-box { display: none; width: 160px; background: #1e293b; color: #fff; text-align: center; padding: 6px; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); border-radius: 4px; font-size: 0.65rem; border: 1px solid var(--danger); z-index: 10; line-height: 1.2; }
 .penalty-tag:hover .tooltip-box { display: block; }
 
-/* SIDEBAR & ROSTER ELEMENTS */
+/* SIDEBAR & RESPONSIVE ACTION BUTTONS */
 .control-sidebar { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
-.engine-console { background: var(--bg-element); border-radius: 4px; padding: 10px; font-size: 0.75rem; margin-bottom: 8px; min-height: 65px; position: relative; }
-#flag-indicator { font-size: 1.4rem; margin-top: 4px; }
+.engine-console { background: var(--bg-element); border-radius: 4px; padding: 12px; font-size: 0.78rem; margin-bottom: 8px; min-height: 80px; position: relative; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+#flag-indicator { font-size: 1.5rem; margin-top: 2px; }
 
-/* Spinning Ball Graphics */
-.rugby-ball-spinner { display: inline-block; font-size: 1.6rem; animation: tumbleBall 0.8s linear infinite; margin-top: 4px; }
+/* Spinning Ball Graphical Layout */
+.rugby-ball-spinner { display: block; font-size: 1.8rem; animation: tumbleBall 0.8s linear infinite; margin-top: 4px; }
 @keyframes tumbleBall {
     0% { transform: rotate(0deg) scale(1); }
     50% { transform: rotate(180deg) scale(1.2); }
     100% { transform: rotate(360deg) scale(1); }
 }
 
-.btn-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-.core-btn { border: none; border-radius: 4px; padding: 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+.btn-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.core-btn { border: none; border-radius: 4px; padding: 10px 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .spin-action { background: var(--emerald); color: white; }
 .respin-action { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-.core-btn.disabled, .core-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.core-btn.disabled, .core-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-.scroll-wrapper-box { flex: 1; min-height: 350px; max-height: 500px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+.scroll-wrapper-box { flex: 1; min-height: 350px; max-height: 480px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
 .roster-group { margin-bottom: 8px; }
 .group-header { background: rgba(255,255,255,0.06); padding: 4px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: var(--gold); border-radius: 2px; }
 .player-row { display: flex; justify-content: space-between; padding: 6px; margin-top: 2px; font-size: 0.78rem; border-radius: 2px; cursor: pointer; background: rgba(255,255,255,0.01); }
 .player-row:hover:not(.claimed-lockout) { background: rgba(255,255,255,0.05); }
 .player-row.selected { background: rgba(201, 151, 56, 0.18) !important; border-left: 3px solid var(--gold); }
+.player-row.claimed-lockout { opacity: 0.2; cursor: not-allowed; }
 
 .dashboard-footer-ctrls { margin-top: auto; padding-top: 10px; }
 .abort-reset-btn { width: 100%; background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; }
 .abort-reset-btn:hover { background: var(--danger); color: white; }
 
-/* SIMULATOR WINDOW OVERRIDES */
+/* SIMULATOR MODAL PREVIEW */
 .tournament-panel { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; width: 100%; max-width: 640px; margin: 0 auto; }
 .tournament-panel h2 { margin-bottom: 12px; font-size: 1.2rem; text-align: center; text-transform: uppercase; }
 .success-btn { background: var(--emerald); color: white; border: none; padding: 10px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; display: block; margin: 10px auto; }
 
-/* Squad List Overview Box */
 .manifest-preview-box { background: var(--bg-element); border: 1px solid var(--border); border-radius: 6px; padding: 12px; max-height: 180px; overflow-y: auto; margin-bottom: 14px; color: var(--text-main); }
 .manifest-preview-box h3 { font-size: 0.85rem; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 
