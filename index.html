@@ -15,6 +15,7 @@
 
     <main class="main-container">
 
+        <!-- CONFIGURATION SCREEN -->
         <section id="setup-card" class="config-card">
             <h2>Draft Configuration</h2>
             
@@ -22,8 +23,8 @@
                 <label>Gameplay Variant</label>
                 <div id="variant-slider-track" class="custom-slider-track">
                     <div id="variant-handle" class="custom-slider-handle"></div>
-                    <div id="variant-comp" class="slider-option active">Classic</div>
-                    <div id="variant-career" class="slider-option">Career (+3)</div>
+                    <div id="variant-comp" class="slider-option active">Base Tournament</div>
+                    <div id="variant-career" class="slider-option">Peak Career OVR</div>
                 </div>
             </div>
 
@@ -67,8 +68,10 @@
             <button id="start-game-btn" class="action-btn">Initialize Draft Bucket</button>
         </section>
 
+        <!-- MAIN ACTIVE DRAFT INTERFACE -->
         <section id="draft-dashboard" class="dashboard-grid hidden">
             
+            <!-- LEFT FIELD PACK -->
             <div class="pitch-container">
                 <div class="live-dashboard-stats">
                     <div class="stat-box">
@@ -120,6 +123,7 @@
                 </div>
             </div>
 
+            <!-- RIGHT CONTROL SIDEBAR -->
             <aside class="control-sidebar">
                 <div class="engine-console">
                     <div id="status-text">Click 'Spin Squad' to pull players.</div>
@@ -140,11 +144,13 @@
             </aside>
         </section>
 
+        <!-- TOURNAMENT SIMULATOR PANEL -->
         <section id="sim-dashboard" class="tournament-panel hidden">
             <h2>Tournament Simulator</h2>
             
             <div id="manifest-team-box" class="manifest-preview-box">
-                </div>
+                <!-- Programmatically generated list maps inside this view -->
+            </div>
 
             <button id="run-sim-btn" class="success-btn">Kick Off Tournament</button>
             <div id="sim-results" class="terminal-stream"></div>
