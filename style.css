@@ -50,7 +50,6 @@ header {
     border-bottom: 1px solid var(--border-color);
 }
 
-header h1 span { color: var(--brand-gold); }
 .utility-controls { display: flex; gap: 10px; }
 
 /* Global Button Styles */
@@ -265,7 +264,7 @@ button:disabled, button.disabled {
 .pitch-circle {
     width: 68px;
     height: 68px;
-    border-radius: 50% !important; /* Locks structural layout into perfect circles */
+    border-radius: 50% !important;
     background: rgba(0, 0, 0, 0.75);
     border: 2px dashed rgba(255, 255, 255, 0.5);
     display: flex;
@@ -324,13 +323,18 @@ button:disabled, button.disabled {
     margin-top: 1px;
 }
 
+/* Manifest Output Summary Styles */
+.manifest-header { font-size: 1.1rem; font-weight: 700; color: var(--brand-gold); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+.manifest-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px dashed rgba(255,255,255,0.04); }
+.manifest-pos { color: var(--text-muted); font-weight: 600; }
+
 /* Simulation View Components */
 .sim-layout-container { max-width: 1000px; margin: 20px auto; display: grid; grid-template-columns: 4fr 5fr; gap: 25px; }
 .terminal-window-shell { background: #07080a; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; height: 420px; }
 .terminal-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .terminal-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
-.terminal-logs-viewport { flex: 1; overflow-y: auto; font-family: monospace; font-size: 0.85rem; color: #e5e7eb; }
-.sim-log-line { display: block; margin-bottom: 4px; }
+.terminal-logs-viewport { flex: 1; overflow-y: auto; font-family: monospace; font-size: 0.85rem; color: #e5e7eb; line-height: 1.5; padding-right: 5px; }
+.sim-log-line { display: block; margin-bottom: 6px; }
 
 @media (max-width: 1024px) {
     .dashboard-grid { grid-template-columns: 1fr; }
