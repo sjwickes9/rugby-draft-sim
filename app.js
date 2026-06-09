@@ -19,7 +19,7 @@ let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
-let draftedPlayersBlacklist = []; 
+let draftedPlayersBlacklist = [];
 
 // DOM Element Targets
 const setupCard = document.getElementById("setup-card");
@@ -37,32 +37,37 @@ const simResults = document.getElementById("sim-results");
 const restartBtn = document.getElementById("restart-btn");
 const manifestTeamBox = document.getElementById("manifest-team-box");
 
-// FIX: Clean, fail-safe processing for the Locked-In Screen's Transition Button
+// Screen Transition: Setup -> Draft
 document.addEventListener("DOMContentLoaded", () => {
     const startGameBtn = document.getElementById("start-game-btn");
     if (startGameBtn) {
         startGameBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            
-            // Safely grab the radio input choice matching the exact structural layout
+
             const difficultyChecked = document.querySelector('input[name="difficulty"]:checked');
             const difficultySetting = difficultyChecked ? difficultyChecked.value : "normal";
-            
-            // Assign active respins
+
             respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
             if (respinCountText) respinCountText.textContent = respinsLeft;
-            
-            // UI Toggle States
+
             if (setupCard) setupCard.classList.add("hidden");
             if (draftDashboard) draftDashboard.classList.remove("hidden");
-            
+
             recalculateDashboardAverages();
         });
     }
 });
 
-// Setting Up Config Selection Matrix Slider Toggles
-setupSlider("variant-slider-track", "variant-handle", (index) => { isCareerMode = (index === 1); });
+// Slider Toggle Setup
+const variantHint = document.getElementById("variant-hint");
+setupSlider("variant-slider-track", "variant-handle", (index) => {
+    isCareerMode = (index === 1);
+    if (variantHint) {
+        variantHint.textContent = isCareerMode
+            ? "Players are rated at their personal career best, regardless of tournament year."
+            : "Players are rated as they were at that specific World Cup.";
+    }
+});
 setupSlider("rating-slider-track", "rating-handle", (index) => {
     isKnowledgeMode = (index === 1);
     if (currentSpunSquad.length > 0) renderRosterList();
@@ -111,7 +116,14 @@ if (respinBtn) {
     });
 }
 
-// ROSTER SPIN ENGINE - DIRECT EXTERNAL ARRAY LINKAGE
+// Country code lookup table — maps full country name to historicNameBank key
+const countryCodeMap = {
+    "England": "Eng", "New Zealand": "NZ", "South Africa": "RSA",
+    "France": "Fra", "Ireland": "Ire", "Australia": "Aus",
+    "Wales": "Wal", "Scotland": "Sco", "Argentina": "Arg", "Italy": "Ita"
+};
+
+// ROSTER SPIN ENGINE
 function triggerRosterSpinEngine() {
     selectedPlayer = null;
     playerSelectedFromCurrentPool = false;
@@ -121,7 +133,6 @@ function triggerRosterSpinEngine() {
     statusText.textContent = "";
     if (flagIndicator) flagIndicator.innerHTML = "";
 
-    // Error safety trap to alert you immediately if data.js didn't render correctly
     if (typeof tier1Nations === 'undefined' || typeof tier2Nations === 'undefined') {
         statusText.textContent = "⚠️ Error: data.js arrays (tier1Nations/tier2Nations) could not be read.";
         return;
@@ -131,14 +142,13 @@ function triggerRosterSpinEngine() {
     const targetPool = isTier1 ? tier1Nations : tier2Nations;
     const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
     const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
-    
+
     statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
-    
-    // Inject flag using your dataset's native custom function
+
     if (flagIndicator && typeof getFlagEmbed === 'function') {
         flagIndicator.innerHTML = getFlagEmbed(selectedNation.country);
     }
-    
+
     currentSpunSquad = [];
     let finalSourceNames = [];
 
@@ -147,9 +157,10 @@ function triggerRosterSpinEngine() {
     } else if (selectedNation.squads && selectedNation.squads["HISTORIC"]) {
         finalSourceNames = selectedNation.squads["HISTORIC"];
     } else {
-        const countryCode = selectedNation.country.substring(0, 3);
-        finalSourceNames = (typeof historicNameBank !== 'undefined' && historicNameBank[countryCode]) 
-            ? historicNameBank[countryCode] 
+        // Use the countryCodeMap for a reliable lookup rather than substring slicing
+        const countryCode = countryCodeMap[selectedNation.country] || selectedNation.country.substring(0, 3);
+        finalSourceNames = (typeof historicNameBank !== 'undefined' && historicNameBank[countryCode])
+            ? historicNameBank[countryCode]
             : ["A. Player", "B. Player", "C. Player", "D. Player", "E. Player", "F. Player", "G. Player", "H. Player"];
     }
 
@@ -164,19 +175,23 @@ function triggerRosterSpinEngine() {
         { group: "Back Three", count: 3 }
     ];
 
+    // Shuffle the name list so repeated names aren't always the same player
+    const shuffledNames = [...finalSourceNames].sort(() => Math.random() - 0.5);
     let nameIndex = 0;
+
     positionDistribution.forEach(dist => {
         for (let i = 0; i < dist.count; i++) {
-            const chosenName = finalSourceNames[nameIndex % finalSourceNames.length];
+            const chosenName = shuffledNames[nameIndex % shuffledNames.length];
             nameIndex++;
 
             let baseValue = isTier1 ? (84 + Math.floor(Math.random() * 9)) : (72 + Math.floor(Math.random() * 10));
+            // Career Peak mode adds a boost to represent their personal best ratings
             if (isCareerMode) { baseValue += Math.floor(Math.random() * 5); }
 
-            currentSpunSquad.push({ 
-                name: chosenName, 
-                pos: dist.group, 
-                rating: Math.min(99, baseValue) 
+            currentSpunSquad.push({
+                name: chosenName,
+                pos: dist.group,
+                rating: Math.min(99, baseValue)
             });
         }
     });
@@ -251,7 +266,7 @@ pitchCircles.forEach(node => {
 
         let finalValue = selectedPlayer.rating;
         userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        draftedPlayersBlacklist.push(selectedPlayer.name); 
+        draftedPlayersBlacklist.push(selectedPlayer.name);
         spotsFilledCount++; playerSelectedFromCurrentPool = true;
 
         node.classList.add("occupied");
@@ -274,10 +289,10 @@ pitchCircles.forEach(node => {
 function populateManifestPreviewWindow() {
     if (!manifestTeamBox) return;
     let htmlContent = `<div class="manifest-header">Drafted Squad Roster Summary</div>`;
-    
+
     const positionOrder = [
-        "Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", 
-        "Blindside Flanker", "Openside Flanker", "Number 8", "Scrum-half", 
+        "Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5",
+        "Blindside Flanker", "Openside Flanker", "Number 8", "Scrum-half",
         "Fly-half", "Left Wing", "Inside Centre", "Outside Centre", "Right Wing", "Fullback"
     ];
 
@@ -295,7 +310,7 @@ function populateManifestPreviewWindow() {
     manifestTeamBox.innerHTML = htmlContent;
 }
 
-// SIMULATION ENGINE INTERACTION EXECUTION
+// SIMULATION ENGINE
 if (runSimBtn) {
     runSimBtn.addEventListener("click", () => {
         runSimBtn.disabled = true;
@@ -345,4 +360,7 @@ if (restartBtn) { restartBtn.addEventListener("click", () => location.reload());
 document.querySelectorAll(".abort-reset-btn").forEach(btn => { btn.addEventListener("click", () => location.reload()); });
 
 document.getElementById("theme-toggle").addEventListener("click", () => {
-    document.body.classList.toggle("light-theme
+    document.body.classList.toggle("light-theme");
+    const btn = document.getElementById("theme-toggle");
+    btn.textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
+});
