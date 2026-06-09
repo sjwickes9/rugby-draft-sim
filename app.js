@@ -13,7 +13,7 @@ const positionFamilies = {
 const forwardPositions = ["Loosehead Prop", "Tighthead Prop", "Hooker", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
 const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
-// 23-MAN ROSTERS W/ MASTER ROLES (Swapped out graphical emojis to eliminate hidden hex bytes)
+// 23-MAN ROSTERS W/ MASTER ROLES
 const historicalNations = [
     { 
         country: "New Zealand", flag: "[NZ]", tier: 1, 
@@ -106,6 +106,12 @@ const statusText = document.getElementById("status-text");
 const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
+// Make sure setup button text matches prompt updates
+const startGameBtn = document.getElementById("start-game-btn");
+if (startGameBtn) {
+    startGameBtn.textContent = "Draft my team";
+}
+
 document.getElementById("theme-toggle").addEventListener("click", () => {
     document.body.classList.toggle("light-theme");
     document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
@@ -134,14 +140,16 @@ function setupSlider(trackId, handleId, optionIds, onChange) {
     });
 }
 
-document.getElementById("start-game-btn").addEventListener("click", () => {
-    const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
-    respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
-    respinCountText.textContent = respinsLeft;
-    setupCard.classList.add("hidden");
-    draftDashboard.classList.remove("hidden");
-    recalculateDashboardAverages();
-});
+if (startGameBtn) {
+    startGameBtn.addEventListener("click", () => {
+        const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
+        respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
+        respinCountText.textContent = respinsLeft;
+        setupCard.classList.add("hidden");
+        draftDashboard.classList.remove("hidden");
+        recalculateDashboardAverages();
+    });
+}
 
 spinBtn.addEventListener("click", () => {
     if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
@@ -410,4 +418,17 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
 
             logs.innerHTML += `<span class="sim-log-line" style="color:#f8fafc; font-weight:bold;">FT: Drafted Hybrid XV ${userScore} - ${oppScore} ${m.opp}</span>`;
             
-            if
+            if (userScore <= oppScore) {
+                logs.innerHTML += `<br><span class="sim-log-line" style="color:#ef4444; font-weight:bold;">❌ KNOCKOUT DEFEAT. Your tournament is over.</span>`;
+                document.getElementById("restart-btn").classList.remove("hidden");
+                return;
+            }
+
+            currentStep++;
+            executeStep();
+        }, 1200);
+    }
+    executeStep();
+});
+
+document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
