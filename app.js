@@ -1,62 +1,77 @@
-// POSITIONAL GROUP MAPPING & OUT-OF-POSITION PENALTY MATRICES
+// GLOBAL CONFIGURATION MATRIX & POSITION FAMILIES
 const positionFamilies = {
     "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hooker",
     "Lock 4": "Second Rows", "Lock 5": "Second Rows", "Blindside Flanker": "Back Row",
     "Openside Flanker": "Back Row", "Number 8": "Back Row", "Scrum-half": "Scrum Halves",
     "Fly-half": "Fly Halves", "Inside Centre": "Centres", "Outside Centre": "Centres",
-    "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
+    "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three",
+    "Repl. Hooker": "Bench Forwards", "Repl. Prop 1": "Bench Forwards", "Repl. Prop 2": "Bench Forwards",
+    "Repl. Lock": "Bench Forwards", "Repl. Back Row": "Bench Forwards",
+    "Repl. Scrum-half": "Bench Backs", "Repl. Back Utility 1": "Bench Backs", "Repl. Back Utility 2": "Bench Backs"
 };
 
-const forwardPositions = ["Loosehead Prop", "Tighthead Prop", "Hooker", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
-const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
+const forwardPositions = ["Loosehead Prop", "Tighthead Prop", "Hooker", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8", "Repl. Hooker", "Repl. Prop 1", "Repl. Prop 2", "Repl. Lock", "Repl. Back Row"];
+const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback", "Repl. Scrum-half", "Repl. Back Utility 1", "Repl. Back Utility 2"];
 
-// HISTORICAL GLOBAL MATRICES (Featuring Irish Rugby Flag Mapping & Rebalanced England 2003 Parity)
+// 23-MAN HISTORIC ROSTERS W/ ELITE BALANCING OVERHAULS
 const historicalNations = [
-    { country: "New Zealand", flag: "🇳🇿", tier: 1, dynamicSquad: { "Props": ["T. Woodcock", "O. Franks"], "Hooker": ["K. Mealamu"], "Second Rows": ["B. Retallick", "S. Whitelock"], "Back Row": ["J. Kaino", "R. McCaw", "K. Read"], "Scrum Halves": ["A. Smith"], "Fly Halves": ["D. Carter"], "Centres": ["M. Nonu", "C. Smith"], "Back Three": ["J. Savea", "B. Smith", "J. Lomu"] }},
-    { country: "South Africa", flag: "🇿🇦", tier: 1, dynamicSquad: { "Props": ["O. du Randt", "F. Malherbe"], "Hooker": ["B. du Plessis"], "Second Rows": ["E. Etzebeth", "V. Matfield"], "Back Row": ["S. Burger", "S. Kolisi", "D. Vermeulen"], "Scrum Halves": ["F. de Klerk"], "Fly Halves": ["H. Pollard"], "Centres": ["D. de Allende", "L. Am"], "Back Three": ["B. Habana", "C. Kolbe", "P. Montgomery"] }},
     { 
-        country: "England", 
-        flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}", 
-        tier: 1, 
+        country: "New Zealand", flag: "🇳🇿", tier: 1, 
         dynamicSquad: { 
-            "Props": ["P. Vickery", "J. Leonard"], 
-            "Hooker": ["S. Thompson"], // Corrected from P. Thompson
-            "Second Rows": ["M. Johnson", "B. Kay"], 
-            "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], 
-            "Scrum Halves": ["M. Dawson"], 
-            "Fly Halves": ["J. Wilkinson"], 
-            "Centres": ["W. Greenwood", "M. Tindall"], 
-            "Back Three": ["J. Robinson", "B. Cohen", "M. Cueto"] 
+            "Props": ["T. Woodcock", "O. Franks"], "Hooker": ["K. Mealamu"], "Second Rows": ["B. Retallick", "S. Whitelock"], "Back Row": ["J. Kaino", "R. McCaw", "K. Read"], 
+            "Scrum Halves": ["A. Smith"], "Fly Halves": ["D. Carter"], "Centres": ["M. Nonu", "C. Smith"], "Back Three": ["J. Savea", "B. Smith", "J. Lomu"],
+            "Bench Forwards": ["D. Coles", "W. Crockett", "C. Faumuina", "L. Romano"], "Bench Backs": ["V. Vito", "T. Perenara", "B. Barrett", "S.B. Williams"]
         },
-        overrideRatings: {
-            "J. Wilkinson": 97, // Set to best player apex
-            "M. Johnson": 95,   // Elite leadership level
-            "S. Thompson": 91,
-            "J. Robinson": 93,  // Rebalanced over Cohen
-            "B. Cohen": 88,
-            "L. Dallaglio": 92,
-            "R. Hill": 90,
-            "N. Back": 91
-        }
+        overrideRatings: { "R. McCaw": 98, "D. Carter": 98, "B. Retallick": 95, "J. Lomu": 96, "A. Smith": 94, "B. Barrett": 93 }
     },
-    { country: "France", flag: "🇫🇷", tier: 1, dynamicSquad: { "Props": ["S. Marconnet", "N. Mas"], "Hooker": ["W. Servat"], "Second Rows": ["F. Pelous", "L. Nallet"], "Back Row": ["T. Dusautoir", "I. Harinordoquy", "G. Alldritt"], "Scrum Halves": ["A. Dupont"], "Fly Halves": ["F. Michalak"], "Centres": ["Y. Jauzion", "G. Fickou"], "Back Three": ["V. Clerc", "D. Penaud", "T. Ramos"] }},
-    { country: "Ireland", flag: "☘️\u{1F3F3}\u{FE0F}", tier: 1, dynamicSquad: { "Props": ["A. Porter", "T. Furlong"], "Hooker": ["D. Sheehan"], "Second Rows": ["P. O'Connell", "J. Ryan"], "Back Row": ["P. O'Mahony", "J. van der Flier", "C. Doris"], "Scrum Halves": ["J. Gibson-Park"], "Fly Halves": ["J. Sexton"], "Centres": ["B. O'Driscoll", "B. Aki"], "Back Three": ["M. Hansen", "J. Lowe", "H. Keenan"] }},
-    { country: "Australia", flag: "🇦🇺", tier: 1, dynamicSquad: { "Props": ["E. McKenzie", "A. Baxter"], "Hooker": ["P. Kearns"], "Second Rows": ["J. Eales", "N. Sharpe"], "Back Row": ["O. Finegan", "G. Smith", "T. Kefu"], "Scrum Halves": ["G. Gregan"], "Fly Halves": ["S. Larkham"], "Centres": ["T. Horan", "S. Mortlock"], "Back Three": ["D. Campese", "L. Tuqiri", "C. Latham"] }},
-    { country: "Wales", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}", tier: 1, dynamicSquad: { "Props": ["G. Jenkins", "A. Jones"], "Hooker": ["K. Owens"], "Second Rows": ["A. W. Jones", "L. Charteris"], "Back Row": ["D. Lydiate", "S. Warburton", "T. Faletau"], "Scrum Halves": ["M. Phillips"], "Fly Halves": ["D. Biggar"], "Centres": ["J. Roberts", "J. Davies"], "Back Three": ["S. Williams", "G. North", "L. Halfpenny"] }},
-    { country: "Scotland", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}", tier: 2, dynamicSquad: { "Props": ["P. Wright", "Z. Fagerson"], "Hooker": ["C. Lawson"], "Second Rows": ["R. Gray", "G. Gilchrist"], "Back Row": ["J. White", "H. Watson", "M. Leslie"], "Scrum Halves": ["G. Laidlaw"], "Fly Halves": ["F. Russell"], "Centres": ["S. Hastings", "M. Harris"], "Back Three": ["D. van der Merwe", "T. Seymour", "S. Hogg"] }},
-    { country: "Argentina", flag: "🇦🇷", tier: 2, dynamicSquad: { "Props": ["R. Roncero", "M. Scelzo"], "Hooker": ["M. Ledesma"], "Second Rows": ["P. Albacete", "T. Lavanini"], "Back Row": ["P. Matera", "M. Kremer", "J.M. Leguizamón"], "Scrum Halves": ["A. Pichot"], "Fly Halves": ["F. Contepomi"], "Centres": ["J.M. Hernández", "M. Moroni"], "Back Three": ["H. Agulla", "E. Boffelli", "J.C. Mallía"] }},
-    { country: "Fiji", flag: "🇫🇯", tier: 2, dynamicSquad: { "Props": ["E. Mawi", "M. Saulo"], "Hooker": ["S. Matavesi"], "Second Rows": ["L. Nakarawa", "A. Ratuniyarawa"], "Back Row": ["D. Wainiqolo", "P. Yato", "V. Mata"], "Scrum Halves": ["F. Lomani"], "Fly Halves": ["B. Volavola"], "Centres": ["S. Radradra", "W. Nayacalevu"], "Back Three": ["J. Tuisova", "M. Habosi"], "Fullback": ["K. Murimurivalu"] }},
-    { country: "Japan", flag: "🇯🇵", tier: 2, dynamicSquad: { "Props": ["K. Inagaki", "Ji-won Gu"], "Hooker": ["S. Horie"], "Second Rows": ["L. Thompson", "W. Dearns"], "Back Row": ["M. Leitch", "P. Labuschagné", "K. Himeno"], "Scrum Halves": ["Y. Nagare"], "Fly Halves": ["Y. Tamura"], "Centres": ["R. Nakamura", "T. Lafaele"], "Back Three": ["K. Fukuoka", "K. Matsushima", "L. Yamanaka"] }},
-    { country: "Italy", flag: "🇮🇹", tier: 2, dynamicSquad: { "Props": ["S. Perugini", "M. Castrogiovanni"], "Hooker": ["L. Ghiraldini"], "Second Rows": ["M. Bortolami", "F. Ruzza"], "Back Row": ["A. Zanni", "M. Lamaro", "S. Parisse"], "Scrum Halves": ["A. Troncon"], "Fly Halves": ["P. Garbisi"], "Centres": ["G. Canale", "J. Brex"], "Back Three": ["M. Bergamasco", "E. Ioane", "A. Capuozzo"] }},
-    { country: "Samoa", flag: "🇼🇸", tier: 2, dynamicSquad: { "Props": ["C. Johnston", "L. Mulipola"], "Hooker": ["M. Schwalger"], "Second Rows": ["I. Tekori", "F. Levi"], "Back Row": ["M. Fa'asalele", "J. Lam", "S. Sione"], "Scrum Halves": ["K. Fotuali'i"], "Fly Halves": ["T. Pisi"], "Centres": ["S. Mapusua", "G. Pisi"], "Back Three": ["A. Tuilagi", "T. Nanai-Williams", "Tim Nanai"] }},
-    { country: "Tonga", flag: "🇹🇴", tier: 2, dynamicSquad: { "Props": ["S. Taumalolo", "B. Tameifuna"], "Hooker": ["A. Lutui"], "Second Rows": ["S. Latu", "L. Lokotui"], "Back Row": ["S. Kalamafoni", "N. Latu", "V. Ma'afu"], "Scrum Halves": ["S. Takulua"], "Fly Halves": ["K. Morath"], "Centres": ["S. Piutau", "M. Fekitoa"], "Back Three": ["F. Vainikolo", "T. Veainu", "V. Lilo"] }},
-    { country: "Georgia", flag: "🇬🇪", tier: 2, dynamicSquad: { "Props": ["D. Zirakashvili", "B. Gigashvili"], "Hooker": ["J. Bregvadze"], "Second Rows": ["K. Mikautadze", "N. Cheishvili"], "Back Row": ["M. Gorgodze", "G. Tskhadadze", "B. Saghinadze"], "Scrum Halves": ["V. Lobzhanidze"], "Fly Halves": ["L. Khmaladze"], "Centres": ["D. Kacharava", "M. Sharikadze"], "Back Three": ["A. Todua", "A. Niniashvili", "B. Tsiklauri"] }},
-    { country: "Canada", flag: "🇨🇦", tier: 3, dynamicSquad: { "Props": ["R. Snow", "H. Sears-Duru"], "Hooker": ["P. Riordan"], "Second Rows": ["J. Cudmore", "B. Beukeboom"], "Back Row": ["A. Charron", "J. Moonlight", "T. Ardron"], "Scrum Halves": ["M. Williams"], "Fly Halves": ["G. Rees"], "Centres": ["C. Hearn", "D. van der Merwe"], "Back Three": ["W. Stanley", "D. Paris", "G. Pritchard"] }},
-    { country: "United States", flag: "🇺🇸", tier: 3, dynamicSquad: { "Props": ["T. Lamositele", "E. Fry"], "Hooker": ["J. Taufete'e"], "Second Rows": ["S. Civetta", "G. Peterson"], "Back Row": ["T. Clever", "C. Dolan", "J. Quill"], "Scrum Halves": ["N. Augspurger"], "Fly Halves": ["A. MacGinty"], "Centres": ["P. Lasike", "M. Brache"], "Back Three": ["B. Scully", "T. Ngwenya", "C. Wyles"] }},
-    { country: "Uruguay", flag: "🇺🇾", tier: 3, dynamicSquad: { "Props": ["M. Sanguinetti", "D. Arbelo"], "Hooker": ["G. Kessler"], "Second Rows": ["M. Leindekar", "I. Dotti"], "Back Row": ["M. Gaminara", "S. Civetta", "A. Ormaechea"], "Scrum Halves": ["S. Arata"], "Fly Halves": ["F. Berchesi"], "Centres": ["A. Vilaseca", "T. Inciarte"], "Back Three": ["G. Mieres", "N. Freitas", "R. Silva"] }}
+    { 
+        country: "South Africa", flag: "🇿🇦", tier: 1, 
+        dynamicSquad: { 
+            "Props": ["O. du Randt", "F. Malherbe"], "Hooker": ["B. du Plessis"], "Second Rows": ["E. Etzebeth", "V. Matfield"], "Back Row": ["S. Burger", "S. Kolisi", "D. Vermeulen"], 
+            "Scrum Halves": ["F. de Klerk"], "Fly Halves": ["H. Pollard"], "Centres": ["D. de Allende", "L. Am"], "Back Three": ["B. Habana", "C. Kolbe", "P. Montgomery"],
+            "Bench Forwards": ["M. Marx", "S. Kitshoff", "V. Koch", "R. Snyman"], "Bench Backs": ["P.S. du Toit", "H. Jantjies", "F. Steyn", "D. Willemse"]
+        },
+        overrideRatings: { "B. Habana": 95, "E. Etzebeth": 96, "V. Matfield": 95, "O. du Randt": 94, "S. Burger": 93, "C. Kolbe": 93 }
+    },
+    { 
+        country: "England", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E006E}\u{E0067}\u{E007F}", tier: 1, 
+        dynamicSquad: { 
+            "Props": ["P. Vickery", "J. Leonard"], "Hooker": ["S. Thompson"], "Second Rows": ["M. Johnson", "B. Kay"], "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], 
+            "Scrum Halves": ["M. Dawson"], "Fly Halves": ["J. Wilkinson"], "Centres": ["W. Greenwood", "M. Tindall"], "Back Three": ["J. Robinson", "B. Cohen", "M. Cueto"],
+            "Bench Forwards": ["D. West", "T. Woodman", "J. White", "S. Shaw"], "Bench Backs": ["L. Moody", "A. Gomarsall", "P. Grayson"], "Bench Backs": ["I. Balshaw"]
+        },
+        overrideRatings: { "J. Wilkinson": 97, "M. Johnson": 95, "J. Robinson": 93, "L. Dallaglio": 92, "N. Back": 91, "R. Hill": 90, "S. Thompson": 91, "B. Cohen": 88 }
+    },
+    { 
+        country: "France", flag: "🇫🇷", tier: 1, 
+        dynamicSquad: { 
+            "Props": ["S. Marconnet", "N. Mas"], "Hooker": ["W. Servat"], "Second Rows": ["F. Pelous", "L. Nallet"], "Back Row": ["T. Dusautoir", "I. Harinordoquy", "G. Alldritt"], 
+            "Scrum Halves": ["A. Dupont"], "Fly Halves": ["F. Michalak"], "Centres": ["Y. Jauzion", "G. Fickou"], "Back Three": ["V. Clerc", "D. Penaud", "T. Ramos"],
+            "Bench Forwards": ["P. Bourgarit", "C. Baille"], "Bench Forwards": ["R. Slimani", "C. Taofifénua", "C. Ollivon"], "Bench Backs": ["M. Lucu", "R. Ntamack", "D. circuitry"]
+        },
+        overrideRatings: { "A. Dupont": 97, "T. Dusautoir": 94, "F. Pelous": 93, "Y. Jauzion": 92, "D. Penaud": 91 }
+    },
+    { 
+        country: "Ireland", flag: "☘️\u{1F3F3}\u{FE0F}", tier: 1, 
+        dynamicSquad: { 
+            "Props": ["A. Porter", "T. Furlong"], "Hooker": ["D. Sheehan"], "Second Rows": ["P. O'Connell", "J. Ryan"], "Back Row": ["P. O'Mahony", "J. van der Flier", "C. Doris"], 
+            "Scrum Halves": ["J. Gibson-Park"], "Fly Halves": ["J. Sexton"], "Centres": ["B. O'Driscoll", "B. Aki"], "Back Three": ["M. Hansen", "J. Lowe", "H. Keenan"],
+            "Bench Forwards": ["R. Kelleher", "C. Healy", "Finlay Bealham", "I. Henderson"], "Bench Backs": ["Jack Conan", "C. Murray", "J. Crowley", "G. Ringrose"]
+        },
+        overrideRatings: { "B. O'Driscoll": 97, "J. Sexton": 95, "P. O'Connell": 94, "T. Furlong": 93, "J. van der Flier": 92, "C. Doris": 92 }
+    },
+    { 
+        country: "Australia", flag: "🇦🇺", tier: 1, 
+        dynamicSquad: { 
+            "Props": ["E. McKenzie", "A. Baxter"], "Hooker": ["P. Kearns"], "Second Rows": ["J. Eales", "N. Sharpe"], "Back Row": ["O. Finegan", "G. Smith", "T. Kefu"], 
+            "Scrum Halves": ["G. Gregan"], "Fly Halves": ["S. Larkham"], "Centres": ["T. Horan", "S. Mortlock"], "Back Three": ["D. Campese", "L. Tuqiri", "C. Latham"],
+            "Bench Forwards": ["B. Cannon"], "Bench Forwards": ["D. Crowley", "A. Alaalatoa", "R. Simmons", "W. Palu"], "Bench Backs": ["W. Genia", "Q. Cooper", "A. Ashley-Cooper"]
+        },
+        overrideRatings: { "J. Eales": 96, "G. Gregan": 95, "T. Horan": 94, "S. Larkham": 93, "D. Campese": 95, "G. Smith": 92 }
+    }
 ];
 
-const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
+const displayOrder = ["Props", "Hooker", "Second Rows", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three", "Bench Forwards", "Bench Backs"];
 
 let userTeam = {};
 let currentSpunSquad = [];
@@ -65,10 +80,11 @@ let respinsLeft = 0;
 let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
-let claimedGlobalRoster = new Set();
-let replacedCountryTarget = "South Africa";
 
-// ELEMENT REGISTRY ARCHITECTURE
+// LOCK TRACKING ARRAYS: Prevents older spins from altering positions
+let permanentlyLockedPositions = new Set();
+let activeSpinSessionSelections = new Set();
+
 const setupCard = document.getElementById("setup-card");
 const draftDashboard = document.getElementById("draft-dashboard");
 const simDashboard = document.getElementById("sim-dashboard");
@@ -77,11 +93,11 @@ const respinBtn = document.getElementById("respin-btn");
 const respinCountText = document.getElementById("respin-count");
 const rosterContainer = document.getElementById("roster-container");
 const spinnerAnchor = document.getElementById("spinner-anchor");
-const flagIndicator = document.getElementById("flag-indicator");
 const statusText = document.getElementById("status-text");
+const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
-// APPLICATION EXPLICIT RESETS & THEME MANAGEMENT
+// APPLICATION SETUP TRIGGERS
 document.getElementById("theme-toggle").addEventListener("click", () => {
     document.body.classList.toggle("light-theme");
     document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
@@ -109,280 +125,243 @@ function setupSlider(trackId, handleId, optionIds, onChange) {
         onChange(activeIndex);
     }
     track.addEventListener("click", () => updateUI(activeIndex === 0 ? 1 : 0));
-    opt0.addEventListener("click", (e) => { e.stopPropagation(); updateUI(0); });
-    opt1.addEventListener("click", (e) => { e.stopPropagation(); updateUI(1); });
 }
 
 document.getElementById("start-game-btn").addEventListener("click", () => {
     const difficultySetting = document.querySelector('input[name="difficulty"]:checked').value;
     respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
     respinCountText.textContent = respinsLeft;
-    replacedCountryTarget = document.getElementById("replace-team-select").value;
     setupCard.classList.add("hidden");
     draftDashboard.classList.remove("hidden");
     recalculateDashboardAverages();
 });
 
-spinBtn.addEventListener("click", triggerSpinEngineWithAnimation);
-respinBtn.addEventListener("click", () => {
-    if (respinsLeft > 0 && selectedPlayer === null) {
-        respinsLeft--; respinCountText.textContent = respinsLeft;
-        triggerSpinEngineWithAnimation();
-    }
-});
+// CORE SPIN ENGINE W/ SPINNING BALL VISUAL EFFECTS
+spinBtn.addEventListener("click", () => {
+    // Commit previous picks permanently so they can no longer be modified
+    activeSpinSessionSelections.forEach(pos => {
+        permanentlyLockedPositions.add(pos);
+    });
+    activeSpinSessionSelections.clear();
 
-function triggerSpinEngineWithAnimation() {
     selectedPlayer = null;
     spinBtn.classList.add("disabled"); spinBtn.disabled = true;
     respinBtn.classList.add("disabled"); respinBtn.disabled = true;
     rosterContainer.innerHTML = ""; rosterContainer.classList.add("locked");
-    flagIndicator.textContent = ""; statusText.textContent = "Querying historical global rosters...";
-    spinnerAnchor.innerHTML = '<div class="rugby-spinner"></div>';
+    
+    flagIndicator.textContent = ""; 
+    statusText.textContent = "Spinning the historic registry...";
+    spinnerAnchor.innerHTML = '<div class="rugby-ball-spinner">🏉</div>';
 
     setTimeout(() => {
-        spinnerAnchor.innerHTML = ''; spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
+        spinnerAnchor.innerHTML = ''; 
+        spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         
-        const randRoll = Math.random();
-        let targetTier = 1;
-        if (randRoll > 0.70 && randRoll <= 0.90) targetTier = 2;
-        else if (randRoll > 0.90) targetTier = 3;
-
-        const tierCandidates = historicalNations.filter(n => n.tier === targetTier);
-        const rolledNation = tierCandidates[Math.floor(Math.random() * tierCandidates.length)];
-        const actualDisplayedYear = 1987 + (Math.floor(Math.random() * 10) * 4);
-
+        const rolledNation = historicalNations[Math.floor(Math.random() * historicalNations.length)];
         flagIndicator.textContent = rolledNation.flag;
-        statusText.textContent = `${rolledNation.country.toUpperCase()} (${actualDisplayedYear > 2023 ? 2023 : actualDisplayedYear}) Pool open. Assign player or select pitch item to remove.`;
+        statusText.textContent = `${rolledNation.country.toUpperCase()} Pool opened. Select one player to place into an eligible slot.`;
         
         currentSpunSquad = [];
-        let baseRatingModifier = rolledNation.tier === 1 ? 86 : rolledNation.tier === 2 ? 78 : 68;
+        let baseMod = rolledNation.tier === 1 ? 86 : 76;
 
-        displayOrder.forEach(positionGroup => {
-            const availableNames = rolledNation.dynamicSquad[positionGroup] || ["H. Player"];
-            availableNames.forEach(realName => {
-                let computedBase = baseRatingModifier + Math.floor(Math.random() * 6);
+        displayOrder.forEach(posGroup => {
+            const names = rolledNation.dynamicSquad[posGroup] || [];
+            names.forEach(realName => {
+                let rating = baseMod + Math.floor(Math.random() * 5);
                 if (rolledNation.overrideRatings && rolledNation.overrideRatings[realName] !== undefined) {
-                    computedBase = rolledNation.overrideRatings[realName];
+                    rating = rolledNation.overrideRatings[realName];
                 }
                 currentSpunSquad.push({
-                    name: realName, pos: positionGroup,
-                    rating: isCareerMode ? computedBase + 3 : computedBase
+                    name: realName, 
+                    pos: posGroup,
+                    rating: isCareerMode ? rating + 3 : rating
                 });
             });
         });
 
-        currentSpunSquad.sort((a, b) => displayOrder.indexOf(a.pos) - displayOrder.indexOf(b.pos));
         renderRosterList();
         rosterContainer.classList.remove("locked");
         if (respinsLeft > 0) { respinBtn.classList.remove("disabled"); respinBtn.disabled = false; }
-    }, 1000);
-}
+    }, 900);
+});
 
 function renderRosterList() {
     rosterContainer.innerHTML = "";
-    let trackingCategory = ""; let targetBlock = null;
+    let currentCategory = ""; let block = null;
 
-    currentSpunSquad.forEach(player => {
-        if (player.pos !== trackingCategory) {
-            trackingCategory = player.pos;
-            const container = document.createElement("div"); container.className = "roster-group";
-            const head = document.createElement("div"); head.className = "group-header"; head.textContent = trackingCategory;
-            container.appendChild(head); rosterContainer.appendChild(container); targetBlock = container;
+    // Filter out players already taken in the final team line-up
+    const takenNames = Object.values(userTeam).map(p => p.name);
+    const availablePlayers = currentSpunSquad.filter(p => !takenNames.includes(p.name));
+
+    availablePlayers.forEach(player => {
+        if (player.pos !== currentCategory) {
+            currentCategory = player.pos;
+            block = document.createElement("div"); block.className = "roster-group";
+            const head = document.createElement("div"); head.className = "group-header"; head.textContent = currentCategory;
+            block.appendChild(head); rosterContainer.appendChild(block);
         }
 
-        const cardRow = document.createElement("div"); cardRow.className = "player-row";
-        if (claimedGlobalRoster.has(player.name)) cardRow.classList.add("claimed-lockout");
-        
-        const labelName = document.createElement("span"); labelName.className = "player-name"; labelName.textContent = player.name;
-        const valRating = document.createElement("span"); valRating.className = "player-rating"; valRating.textContent = isKnowledgeMode ? "??" : player.rating;
+        const row = document.createElement("div"); row.className = "player-row";
+        const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
+        const r = document.createElement("span"); r.className = "player-rating"; r.textContent = isKnowledgeMode ? "??" : player.rating;
 
-        cardRow.appendChild(labelName); cardRow.appendChild(valRating); targetBlock.appendChild(cardRow);
+        row.appendChild(n); row.appendChild(r); block.appendChild(row);
 
-        if (!claimedGlobalRoster.has(player.name)) {
-            cardRow.addEventListener("click", () => {
-                document.querySelectorAll(".player-row").forEach(r => r.classList.remove("selected"));
-                cardRow.classList.add("selected"); selectedPlayer = player;
-                evaluateEligibilityCircles(player);
-            });
-        }
+        row.addEventListener("click", () => {
+            document.querySelectorAll(".player-row").forEach(el => el.classList.remove("selected"));
+            row.classList.add("selected"); 
+            selectedPlayer = player;
+            evaluateEligibilityCircles(player);
+        });
     });
 }
 
 function evaluateEligibilityCircles(player) {
     pitchCircles.forEach(circle => {
         circle.classList.remove("highlight-eligible");
-        if (circle.classList.contains("occupied")) return;
-        if (positionFamilies[circle.dataset.pos] === player.pos) circle.classList.add("highlight-eligible");
+        const bPos = circle.dataset.pos;
+        if (permanentlyLockedPositions.has(bPos)) return; // Lock check
+        if (positionFamilies[bPos] === player.pos) circle.classList.add("highlight-eligible");
     });
 }
 
-// REAL-TIME STATISTICAL RECALCULATION ENGINE
 function recalculateDashboardAverages() {
-    let totalSum = 0, forwardSum = 0, backSum = 0;
-    let totalCount = 0, forwardCount = 0, backCount = 0;
+    let tSum = 0, fSum = 0, bSum = 0;
+    let tCount = 0, fCount = 0, bCount = 0;
 
     for (let pos in userTeam) {
         let val = userTeam[pos].score;
-        totalSum += val; totalCount++;
-        if (forwardPositions.includes(pos)) { forwardSum += val; forwardCount++; }
-        if (backPositions.includes(pos)) { backSum += val; backCount++; }
+        tSum += val; tCount++;
+        if (forwardPositions.includes(pos)) { fSum += val; fCount++; }
+        if (backPositions.includes(pos)) { bSum += val; bCount++; }
     }
 
-    document.getElementById("avg-global-ovr").textContent = totalCount > 0 ? Math.round(totalSum / totalCount) : "--";
-    document.getElementById("avg-forward-ovr").textContent = forwardCount > 0 ? Math.round(forwardSum / forwardCount) : "--";
-    document.getElementById("avg-back-ovr").textContent = backCount > 0 ? Math.round(backSum / backCount) : "--";
+    document.getElementById("avg-global-ovr").textContent = tCount > 0 ? Math.round(tSum / tCount) : "--";
+    document.getElementById("avg-forward-ovr").textContent = fCount > 0 ? Math.round(fSum / fCount) : "--";
+    document.getElementById("avg-back-ovr").textContent = bCount > 0 ? Math.round(bSum / bCount) : "--";
 }
 
-// INTERACTIVE ASSIGNMENT AND REMOVAL INTERFACE
+// CLICK INTERACTION: SELECTION AND ROLLBACK MECHANICS
 pitchCircles.forEach(node => {
     node.addEventListener("click", () => {
-        const badgePosition = node.dataset.pos;
+        const bPos = node.dataset.pos;
 
-        // REMOVAL PROCESS: Rollback assigned player before spinning again
+        // PERMANENT LOCK CHECK
+        if (permanentlyLockedPositions.has(bPos)) {
+            statusText.textContent = "This player was locked in from a previous spin and cannot be changed.";
+            return;
+        }
+
+        // ROLLBACK / UNSELECT: Allowed since player belongs to the current spin pool
         if (node.classList.contains("occupied")) {
-            const removedPlayerName = userTeam[badgePosition].name;
-            claimedGlobalRoster.delete(removedPlayerName);
-            delete userTeam[badgePosition];
+            const removedName = userTeam[bPos].name;
+            delete userTeam[bPos];
             spotsFilledCount--;
+            activeSpinSessionSelections.delete(bPos);
 
             node.classList.remove("occupied");
             node.innerHTML = "";
-            node.removeAttribute("title");
             
             recalculateDashboardAverages();
-            statusText.textContent = `Removed ${removedPlayerName}. Slot ${badgePosition} is now open for reassignment.`;
-            if (currentSpunSquad.length > 0) renderRosterList();
+            statusText.textContent = `Returned ${removedName} to selection list.`;
+            renderRosterList();
             return;
         }
 
         if (!selectedPlayer) return;
-        if (positionFamilies[badgePosition] !== selectedPlayer.pos) return;
+        if (positionFamilies[bPos] !== selectedPlayer.pos) return;
 
-        let calculatedValue = selectedPlayer.rating;
-        let requiresTag = false;
-        let penaltyExplanation = "";
+        let finalValue = selectedPlayer.rating;
+        let penaltyTag = false;
+        let penaltyDesc = "";
 
-        // POSITION PENALTY RULES (Props and Back Row Variant Configurations)
-        if (selectedPlayer.pos === "Props" && badgePosition === "Loosehead Prop" && Math.random() > 0.5) {
-            calculatedValue -= 4; requiresTag = true;
-            penaltyExplanation = "Secondary Prop Assignment Penalty: Rating reduced by 4 points due to non-specialist loosehead adjustment variance.";
+        // Positional variance calculation offsets
+        if (selectedPlayer.pos === "Props" && bPos === "Loosehead Prop" && Math.random() > 0.6) {
+            finalValue -= 4; penaltyTag = true;
+            penaltyDesc = "Loosehead Prop offset variance: OVR drops by 4.";
         }
         if (selectedPlayer.pos === "Back Row") {
-            if ((badgePosition === "Blindside Flanker" || badgePosition === "Openside Flanker") && Math.random() > 0.6) {
-                calculatedValue -= 3; requiresTag = true;
-                penaltyExplanation = "Flanker Specialization Shift: Rating reduced by 3 points due to strategic flank deployment variance.";
-            } else if (badgePosition === "Number 8" && Math.random() > 0.5) {
-                calculatedValue -= 5; requiresTag = true;
-                penaltyExplanation = "Spine Anchoring Shift: Rating reduced by 5 points due to moving a natural flanker to Number 8.";
+            if (bPos === "Number 8" && Math.random() > 0.5) {
+                finalValue -= 5; penaltyTag = true;
+                penaltyDesc = "Flanker shifted to Number 8 core anchor: OVR drops by 5.";
             }
         }
 
-        userTeam[badgePosition] = { name: selectedPlayer.name, score: calculatedValue };
-        claimedGlobalRoster.add(selectedPlayer.name);
+        userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
+        activeSpinSessionSelections.add(bPos);
+        spotsFilledCount++;
 
         node.classList.add("occupied");
-        node.classList.remove("highlight-eligible");
-        node.innerHTML = `<div class="circle-num">${calculatedValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
+        node.innerHTML = `<div class="circle-num">${finalValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
 
-        if (requiresTag) {
-            const shiftBadge = document.createElement("div");
-            shiftBadge.className = "penalty-tag"; shiftBadge.textContent = "OVR -";
-            const tooltip = document.createElement("span");
-            tooltip.className = "tooltip-box"; tooltip.textContent = penaltyExplanation;
-            shiftBadge.appendChild(tooltip); node.appendChild(shiftBadge);
+        if (penaltyTag) {
+            const badge = document.createElement("div"); badge.className = "penalty-tag"; badge.textContent = "OVR -";
+            const box = document.createElement("span"); box.className = "tooltip-box"; box.textContent = penaltyDesc;
+            badge.appendChild(box); node.appendChild(badge);
         }
 
-        spotsFilledCount++;
         selectedPlayer = null;
-        currentSpunSquad = [];
-        rosterContainer.classList.add("locked");
-        respinBtn.classList.add("disabled"); respinBtn.disabled = true;
-        
         pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
         recalculateDashboardAverages();
+        renderRosterList(); // Redraw menu cleanly to obscure selected options
 
         if (spotsFilledCount === 15) {
-            statusText.textContent = "Roster optimized. System prepared for tournament sim.";
-            draftDashboard.classList.add("hidden"); simDashboard.classList.remove("hidden");
-        } else {
-            statusText.textContent = "Selection processed. Run SPIN SQUAD to roll alternative options.";
+            statusText.textContent = "All 15 field nodes assigned! Generating rosters...";
+            setTimeout(() => {
+                draftDashboard.classList.add("hidden");
+                simDashboard.classList.remove("hidden");
+                populateManifestPreviewWindow();
+            }, 1200);
         }
     });
 });
 
-// MULTI-LINE LINEAR LIVE TOURNAMENT ENGINE
-document.getElementById("run-sim-btn").addEventListener("click", () => {
-    let globalSum = 0;
-    for (let k in userTeam) globalSum += userTeam[k].score;
-    const squadOvr = Math.round(globalSum / 15);
-    const logs = document.getElementById("sim-results");
-    const simBtn = document.getElementById("run-sim-btn");
+// SIMULATION ENGINE WINDOW RENDERING
+function populateManifestPreviewWindow() {
+    const windowContainer = document.getElementById("manifest-team-box");
+    windowContainer.innerHTML = "<h3>Your Selected XV Lineup</h3>";
     
-    simBtn.classList.add("disabled"); simBtn.disabled = true;
-    logs.innerHTML = `<span class="sim-log-line system-meta">[CONFIG] Injecting hybrid squad into world tournament...</span>`;
-    logs.innerHTML += `<span class="sim-log-line system-meta">[RATING] Finalized Combined Squad Level: ${squadOvr} OVR</span><br>`;
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.style.fontSize = "0.8rem";
 
-    function calculateFixture(teamRating, opponentRating) {
-        const spread = teamRating - opponentRating;
-        const baseVariance = Math.floor(Math.random() * 12) - 6; 
-        let teamScore = Math.max(3, Math.round(24 + (spread * 1.5) + baseVariance));
-        let oppScore = Math.max(0, Math.round(16 - (spread * 0.9) - baseVariance));
-        if (teamScore === oppScore) Math.random() > 0.5 ? teamScore += 3 : oppScore += 3;
-        return { team: teamScore, opp: oppScore, win: teamScore > oppScore };
+    for (let pos in userTeam) {
+        const row = document.createElement("tr");
+        row.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+        
+        const tdPos = document.createElement("td");
+        tdPos.style.padding = "4px"; tdPos.style.color = "#c99738"; tdPos.textContent = pos;
+        
+        const tdName = document.createElement("td");
+        tdName.style.padding = "4px"; tdName.textContent = userTeam[pos].name;
+        
+        const tdScore = document.createElement("td");
+        tdScore.style.padding = "4px"; tdScore.style.textAlign = "right"; tdScore.textContent = userTeam[pos].score;
+
+        row.appendChild(tdPos); row.appendChild(tdName); row.appendChild(tdScore);
+        table.appendChild(row);
     }
+    windowContainer.appendChild(table);
+}
 
-    function getOpponent(tier) {
-        const pool = historicalNations.filter(n => n.tier === tier && n.country !== replacedCountryTarget);
-        const match = pool[Math.floor(Math.random() * pool.length)];
-        return `${match.flag} ${match.country}`;
-    }
+document.getElementById("run-sim-btn").addEventListener("click", () => {
+    let sum = 0; for (let k in userTeam) sum += userTeam[k].score;
+    const squadOvr = Math.round(sum / 15);
+    const logs = document.getElementById("sim-results");
+    
+    document.getElementById("run-sim-btn").classList.add("disabled");
+    logs.innerHTML = `<span class="sim-log-line">Starting Tournament Schedule with ${squadOvr} OVR Match Weight...</span><br>`;
 
-    const matchSchedule = [
-        { name: "POOL FIXTURE 1", opp: getOpponent(3), rtg: 72 },
-        { name: "POOL FIXTURE 2", opp: getOpponent(2), rtg: 79 },
-        { name: "QUARTER FINAL", opp: getOpponent(1), rtg: 85 },
-        { name: "SEMI FINAL", opp: getOpponent(1), rtg: 88 },
-        { name: "WORLD CUP GRAND FINAL", opp: getOpponent(1), rtg: 92 }
+    const matches = [
+        { name: "POOL FIXTURE 1", opp: "🇼🇸 Samoa", rtg: 74 },
+        { name: "POOL FIXTURE 2", opp: "🇫🇷 France", rtg: 88 },
+        { name: "QUARTER FINAL", opp: "🇦🇺 Australia", rtg: 89 },
+        { name: "SEMI FINAL", opp: "🇮🇪 Ireland", rtg: 92 },
+        { name: "WORLD CUP FINAL", opp: "🇳🇿 New Zealand", rtg: 95 }
     ];
 
     let currentStep = 0;
-
-    function runNextFixture() {
-        if (currentStep >= matchSchedule.length) {
-            logs.innerHTML += `<br><span class="sim-log-line victory-status">🏆 Congratulations, you won the World Cup!</span>`;
-            logs.scrollTop = logs.scrollHeight;
-            document.getElementById("restart-btn").classList.remove("hidden");
-            return;
-        }
-
-        const match = matchSchedule[currentStep];
-        if (currentStep === 2) {
-            logs.innerHTML += `<span class="sim-log-line header-bracket">--- KNOCKOUT ROUNDS BRACKET ---</span>`;
-        }
-
-        logs.innerHTML += `<span class="sim-log-line">⏳ Simulating ${match.name} vs ${match.opp}...</span>`;
-        logs.scrollTop = logs.scrollHeight;
-
-        setTimeout(() => {
-            const res = calculateFixture(squadOvr, match.rtg);
-            
-            // Re-formatting string to put every outcome strictly onto an isolated, independent line element
-            logs.innerHTML += `<span class="sim-log-line">🏉 Result: Hybrid XV ${res.team} - ${res.opp} (${match.opp})</span>`;
-            logs.scrollTop = logs.scrollHeight;
-
-            if (!res.win) {
-                logs.innerHTML += `<br><span class="sim-log-line defeat-status">❌ Unlucky, you didn't win this time. Why don't you try again?</span>`;
-                logs.scrollTop = logs.scrollHeight;
-                document.getElementById("restart-btn").classList.remove("hidden");
-                return;
-            }
-
-            currentStep++;
-            runNextFixture();
-        }, 2000);
-    }
-
-    runNextFixture();
-});
-
-document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
+    function executeStep() {
+        if (currentStep >= matches.length) {
+            logs.innerHTML += `<br><span class="sim-log-line" style="color:#
