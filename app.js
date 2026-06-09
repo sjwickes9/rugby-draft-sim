@@ -19,7 +19,7 @@ let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
-let draftedPlayersBlacklist = [];
+let draftedPlayersBlacklist = []; // Global string tracking to prevent multi-year duplicates
 
 // DOM Element Selectors
 const setupCard = document.getElementById("setup-card");
@@ -118,18 +118,28 @@ function triggerRosterSpinEngine() {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         
-        // 75% Tier 1 Weighted Probability Distribution Matrix
+        // 75% Tier 1 Weighted Selection Split
         const isTier1 = Math.random() < 0.75;
         const targetPool = isTier1 ? tier1Nations : tier2Nations;
         const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
         const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
         
-        // Dynamic flag delivery from isolated data layer
         flagIndicator.innerHTML = getFlagEmbed(selectedNation.country);
         statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
         
         currentSpunSquad = [];
         
+        // Target exact era arrays or build context fallback
+        let yearNameSource = [];
+        if (selectedNation.squads && selectedNation.squads[selectedYear]) {
+            yearNameSource = selectedNation.squads[selectedYear];
+        } else if (selectedNation.squads && selectedNation.squads["HISTORIC"]) {
+            yearNameSource = selectedNation.squads["HISTORIC"];
+        } else {
+            const key = selectedNation.country.substring(0, 3);
+            yearNameSource = historicNameBank[key] || ["Jones", "Smith", "Williams", "Brown", "Davis", "Wilson", "Evans", "Thomas"];
+        }
+
         const positionDistribution = [
             { group: "Props", count: 4, prefixes: ["P. ", "O. ", "M. ", "T. "] },
             { group: "Hookers", count: 2, prefixes: ["H. ", "K. "] },
@@ -144,8 +154,13 @@ function triggerRosterSpinEngine() {
         let nameIndex = 0;
         positionDistribution.forEach(dist => {
             for (let i = 0; i < dist.count; i++) {
-                const baseSur = selectedNation.rawNames[nameIndex % selectedNation.rawNames.length];
-                const finalName = (dist.prefixes[i] || "J. ") + baseSur;
+                let baseSur = yearNameSource[nameIndex % yearNameSource.length];
+                
+                // Strip emoji tags if raw data contains prefix indicators
+                baseSur = baseSur.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, "").trim();
+                
+                // If the name doesn't already contain initials, give it one cleanly
+                const finalName = (baseSur.includes(". ")) ? baseSur : (dist.prefixes[i] || "J. ") + baseSur;
                 nameIndex++;
 
                 let baseValue = isTier1 ? (84 + Math.floor(Math.random() * 9)) : (72 + Math.floor(Math.random() * 10));
@@ -180,13 +195,18 @@ function renderRosterList() {
 
         const row = document.createElement("div"); row.className = "player-row";
         
+        // Strict conditional validation checks
         const isBlacklisted = draftedPlayersBlacklist.includes(player.name);
         const isRoleGroupFull = isPositionFamilyFullyOccupied(player.pos);
 
-        if (playerSelectedFromCurrentPool || isBlacklisted) {
+        if (playerSelectedFromCurrentPool) {
             row.classList.add("claimed-lockout");
+        } else if (isBlacklisted) {
+            row.classList.add("claimed-lockout");
+            row.title = `${player.name} has already been drafted into your squad from a different tournament year pool!`;
         } else if (isRoleGroupFull) {
             row.classList.add("position-filled-lockout");
+            row.title = `Your team's ${player.pos} brackets are fully occupied.`;
         }
 
         const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
@@ -216,7 +236,7 @@ function evaluateEligibilityCircles(player) {
         circle.classList.remove("highlight-eligible");
         if (circle.classList.contains("occupied")) return;
         if (positionFamilies[circle.dataset.pos] === player.pos) {
-            circle.add("highlight-eligible");
+            circle.classList.add("highlight-eligible");
         }
     });
 }
@@ -262,7 +282,7 @@ pitchCircles.forEach(node => {
         }
 
         userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        draftedPlayersBlacklist.push(selectedPlayer.name);
+        draftedPlayersBlacklist.push(selectedPlayer.name); // Push to universal array to block future iterations
         spotsFilledCount++;
         playerSelectedFromCurrentPool = true;
 
