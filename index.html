@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <header>
         <h1>🏉 Rugby Hybrid XV Draft</h1>
         <div class="utility-controls">
@@ -15,25 +14,23 @@
             <button class="abort-reset-btn">Reset App</button>
         </div>
     </header>
-
     <main>
         <div id="setup-card" class="card-container">
             <div class="setup-title">
                 <h2>Configure Selection Matrix</h2>
                 <p>Set parameters to generate historical tournament pathways.</p>
             </div>
-            
             <div class="control-group">
                 <label>Match Variant Engine</label>
                 <div id="variant-slider-track" class="slider-track">
                     <div id="variant-handle" class="slider-handle"></div>
                     <div class="slider-options">
-                        <div id="variant-comp" class="slider-opt active">Base Multiplier</div>
+                        <div id="variant-comp" class="slider-opt active">Tournament Rating</div>
                         <div id="variant-career" class="slider-opt">Career Peak</div>
                     </div>
                 </div>
+                <p class="control-hint" id="variant-hint">Players are rated as they were at that specific World Cup.</p>
             </div>
-
             <div class="control-group">
                 <label>Rating Visibility Control</label>
                 <div id="rating-slider-track" class="slider-track">
@@ -44,7 +41,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="control-group">
                 <label>Campaign Difficulty Strategy</label>
                 <div class="radio-options">
@@ -62,8 +58,7 @@
                     </div>
                 </div>
             </div>
-
-            <button id="start-game-btn" class="btn-primary" style="width: 100%; padding: 14px; margin-top: 10px;">Start drafting my team</button>
+            <button id="start-game-btn" class="btn-primary btn-full">Start drafting my team</button>
         </div>
 
         <div id="draft-dashboard" class="dashboard-grid hidden">
@@ -84,7 +79,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="panel-card">
                     <div class="action-cluster">
                         <button id="spin-btn" class="btn-primary">Generate Pool</button>
@@ -96,10 +90,8 @@
                     </div>
                     <div id="spinner-anchor" class="spinner-zone"></div>
                 </div>
-
                 <div class="panel-card" style="flex: 1; min-height: 350px;">
-                    <div class="roster-scroll-boundary" id="roster-container">
-                        </div>
+                    <div class="roster-scroll-boundary" id="roster-container"></div>
                 </div>
                 <button class="abort-reset-btn" style="background: #db5a42; color: #fff; border: none; padding: 10px; width: 100%;">Abandon Campaign</button>
             </div>
@@ -113,36 +105,30 @@
                     <div class="pitch-line-marking line-22m-bottom"></div>
                     <div class="pitch-line-marking line-10m-bottom"></div>
                     <div class="pitch-line-marking line-dead-base"></div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Loosehead Prop" data-num="1" data-label="LOOSEHEAD PROP"></div>
                         <div class="pitch-circle" data-pos="Hooker" data-num="2" data-label="HOOKER"></div>
                         <div class="pitch-circle" data-pos="Tighthead Prop" data-num="3" data-label="TIGHTHEAD PROP"></div>
                     </div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Lock 4" data-num="4" data-label="LOCK 4"></div>
                         <div class="pitch-circle" data-pos="Lock 5" data-num="5" data-label="LOCK 5"></div>
                     </div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Blindside Flanker" data-num="6" data-label="BLINDSIDE FLANKER"></div>
                         <div class="pitch-circle" data-pos="Openside Flanker" data-num="7" data-label="OPENSIDE FLANKER"></div>
                         <div class="pitch-circle" data-pos="Number 8" data-num="8" data-label="NUMBER 8"></div>
                     </div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Scrum-half" data-num="9" data-label="SCRUM-HALF"></div>
                         <div class="pitch-circle" data-pos="Fly-half" data-num="10" data-label="FLY-HALF"></div>
                     </div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Left Wing" data-num="11" data-label="LEFT WING"></div>
                         <div class="pitch-circle" data-pos="Inside Centre" data-num="12" data-label="INSIDE CENTRE"></div>
                         <div class="pitch-circle" data-pos="Outside Centre" data-num="13" data-label="OUTSIDE CENTRE"></div>
                         <div class="pitch-circle" data-pos="Right Wing" data-num="14" data-label="RIGHT WING"></div>
                     </div>
-
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Fullback" data-num="15" data-label="FULLBACK"></div>
                     </div>
@@ -151,9 +137,7 @@
         </div>
 
         <div id="sim-dashboard" class="sim-layout-container hidden">
-            <div class="panel-card" id="manifest-team-box" style="overflow-y: auto; max-height: 520px;">
-                </div>
-            
+            <div class="panel-card" id="manifest-team-box" style="overflow-y: auto; max-height: 520px;"></div>
             <div class="panel-card flex-direction-column">
                 <div class="terminal-window-shell">
                     <div class="terminal-header-bar">
@@ -161,14 +145,13 @@
                         <button id="run-sim-btn" class="btn-primary">Kick Off Tournament</button>
                     </div>
                     <div id="sim-results" class="terminal-logs-viewport">
-                        Ready to begin simulation...
+Ready to begin simulation...
                     </div>
                 </div>
                 <button id="restart-btn" class="btn-primary hidden" style="margin-top: 15px; width: 100%;">Restart Game</button>
             </div>
         </div>
     </main>
-
     <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
