@@ -3,107 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rugby World Cup Draft Simulator</title>
+    <title>Rugby Hybrid XV Draft</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>Rugby World Cup <span>Draft XV</span></h1>
+        <h1>🏉 Rugby Hybrid XV Draft</h1>
         <div class="utility-controls">
-            <button id="theme-toggle">Light Mode</button>
-            <button class="abort-reset-btn">Reset App</button>
+            <button id="theme-toggle">Dark Mode</button>
         </div>
     </header>
 
     <main>
         <div id="setup-card" class="card-container">
             <div class="setup-title">
-                <h2>Tournament Setup</h2>
-                <p>Configure your drafting regulations</p>
+                <h2>Configure Selection Matrix</h2>
+                <p>Set parameters to generate historical tournament pathways.</p>
             </div>
             
             <div class="control-group">
-                <label>Difficulty (Respins Allowed)</label>
-                <div class="radio-options">
-                    <div class="radio-box">
-                        <input type="radio" name="difficulty" value="easy" id="diff-easy">
-                        <label for="diff-easy" class="radio-label">Easy (3)</label>
-                    </div>
-                    <div class="radio-box">
-                        <input type="radio" name="difficulty" value="normal" id="diff-normal" checked>
-                        <label for="diff-normal" class="radio-label">Normal (1)</label>
-                    </div>
-                    <div class="radio-box">
-                        <input type="radio" name="difficulty" value="hard" id="diff-hard">
-                        <label for="diff-hard" class="radio-label">Hard (0)</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>Gameplay Mode</label>
+                <label>Match Variant Engine</label>
                 <div id="variant-slider-track" class="slider-track">
                     <div id="variant-handle" class="slider-handle"></div>
                     <div class="slider-options">
-                        <div id="variant-comp" class="slider-opt active">Standard</div>
-                        <div id="variant-career" class="slider-opt">Career Booster</div>
+                        <div id="variant-comp" class="slider-opt active">Base Multiplier</div>
+                        <div id="variant-career" class="slider-opt">Career Peak</div>
                     </div>
                 </div>
             </div>
 
             <div class="control-group">
-                <label>Rating Visibility</label>
+                <label>Rating Visibility Control</label>
                 <div id="rating-slider-track" class="slider-track">
                     <div id="rating-handle" class="slider-handle"></div>
                     <div class="slider-options">
-                        <div id="lbl-reveal" class="slider-opt active">Visible</div>
-                        <div id="lbl-knowledge" class="slider-opt">Blind Mode</div>
+                        <div id="lbl-reveal" class="slider-opt active">Live Ratings</div>
+                        <div id="lbl-knowledge" class="slider-opt">Blind Knowledge</div>
                     </div>
                 </div>
             </div>
 
-            <button id="start-game-btn" class="btn-primary" style="width: 100%; padding: 14px; margin-top: 10px;">Enter Draft Room</button>
+            <div class="control-group">
+                <label>Campaign Difficulty Strategy</label>
+                <div class="radio-options-vertical">
+                    <div class="radio-box-row">
+                        <input type="radio" name="difficulty" value="easy" id="diff-easy">
+                        <label for="diff-easy" class="radio-label-block">
+                            <span class="tier-title">Easy Tier</span>
+                            <span class="tier-desc">Provides 3 Squad Respins</span>
+                        </label>
+                    </div>
+                    <div class="radio-box-row">
+                        <input type="radio" name="difficulty" value="normal" id="diff-normal" checked>
+                        <label for="diff-normal" class="radio-label-block">
+                            <span class="tier-title">Normal Tier</span>
+                            <span class="tier-desc">Provides 1 Squad Respin</span>
+                        </label>
+                    </div>
+                    <div class="radio-box-row">
+                        <input type="radio" name="difficulty" value="hard" id="diff-hard">
+                        <label for="diff-hard" class="radio-label-block">
+                            <span class="tier-title">Hardcore Tier</span>
+                            <span class="tier-desc">No Respins Allowed</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="start-game-btn" class="btn-primary-large">Start drafting my team</button>
         </div>
 
         <div id="draft-dashboard" class="dashboard-grid hidden">
             <div class="left-panel">
-                <div class="panel-card">
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div id="avg-global-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Global OVR</div>
-                        </div>
-                        <div class="stat-box">
-                            <div id="avg-forward-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Forwards</div>
-                        </div>
-                        <div class="stat-box">
-                            <div id="avg-back-ovr" class="stat-val">--</div>
-                            <div class="stat-lbl">Backs</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-card">
+                <div class="panel-card shadow-box">
                     <div class="action-cluster">
-                        <button id="spin-btn" class="btn-primary">Spin Team</button>
-                        <button id="respin-btn" class="disabled" disabled>Respin (<span id="respin-count">1</span>)</button>
+                        <button id="spin-btn" class="btn-gold-action">Generate Pool</button>
+                        <button id="respin-btn" class="btn-dark-action">Respin Pool (<span id="respin-count">1</span>)</button>
                     </div>
                     <div class="status-feed-box">
                         <div id="flag-indicator" class="flag-wrapper"></div>
-                        <div id="status-text">Click "Spin Team" to open your first international player pool.</div>
+                        <div id="status-text">Click "Generate Pool" to open up international historical rugby alignments.</div>
                     </div>
                     <div id="spinner-anchor" class="spinner-zone"></div>
                 </div>
 
-                <div class="panel-card" style="flex: 1; min-height: 350px;">
+                <div class="panel-card scroll-panel-card">
                     <div class="roster-scroll-boundary" id="roster-container">
                         </div>
                 </div>
+
+                <button class="abort-reset-btn btn-danger-action">Abandon Campaign</button>
             </div>
 
             <div class="panel-card pitch-card">
+                <div class="stats-header-bar">
+                    <div class="header-stat">Global: <span id="avg-global-ovr">--</span></div>
+                    <div class="header-stat">Forwards: <span id="avg-forward-ovr">--</span></div>
+                    <div class="header-stat">Backs: <span id="avg-back-ovr">--</span></div>
+                </div>
+
                 <div class="rugby-pitch-canvas">
                     <div class="pitch-line-marking line-dead-top"></div>
                     <div class="pitch-line-marking line-10m-top"></div>
@@ -114,14 +113,56 @@
                     <div class="pitch-line-marking line-dead-base"></div>
 
                     <div class="pitch-row-tier">
-                        <div class="pitch-circle" data-pos="Loosehead Prop" data-label="1"></div>
-                        <div class="pitch-circle" data-pos="Hooker" data-label="2"></div>
-                        <div class="pitch-circle" data-pos="Tighthead Prop" data-label="3"></div>
+                        <div class="pitch-circle" data-pos="Loosehead Prop" data-num="1" data-label="LOOSEHEAD PROP"></div>
+                        <div class="pitch-circle" data-pos="Hooker" data-num="2" data-label="HOOKER"></div>
+                        <div class="pitch-circle" data-pos="Tighthead Prop" data-num="3" data-label="TIGHTHEAD PROP"></div>
                     </div>
 
                     <div class="pitch-row-tier">
-                        <div class="pitch-circle" data-pos="Lock 4" data-label="4"></div>
-                        <div class="pitch-circle" data-pos="Lock 5" data-label="5"></div>
+                        <div class="pitch-circle" data-pos="Lock 4" data-num="4" data-label="LOCK 4"></div>
+                        <div class="pitch-circle" data-pos="Lock 5" data-num="5" data-label="LOCK 5"></div>
                     </div>
 
-                    <div class="pitch-row
+                    <div class="pitch-row-tier">
+                        <div class="pitch-circle" data-pos="Blindside Flanker" data-num="6" data-label="BLINDSIDE FLANKER"></div>
+                        <div class="pitch-circle" data-num="8" data-pos="Number 8" data-label="NUMBER 8"></div>
+                        <div class="pitch-circle" data-pos="Openside Flanker" data-num="7" data-label="OPENSIDE FLANKER"></div>
+                    </div>
+
+                    <div class="pitch-row-tier">
+                        <div class="pitch-circle" data-pos="Scrum-half" data-num="9" data-label="SCRUM-HALF"></div>
+                        <div class="pitch-circle" data-pos="Fly-half" data-num="10" data-label="FLY-HALF"></div>
+                    </div>
+
+                    <div class="pitch-row-tier">
+                        <div class="pitch-circle" data-pos="Inside Centre" data-num="12" data-label="INSIDE CENTRE"></div>
+                        <div class="pitch-circle" data-pos="Outside Centre" data-num="13" data-label="OUTSIDE CENTRE"></div>
+                    </div>
+
+                    <div class="pitch-row-tier">
+                        <div class="pitch-circle" data-pos="Left Wing" data-num="11" data-label="LEFT WING"></div>
+                        <div class="pitch-circle" data-pos="Fullback" data-num="15" data-label="FULLBACK"></div>
+                        <div class="pitch-circle" data-pos="Right Wing" data-num="14" data-label="RIGHT WING"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sim-dashboard" class="sim-layout-container hidden">
+            <div class="panel-card" id="manifest-team-box"></div>
+            <div class="panel-card flex-direction-column">
+                <div class="terminal-window-shell">
+                    <div class="terminal-header-bar">
+                        <div class="terminal-title">Match Simulation Processor</div>
+                        <button id="run-sim-btn" class="btn-gold-action" style="padding: 6px 12px; font-size: 0.8rem;">Kick Off Tournament</button>
+                    </div>
+                    <div id="sim-results" class="terminal-logs-viewport">Ready to begin simulation...</div>
+                </div>
+                <button id="restart-btn" class="btn-gold-action hidden" style="margin-top: 15px; width: 100%; padding: 12px;">Restart Game</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
