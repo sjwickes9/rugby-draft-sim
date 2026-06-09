@@ -3,167 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rugby World Cup Squad Simulator</title>
+    <title>Rugby World Cup Historic Draft Simulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- LEFT PANEL: UNBREAKABLE CEILING CONTROL HUB -->
-        <div class="control-panel">
-            <h1 class="logo">WORLD CUP <span class="highlight">XV DRAFT</span></h1>
+
+    <!-- GLOBAL HEADER LAYER -->
+    <header>
+        <h1>Rugby World Cup <span>Historic Draft</span></h1>
+        <button id="theme-toggle" class="theme-toggle-btn">Light Mode</button>
+    </header>
+
+    <main class="main-container">
+
+        <!-- STAGE 1: INITIALIZATION & SETUP SCREEN -->
+        <section id="setup-card" class="config-card">
+            <h2>Draft Configuration</h2>
             
-            <!-- SETUP CONFIGURATION -->
-            <div id="setup-card" class="card">
-                <h2>Tournament Configuration</h2>
-                
-                <div class="setting-group">
-                    <label>Draft Variant:</label>
-                    <div class="mode-toggle-switch flex-toggle">
-                        <span id="variant-comp" class="toggle-option active">Competition Mode</span>
-                        <div class="switch-bg" id="variant-slider-track">
-                            <div class="switch-handle" id="variant-handle"></div>
+            <div class="form-group">
+                <label>Gameplay Variant</label>
+                <div id="variant-slider-track" class="custom-slider-track">
+                    <div id="variant-handle" class="custom-slider-handle"></div>
+                    <div id="variant-comp" class="slider-option active">Classic</div>
+                    <div id="variant-career" class="slider-option">Career (+3)</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Rating Visibility Mode</label>
+                <div id="rating-slider-track" class="custom-slider-track">
+                    <div id="rating-handle" class="custom-slider-handle"></div>
+                    <div id="lbl-reveal" class="slider-option active">Reveal OVR</div>
+                    <div id="lbl-knowledge" class="slider-option">Hidden (Blind)</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Draft Difficulty Level</label>
+                <div class="radio-matrix">
+                    <label class="radio-box">
+                        <input type="radio" name="difficulty" value="easy" checked>
+                        <div class="radio-tile">
+                            <span class="tile-title">Easy</span>
+                            <span class="tile-desc">3 Respins</span>
                         </div>
-                        <span id="variant-career" class="toggle-option">Career Peak Mode</span>
-                    </div>
-                    <small class="help-text">Comp uses tournament stats. Career unlocks historical peak value.</small>
-                </div>
-
-                <div class="setting-group">
-                    <label>Target Replacement Candidate:</label>
-                    <select id="replace-team-select">
-                        <option value="South Africa">South Africa</option>
-                        <option value="New Zealand">New Zealand</option>
-                        <option value="Ireland">Ireland</option>
-                        <option value="France">France</option>
-                        <option value="England">England</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Wales">Wales</option>
-                        <option value="Scotland">Scotland</option>
-                        <option value="Argentina">Argentina</option>
-                    </select>
-                </div>
-
-                <div class="setting-group">
-                    <label>Draft Difficulty Rules:</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="difficulty" value="easy" checked> Easy (3 Respins Allowed)</label>
-                        <label><input type="radio" name="difficulty" value="normal"> Normal (1 Respin Allowed)</label>
-                        <label><input type="radio" name="difficulty" value="hard"> Hard (0 Respins Allowed)</label>
-                    </div>
-                </div>
-
-                <button id="start-game-btn" class="btn primary-btn">Initialize Draft Bracket</button>
-            </div>
-
-            <!-- ACTIVE DRAFT PLAYBOOK PANEL -->
-            <div id="draft-dashboard" class="card hidden">
-                <div class="setting-group">
-                    <div class="mode-toggle-switch">
-                        <span id="lbl-reveal" class="toggle-option active">Reveal Ratings</span>
-                        <div class="switch-bg" id="rating-slider-track">
-                            <div class="switch-handle" id="rating-handle"></div>
+                    </label>
+                    <label class="radio-box">
+                        <input type="radio" name="difficulty" value="normal">
+                        <div class="radio-tile">
+                            <span class="tile-title">Normal</span>
+                            <span class="tile-desc">1 Respin</span>
                         </div>
-                        <span id="lbl-knowledge" class="toggle-option">Knowledge Mode</span>
-                    </div>
+                    </label>
+                    <label class="radio-box">
+                        <input type="radio" name="difficulty" value="hard">
+                        <div class="radio-tile">
+                            <span class="tile-title">Hard</span>
+                            <span class="tile-desc">0 Respins</span>
+                        </div>
+                    </label>
                 </div>
+            </div>
 
-                <div class="action-buttons">
-                    <button id="spin-btn" class="btn primary-btn">SPIN SQUAD</button>
-                    <button id="respin-btn" class="btn secondary-btn disabled" disabled>RESPIN (<span id="respin-count">0</span>)</button>
-                </div>
+            <div class="form-group">
+                <label>Replace Opponent Spot</label>
+                <select id="replace-team-select">
+                    <option value="South Africa">South Africa</option>
+                    <option value="New Zealand">New Zealand</option>
+                    <option value="France">France</option>
+                    <option value="Australia">Australia</option>
+                </select>
+            </div>
 
-                <!-- ANIMATED TIMELINE ANCHOR WITH FLAG SUPPORT -->
-                <div id="status-banner" class="status-banner">
-                    <div id="spinner-anchor"></div>
-                    <div class="status-meta">
-                        <span id="flag-indicator" class="flag-indicator"></span>
-                        <span id="status-text">Select SPIN SQUAD to roll a historical world cup roster.</span>
-                    </div>
-                </div>
+            <!-- Standard normal sized initialization button -->
+            <button id="start-game-btn" class="action-btn">Initialize Draft Bucket</button>
+        </section>
+
+
+        <!-- STAGE 2: ACTIVE DRAFTING & SQUAD PLACEMENT INTERFACE -->
+        <section id="draft-dashboard" class="dashboard-grid hidden">
+            
+            <!-- LEFT COMPONENT: PITCH GRAPHICS LAYER & LIVE AGGREGATES -->
+            <div class="pitch-container">
                 
-                <!-- NATIVE MANDATORY OVERFLOW VIEWER BAR -->
-                <div class="scroll-wrapper-box">
-                    <div id="roster-container" class="roster-list locked"></div>
+                <!-- Real-Time Sub-Aggregate Performance Display -->
+                <div class="live-dashboard-stats">
+                    <div class="stat-box">
+                        <div class="stat-lbl">Squad Avg</div>
+                        <div id="avg-global-ovr" class="stat-val">--</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-lbl">Forwards</div>
+                        <div id="avg-forward-ovr" class="stat-val">--</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-lbl">Backs</div>
+                        <div id="avg-back-ovr" class="stat-val">--</div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- SIMULATION PORTAL -->
-            <div id="sim-dashboard" class="card hidden">
-                <h2>Tournament Engine</h2>
-                <button id="run-sim-btn" class="btn success-btn">EXECUTE TOURNAMENT SIMULATION</button>
-                <div id="sim-results" class="sim-results-box"></div>
-                <button id="restart-btn" class="btn secondary-btn hidden">Draft New Hybrid XV</button>
-            </div>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="pitch-panel">
-            <div class="pitch-container-scrollbox">
+                <!-- Lined Playing Surface Field Layout -->
                 <div class="rugby-pitch">
-                    <div class="pitch-line try-line top"></div>
-                    <div class="pitch-line twenty-two top"></div>
-                    <div class="pitch-line ten-meter top"></div>
-                    <div class="pitch-line half-way"></div>
-                    <div class="pitch-line ten-meter bottom"></div>
-                    <div class="pitch-line twenty-two bottom"></div>
-                    <div class="pitch-line try-line bottom"></div>
-                    
-                    <div class="grid-layer">
-                        <div class="pitch-circle" data-pos="Loosehead Prop" style="top: 86%; left: 22%;">
-                            <div class="circle-num">1</div><div class="circle-name">Loosehead Prop</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Hooker" style="top: 88%; left: 50%;">
-                            <div class="circle-num">2</div><div class="circle-name">Hooker</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Tighthead Prop" style="top: 86%; left: 78%;">
-                            <div class="circle-num">3</div><div class="circle-name">Tighthead Prop</div>
-                        </div>
+                    <div class="pitch-line-half"></div>
+                    <div class="pitch-line-22m-top"></div>
+                    <div class="pitch-line-22m-bot"></div>
 
-                        <div class="pitch-circle" data-pos="Lock 4" style="top: 73%; left: 33%;">
-                            <div class="circle-num">4</div><div class="circle-name">Lock 4</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Lock 5" style="top: 73%; left: 67%;">
-                            <div class="circle-num">5</div><div class="circle-name">Lock 5</div>
-                        </div>
+                    <!-- Row 1: Front Row Pack -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Loosehead Prop"></div>
+                        <div class="pitch-circle" data-pos="Hooker"></div>
+                        <div class="pitch-circle" data-pos="Tighthead Prop"></div>
+                    </div>
 
-                        <div class="pitch-circle" data-pos="Blindside Flanker" style="top: 60%; left: 18%;">
-                            <div class="circle-num">6</div><div class="circle-name">Blindside Flanker</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Number 8" style="top: 63%; left: 50%;">
-                            <div class="circle-num">8</div><div class="circle-name">Number 8</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Openside Flanker" style="top: 60%; left: 82%;">
-                            <div class="circle-num">7</div><div class="circle-name">Openside Flanker</div>
-                        </div>
+                    <!-- Row 2: Locks -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Lock 4"></div>
+                        <div class="pitch-circle" data-pos="Lock 5"></div>
+                    </div>
 
-                        <div class="pitch-circle" data-pos="Scrum-half" style="top: 48%; left: 33%;">
-                            <div class="circle-num">9</div><div class="circle-name">Scrum-half</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Fly-half" style="top: 43%; left: 58%;">
-                            <div class="circle-num">10</div><div class="circle-name">Fly-half</div>
-                        </div>
+                    <!-- Row 3: Loose Forwards Back-Row -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Blindside Flanker"></div>
+                        <div class="pitch-circle" data-pos="Number 8"></div>
+                        <div class="pitch-circle" data-pos="Openside Flanker"></div>
+                    </div>
 
-                        <div class="pitch-circle" data-pos="Left Wing" style="top: 28%; left: 13%;">
-                            <div class="circle-num">11</div><div class="circle-name">Left Wing</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Inside Centre" style="top: 31%; left: 37%;">
-                            <div class="circle-num">12</div><div class="circle-name">Inside Centre</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Outside Centre" style="top: 27%; left: 63%;">
-                            <div class="circle-num">13</div><div class="circle-name">Outside Centre</div>
-                        </div>
-                        <div class="pitch-circle" data-pos="Right Wing" style="top: 28%; left: 87%;">
-                            <div class="circle-num">14</div><div class="circle-name">Right Wing</div>
-                        </div>
+                    <!-- Row 4: Halfback Pivot Pairing -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Scrum-half"></div>
+                        <div class="pitch-circle" data-pos="Fly-half"></div>
+                    </div>
 
-                        <div class="pitch-circle" data-pos="Fullback" style="top: 10%; left: 50%;">
-                            <div class="circle-num">15</div><div class="circle-name">Fullback</div>
-                        </div>
+                    <!-- Row 5: Inside & Outside Centres -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Inside Centre"></div>
+                        <div class="pitch-circle" data-pos="Outside Centre"></div>
+                    </div>
+
+                    <!-- Row 6: Deep Back Three Coverage -->
+                    <div class="pitch-row">
+                        <div class="pitch-circle" data-pos="Left Wing"></div>
+                        <div class="pitch-circle" data-pos="Fullback"></div>
+                        <div class="pitch-circle" data-pos="Right Wing"></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            <!-- RIGHT COMPONENT: THE CONTROL SIDEBAR -->
+            <aside class="control-sidebar">
+                
+                <!-- Live Telemetry Readout Console -->
+                <div class="engine-console">
+                    <div class="console-meta">
+                        <div id="status-text">Click 'Spin Squad' to generate your first draft selection pool.</div>
+                        <div id="flag-indicator"></div>
+                    </div>
+                    <div id="spinner-anchor"></div>
+                </div>
+
+                <!-- Action Execution Panel -->
+                <div class="btn-matrix">
+                    <button id="spin-btn" class="core-btn spin-action">
+                        <span>Spin Squad</span>
+                        <span class="sub-lbl">Roll Nation</span>
+                    </button>
+                    <button id="respin-btn" class="core-btn respin-action disabled" disabled>
+                        <span>Respin Pool</span>
+                        <span class="sub-lbl"><span id="respin-count">0</span> left</span>
+                    </button>
+                </div>
+
+                <!-- Scrollable Dynamic Player Roster List -->
+                <div id="roster-container" class="scroll-wrapper-box locked">
+                    <!-- JavaScript dynamically injects current selection batches here -->
+                </div>
+
+                <!-- Universal Abort & Emergency Reset System -->
+                <div class="dashboard-footer-ctrls">
+                    <button class="abort-reset-btn">Restart Draft</button>
+                </div>
+            </aside>
+        </section>
+
+
+        <!-- STAGE 3: ISOLATED LIVE TOURNAMENT LOG ENGINE -->
+        <section id="sim-dashboard" class="tournament-panel hidden">
+            <h2>Tournament Simulator</h2>
+            <button id="run-sim-btn" class="success-btn">Kick Off Tournament</button>
+            
+            <!-- Dedicated Multi-Line Linear Stream Output -->
+            <div id="sim-results" class="terminal-stream">
+                <!-- Matches automatically write on fresh independent lines here -->
+            </div>
+
+            <button id="restart-btn" class="action-btn hidden" style="margin-top: 16px;">Return to Main Menu</button>
+        </section>
+
+    </main>
+
     <script src="app.js"></script>
 </body>
 </html>
