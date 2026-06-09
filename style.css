@@ -395,3 +395,46 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     .card-container { margin: 20px auto; padding: 20px; }
     .pitch-circle { width: 52px; height: 52px; }
 }
+
+/* ── Out-of-position pitch nodes ── */
+.pitch-circle.highlight-outofpos {
+    border-color: #d97706;
+    border-style: solid;
+    background: rgba(217,119,6,0.25);
+    transform: scale(1.07);
+    box-shadow: 0 0 10px rgba(217,119,6,0.6);
+    cursor: pointer;
+}
+.pitch-circle.occupied-oop {
+    background: #1c1208;
+    border: 2px solid #d97706;
+    border-style: solid;
+    cursor: pointer;
+    border-radius: 50% !important;
+}
+.pitch-circle.occupied-oop:not([data-locked]):hover {
+    border-color: #ef4444;
+    box-shadow: 0 0 10px rgba(239,68,68,0.4);
+}
+.oop-num {
+    color: #d97706 !important;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.oop-icon {
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+/* Manifest out-of-position badge */
+.manifest-oop {
+    font-size: 0.68rem;
+    color: #d97706;
+    font-weight: 700;
+    margin-left: 5px;
+    cursor: help;
+}
+.oop-rating {
+    color: #d97706 !important;
+}
