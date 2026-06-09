@@ -1,126 +1,120 @@
 :root {
-    --bg-main: #060d17;
-    --bg-card: #0f1c2e;
-    --bg-element: #0c1726;
-    --border: rgba(255, 255, 255, 0.1);
+    --bg-primary: #0f172a;
+    --bg-card: #1e293b;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --gold: #c99738;
-    --emerald: #05854c;
-    --emerald-hover: #046e3e;
-    --danger: #ef4444;
+    --brand-gold: #c99738;
+    --pitch-green: #14532d;
+    --pitch-lines: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(255, 255, 255, 0.08);
 }
 
-body.light-theme {
-    --bg-main: #f1f5f9;
+.light-theme {
+    --bg-primary: #f1f5f9;
     --bg-card: #ffffff;
-    --bg-element: #f8fafc;
-    --border: rgba(15, 23, 42, 0.15);
     --text-main: #0f172a;
     --text-muted: #64748b;
+    --brand-gold: #b45309;
+    --pitch-green: #166534;
+    --pitch-lines: rgba(255, 255, 255, 0.7);
+    --border-color: rgba(0, 0, 0, 0.08);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; user-select: none; }
-body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { background: var(--bg-primary); color: var(--text-main); transition: background 0.3s ease; padding-bottom: 40px; }
+.app-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); }
 
-header { background: var(--bg-card); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-header h1 span { color: var(--gold); }
-
-.main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
+.main-container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+.central-card { max-width: 600px; margin: 0 auto; }
+.central-card-wide { max-width: 1000px; margin: 0 auto; }
 .hidden { display: none !important; }
 
-.theme-toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+/* UI BUTTON ARCHITECTURES */
+.ui-btn-primary { background: var(--brand-gold); color: #ffffff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 6px; cursor: pointer; transition: opacity 0.2s; }
+.ui-btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: 6px; cursor: pointer; }
+.ui-btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; width: 100%; }
+.ui-btn-success { background: #22c55e; color: white; border: none; padding: 14px 28px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; }
+button.disabled, button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* CONFIG LAYER */
-.config-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; width: 100%; max-width: 460px; padding: 20px; }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 0.75rem; font-weight: bold; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-select { width: 100%; background: var(--bg-element); border: 1px solid var(--border); padding: 8px; color: var(--text-main); border-radius: 4px; }
+/* FORM LABELS & CONTROL MATRIX SLIDERS */
+.setup-form-layout { display: flex; flex-direction: column; gap: 24px; margin-top: 20px; }
+.group-label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+.slider-track { display: flex; background: rgba(0,0,0,0.2); border-radius: 30px; padding: 4px; position: relative; cursor: pointer; border: 1px solid var(--border-color); height: 44px; align-items: center; }
+.slider-label { flex: 1; text-align: center; font-size: 0.85rem; font-weight: bold; z-index: 2; color: var(--text-muted); transition: color 0.2s; }
+.slider-label.active { color: #ffffff; }
+.slider-handle { position: absolute; width: 50%; height: 36px; background: var(--brand-gold); border-radius: 25px; left: 4px; transition: transform 0.2s ease; z-index: 1; }
+.slider-track.right-state .slider-handle { transform: translateX(96%); }
 
-.action-btn { display: inline-block; background: var(--emerald); color: white; border: none; border-radius: 4px; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; margin-top: 10px; }
-.action-btn:hover { background: var(--emerald-hover); }
+/* RADIO ADVANCED CARDS */
+.radio-button-cluster { display: flex; flex-direction: column; gap: 12px; }
+.radio-card { display: flex; align-items: center; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+.radio-card:hover { border-color: var(--brand-gold); }
+.radio-card input { display: none; }
+.radio-design { width: 18px; height: 18px; border: 2px solid var(--text-muted); border-radius: 50%; margin-right: 16px; position: relative; }
+.radio-card input:checked + .radio-design { border-color: var(--brand-gold); }
+.radio-card input:checked + .radio-design::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--brand-gold); border-radius: 50%; top: 2px; left: 2px; }
+.radio-text { display: flex; flex-direction: column; }
+.radio-text .title { font-weight: bold; font-size: 0.95rem; }
+.radio-text .desc { font-size: 0.8rem; color: var(--text-muted); }
 
-.custom-slider-track { background: var(--bg-element); border: 1px solid var(--border); border-radius: 20px; height: 34px; position: relative; cursor: pointer; display: flex; align-items: center; }
-.custom-slider-handle { position: absolute; height: 28px; width: calc(50% - 2px); background: var(--gold); border-radius: 20px; left: 2px; transition: transform 0.2s; }
-.custom-slider-track.right-state .custom-slider-handle { transform: translateX(100%); }
-.slider-option { flex: 1; text-align: center; font-size: 0.72rem; font-weight: bold; z-index: 2; color: var(--text-muted); padding: 0 4px; }
-.slider-option.active { color: #000 !important; }
+/* DASHBOARD VIEWS AND STREAM LAYOUTS */
+.dashboard-grid { display: grid; grid-template-columns: 400px 1fr; gap: 30px; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px; }
+.engine-controls { display: flex; gap: 10px; flex: 1; }
+.national-flag { font-size: 1.8rem; min-width: 45px; }
+.status-alert-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; font-size: 0.85rem; color: var(--brand-gold); border-left: 3px solid var(--brand-gold); min-height: 44px; }
+.scrollable-feed-frame { height: 520px; overflow-y: auto; margin-top: 15px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.1); border-radius: 6px; padding: 10px; }
 
-.radio-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.radio-box { position: relative; cursor: pointer; }
-.radio-box input { position: absolute; opacity: 0; }
-.radio-tile { background: var(--bg-element); border: 1px solid var(--border); border-radius: 4px; padding: 8px; text-align: center; font-size: 0.75rem; }
-.radio-box input:checked + .radio-tile { border-color: var(--gold); background: rgba(201,151,56,0.1); }
+/* REVISED TACTICAL RUGBY FIELD LAYOUT GRID */
+.averages-dashboard { display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+.rugby-pitch-layout { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; background: var(--pitch-green); border: 4px double var(--pitch-lines); border-radius: 12px; padding: 20px; position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,0.5); }
 
-/* DASHBOARD GRID SYSTEM */
-.dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 15px; width: 100%; margin: 10px auto; }
-.pitch-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; }
+/* Grid mapping positions context directly */
+[data-pos="Loosehead Prop"]  { grid-column: 1 / 3; }
+[data-pos="Hooker"]          { grid-column: 3 / 5; }
+[data-pos="Tighthead Prop"]  { grid-column: 5 / 7; }
+[data-pos="Lock 4"]          { grid-column: 2 / 4; }
+[data-pos="Lock 5"]          { grid-column: 4 / 6; }
+[data-pos="Blindside Flanker"]{ grid-column: 1 / 3; }
+[data-pos="Number 8"]         { grid-column: 3 / 5; }
+[data-pos="Openside Flanker"] { grid-column: 5 / 7; }
+[data-pos="Scrum-half"]      { grid-column: 2 / 4; }
+[data-pos="Fly-half"]        { grid-column: 4 / 6; }
+[data-pos="Inside Centre"]   { grid-column: 2 / 4; }
+[data-pos="Outside Centre"]  { grid-column: 4 / 6; }
+[data-pos="Left Wing"]       { grid-column: 1 / 3; }
+[data-pos="Fullback"]        { grid-column: 3 / 5; }
+[data-pos="Right Wing"]      { grid-column: 5 / 7; }
 
-.live-dashboard-stats { display: flex; justify-content: space-around; background: var(--bg-element); padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid var(--border); }
-.stat-box { font-size: 0.9rem; font-weight: bold; }
-.stat-lbl { color: var(--text-muted); margin-right: 4px; }
-.stat-val { color: var(--gold); }
+.pitch-circle { background: rgba(255, 255, 255, 0.08); border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: all 0.2s ease; height: 74px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+.pitch-circle .circle-num { font-size: 1.1rem; font-weight: bold; color: var(--pitch-lines); }
+.pitch-circle .circle-name { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
-/* Pitch Surfaces Layout & Enlarged Field Elements */
-.rugby-pitch { background: #14532d; border: 3px solid rgba(255,255,255,0.7); border-radius: 4px; position: relative; display: flex; flex-direction: column; gap: 32px; padding: 30px 0; }
-.pitch-line-half { position: absolute; top: 50%; width: 100%; height: 2px; background: rgba(255,255,255,0.3); transform: translateY(-50%); }
-.pitch-line-22m-top { position: absolute; top: 20%; width: 100%; height: 1px; background: rgba(255,255,255,0.2); }
-.pitch-line-22m-bot { position: absolute; bottom: 20%; width: 100%; height: 1px; background: rgba(255,255,255,0.2); }
+.pitch-circle.highlight-eligible { border-color: var(--brand-gold); background: rgba(201, 151, 56, 0.25); animation: pulse 1.5s infinite; }
+.pitch-circle.occupied { border-style: solid; border-color: #22c55e; background: rgba(34, 197, 94, 0.25); }
+.pitch-circle.occupied .circle-num { color: #4ade80; }
 
-.pitch-row { display: flex; justify-content: center; gap: 24px; z-index: 2; }
-.pitch-circle { width: 68px; height: 68px; border-radius: 50%; background: rgba(6,13,23,0.95); border: 2px dashed rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: transform 0.15s; }
-.pitch-circle::before { content: attr(data-pos); font-size: 0.58rem; color: var(--text-muted); text-align: center; font-weight: bold; line-height: 1.1; padding: 0 4px; }
+/* ROSTER RENDERING DESIGN LAYOUTS */
+.roster-group { margin-bottom: 15px; }
+.group-header { background: rgba(255,255,255,0.05); color: var(--brand-gold); font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 5px; }
+.player-row { display: flex; justify-content: space-between; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: background 0.15s; }
+.player-row:hover { background: rgba(255,255,255,0.05); }
+.player-row.selected { background: rgba(201, 151, 56, 0.2) !important; border: 1px solid var(--brand-gold); }
+.player-row.claimed-lockout { opacity: 0.4; cursor: not-allowed; }
 
-.pitch-circle.highlight-eligible { border: 2px solid var(--gold); background: rgba(201,151,56,0.25); cursor: pointer; transform: scale(1.05); }
-.pitch-circle.occupied { background: var(--bg-element); border: 2px solid var(--gold); cursor: pointer; }
-.pitch-circle.occupied::before { display: none; }
+/* TOURNAMENT CONSOLE TERMINALS */
+.sim-split-frame { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-top: 20px; }
+.manifest-box { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 15px; border: 1px solid var(--border-color); }
+.terminal-box { display: flex; flex-direction: column; gap: 15px; }
+.terminal-logs { background: #000000; color: #22c55e; font-family: monospace; padding: 15px; border-radius: 6px; height: 350px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; }
+.sim-log-line { display: block; margin-bottom: 4px; }
 
-.circle-num { font-size: 0.95rem; font-weight: bold; color: var(--gold); }
-.circle-name { font-size: 0.58rem; color: #fff; max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; }
-
-/* Tooltips */
-.penalty-tag { position: absolute; bottom: -4px; background: var(--danger); color: white; font-size: 0.5rem; padding: 1px 4px; border-radius: 2px; font-weight: bold; cursor: help; }
-.penalty-tag .tooltip-box { display: none; width: 160px; background: #1e293b; color: #fff; text-align: center; padding: 6px; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); border-radius: 4px; font-size: 0.65rem; border: 1px solid var(--danger); z-index: 10; line-height: 1.2; }
+/* COMPLEX OVERLAYS */
+.penalty-tag { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.6rem; font-weight: bold; padding: 2px 4px; border-radius: 3px; cursor: help; }
+.penalty-tag .tooltip-box { display: none; position: absolute; background: #1e293b; color: #ffffff; border: 1px solid #ef4444; width: 180px; padding: 8px; border-radius: 4px; font-size: 0.7rem; z-index: 10; bottom: 20px; right: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
 .penalty-tag:hover .tooltip-box { display: block; }
+.rugby-ball-spinner { font-size: 2.5rem; text-align: center; animation: spin-alt 0.8s linear infinite; margin: 20px 0; }
 
-/* SIDEBAR & RESPONSIVE ACTION BUTTONS */
-.control-sidebar { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
-.engine-console { background: var(--bg-element); border-radius: 4px; padding: 12px; font-size: 0.78rem; margin-bottom: 8px; min-height: 80px; position: relative; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-#flag-indicator { font-size: 1.5rem; margin-top: 2px; }
-
-/* Spinning Ball Graphical Layout */
-.rugby-ball-spinner { display: block; font-size: 1.8rem; animation: tumbleBall 0.8s linear infinite; margin-top: 4px; }
-@keyframes tumbleBall {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.2); }
-    100% { transform: rotate(360deg) scale(1); }
-}
-
-.btn-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.core-btn { border: none; border-radius: 4px; padding: 10px 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-.spin-action { background: var(--emerald); color: white; }
-.respin-action { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-.core-btn.disabled, .core-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-
-.scroll-wrapper-box { flex: 1; min-height: 350px; max-height: 480px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
-.roster-group { margin-bottom: 8px; }
-.group-header { background: rgba(255,255,255,0.06); padding: 4px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: var(--gold); border-radius: 2px; }
-.player-row { display: flex; justify-content: space-between; padding: 6px; margin-top: 2px; font-size: 0.78rem; border-radius: 2px; cursor: pointer; background: rgba(255,255,255,0.01); }
-.player-row:hover:not(.claimed-lockout) { background: rgba(255,255,255,0.05); }
-.player-row.selected { background: rgba(201, 151, 56, 0.18) !important; border-left: 3px solid var(--gold); }
-.player-row.claimed-lockout { opacity: 0.2; cursor: not-allowed; }
-
-.dashboard-footer-ctrls { margin-top: auto; padding-top: 10px; }
-.abort-reset-btn { width: 100%; background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px; }
-.abort-reset-btn:hover { background: var(--danger); color: white; }
-
-/* SIMULATOR MODAL PREVIEW */
-.tournament-panel { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 10px; width: 100%; max-width: 640px; margin: 0 auto; }
-.tournament-panel h2 { margin-bottom: 12px; font-size: 1.2rem; text-align: center; text-transform: uppercase; }
-.success-btn { background: var(--emerald); color: white; border: none; padding: 10px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; display: block; margin: 10px auto; }
-
-.manifest-preview-box { background: var(--bg-element); border: 1px solid var(--border); border-radius: 6px; padding: 12px; max-height: 180px; overflow-y: auto; margin-bottom: 14px; color: var(--text-main); }
-.manifest-preview-box h3 { font-size: 0.85rem; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-
-.terminal-stream { background: #020617; border: 1px solid var(--border); height: 220px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 0.82rem; border-radius: 4px; }
-.sim-log-line { display: block; margin-bottom: 5px; color: #34d399; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(201, 151, 56, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(201, 151, 56, 0); } 100% { box-shadow: 0 0 0 0 rgba(201, 151, 56, 0); } }
+@keyframes spin-alt { 100% { transform: rotate(360deg); } }
