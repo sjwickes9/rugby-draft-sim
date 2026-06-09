@@ -83,6 +83,14 @@ button:disabled, button.disabled {
     border-color: var(--brand-gold-hover);
 }
 
+/* Full-width primary button variant (setup screen CTA) */
+.btn-full {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    font-size: 1rem;
+}
+
 /* Configurations & Options Toggle Elements */
 .card-container {
     max-width: 550px;
@@ -101,6 +109,14 @@ button:disabled, button.disabled {
     margin-bottom: 8px;
     color: var(--text-muted);
     font-weight: 700;
+}
+
+/* Slider hint text */
+.control-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 7px;
+    padding-left: 2px;
 }
 
 /* Sliding Toggle Tracks */
