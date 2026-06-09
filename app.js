@@ -47,14 +47,11 @@ const statusText = document.getElementById("status-text");
 const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 
-function getFlagEmbed(country) {
-    const maps = { "New Zealand": "🇳🇿", "South Africa": "🇿🇦", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Samoa": "🇼🇸", "Fiji": "🇫🇯" };
-    return maps[country] || "🏳️";
-}
-
+// APPLICATION INTERFACE INITIALIZER
 document.addEventListener("DOMContentLoaded", () => {
     const startGameBtn = document.getElementById("start-game-btn");
     if (startGameBtn) {
+        startGameBtn.removeAttribute("disabled"); // Ensures button click events are never blocked dynamically
         startGameBtn.addEventListener("click", (e) => {
             e.preventDefault();
             const difficultyChecked = document.querySelector('input[name="difficulty"]:checked');
@@ -63,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
             respinsLeft = difficultySetting === "easy" ? 3 : difficultySetting === "normal" ? 1 : 0;
             if (respinCountText) respinCountText.textContent = respinsLeft;
             
-            if (setupCard) setupCard.style.display = "none";
+            if (setupCard) setupCard.classList.add("hidden");
             if (draftDashboard) draftDashboard.classList.remove("hidden");
             
             recalculateDashboardAverages();
@@ -71,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Dynamic Configuration Sliders Sync Mapping
 setupSlider("variant-slider-track", "variant-handle", (index) => { isCareerMode = (index === 1); });
 setupSlider("rating-slider-track", "rating-handle", (index) => {
     isKnowledgeMode = (index === 1);
@@ -100,21 +98,25 @@ function isPositionFamilyFullyOccupied(family) {
     return spotsInFamily.every(pos => userTeam[pos] !== undefined);
 }
 
-spinBtn.addEventListener("click", () => {
-    if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
-        statusText.textContent = "⚠️ Selection Required! You must draft a player from this team before generating a new pool.";
-        return;
-    }
-    triggerRosterSpinEngine();
-});
+if (spinBtn) {
+    spinBtn.addEventListener("click", () => {
+        if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
+            statusText.textContent = "⚠️ Selection Required! You must draft a player from this team before generating a new pool.";
+            return;
+        }
+        triggerRosterSpinEngine();
+    });
+}
 
-respinBtn.addEventListener("click", () => {
-    if (respinsLeft <= 0) return;
-    respinsLeft--;
-    respinCountText.textContent = respinsLeft;
-    if (respinsLeft <= 0) { respinBtn.classList.add("disabled"); respinBtn.disabled = true; }
-    triggerRosterSpinEngine();
-});
+if (respinBtn) {
+    respinBtn.addEventListener("click", () => {
+        if (respinsLeft <= 0) return;
+        respinsLeft--;
+        respinCountText.textContent = respinsLeft;
+        if (respinsLeft <= 0) { respinBtn.classList.add("disabled"); respinBtn.disabled = true; }
+        triggerRosterSpinEngine();
+    });
+}
 
 function triggerRosterSpinEngine() {
     selectedPlayer = null;
@@ -249,3 +251,7 @@ pitchCircles.forEach(node => {
 });
 
 document.querySelectorAll(".abort-reset-btn").forEach(btn => { btn.addEventListener("click", () => location.reload()); });
+document.getElementById("theme-toggle").addEventListener("click", () => {
+    document.body.classList.toggle("light-theme");
+    document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
+});
