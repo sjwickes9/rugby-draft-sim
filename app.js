@@ -1,3 +1,4 @@
+// Structural Position Families Mapping
 const positionFamilies = {
     "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hookers",
     "Lock 4": "Locks", "Lock 5": "Locks", "Blindside Flanker": "Back Row",
@@ -9,22 +10,7 @@ const positionFamilies = {
 const forwardPositions = ["Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
 const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
-// WORLD CUP DATA POOL SQUAD REGISTRIES
-const tier1Nations = [
-    { country: "New Zealand", years: ["2015", "2011"], squads: { "2015": ["McCaw", "Carter", "Nonu", "Smith", "Read", "Savea", "Whitelock", "Retallick", "Mealamu", "Woodcock"] } },
-    { country: "South Africa", years: ["2019", "2023"], squads: { "2019": ["Kolisi", "Pollard", "de Klerk", "du Toit", "Vermeulen", "Etzebeth", "Mtawarira", "Am", "Mapimpi"] } },
-    { country: "England", years: ["2003"], squads: { "2003": ["Wilkinson", "Johnson", "Hill", "Dallaglio", "Back", "Robinson", "Greenwood", "Cohen", "Woodman", "Thompson"] } }
-];
-const tier2Nations = [
-    { country: "Samoa", years: ["2011"], squads: { "HISTORIC": ["Tuilagi", "Tekori", "Johnston", "Mapusua", "Pisi", "Fotuali'i", "Taulafo", "Schwalger"] } },
-    { country: "Fiji", years: ["2023"], squads: { "HISTORIC": ["Radradra", "Botia", "Nayacalevu", "Lomani", "Tuisova", "Wainiqolo", "Mawi", "Ikanivere"] } }
-];
-const historicNameBank = {
-    "New": ["McCaw", "Carter", "Nonu", "Smith", "Read", "Savea", "Whitelock", "Retallick", "Mealamu", "Woodcock"],
-    "Sou": ["Kolisi", "Pollard", "de Klerk", "du Toit", "Vermeulen", "Etzebeth", "Mtawarira", "Am", "Mapimpi"],
-    "Eng": ["Wilkinson", "Johnson", "Hill", "Dallaglio", "Back", "Robinson", "Greenwood", "Cohen"]
-};
-
+// Runtime Application Variables
 let userTeam = {};
 let currentSpunSquad = [];
 let selectedPlayer = null;
@@ -35,6 +21,7 @@ let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
 let draftedPlayersBlacklist = []; 
 
+// DOM Element Targets
 const setupCard = document.getElementById("setup-card");
 const draftDashboard = document.getElementById("draft-dashboard");
 const simDashboard = document.getElementById("sim-dashboard");
@@ -42,16 +29,17 @@ const spinBtn = document.getElementById("spin-btn");
 const respinBtn = document.getElementById("respin-btn");
 const respinCountText = document.getElementById("respin-count");
 const rosterContainer = document.getElementById("roster-container");
-const spinnerAnchor = document.getElementById("spinner-anchor");
 const statusText = document.getElementById("status-text");
-const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
+const runSimBtn = document.getElementById("run-sim-btn");
+const simResults = document.getElementById("sim-results");
+const restartBtn = document.getElementById("restart-btn");
+const manifestTeamBox = document.getElementById("manifest-team-box");
 
 // APPLICATION INTERFACE INITIALIZER
 document.addEventListener("DOMContentLoaded", () => {
     const startGameBtn = document.getElementById("start-game-btn");
     if (startGameBtn) {
-        startGameBtn.removeAttribute("disabled"); // Ensures button click events are never blocked dynamically
         startGameBtn.addEventListener("click", (e) => {
             e.preventDefault();
             const difficultyChecked = document.querySelector('input[name="difficulty"]:checked');
@@ -68,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Dynamic Configuration Sliders Sync Mapping
+// Setting Up Config Selection Matrix Controls
 setupSlider("variant-slider-track", "variant-handle", (index) => { isCareerMode = (index === 1); });
 setupSlider("rating-slider-track", "rating-handle", (index) => {
     isKnowledgeMode = (index === 1);
@@ -118,6 +106,7 @@ if (respinBtn) {
     });
 }
 
+// ROSTER SPIN ENGINE - LINKED DIRECTLY TO EXTERNAL DATA WINDOW
 function triggerRosterSpinEngine() {
     selectedPlayer = null;
     playerSelectedFromCurrentPool = false;
@@ -126,15 +115,24 @@ function triggerRosterSpinEngine() {
     rosterContainer.innerHTML = "";
     statusText.textContent = "";
 
+    // Safely check if data source exists globally, fallback safely to empty sets if file isn't initialized yet
+    const sourceData = (typeof rugbyDataEngine !== 'undefined') ? rugbyDataEngine : { tier1Nations: [], tier2Nations: [], historicNameBank: {} };
+
     const isTier1 = Math.random() < 0.75;
-    const targetPool = isTier1 ? tier1Nations : tier2Nations;
+    const targetPool = isTier1 ? sourceData.tier1Nations : sourceData.tier2Nations;
+    
+    if (!targetPool || targetPool.length === 0) {
+        statusText.textContent = "⚠️ Error: data.js file could not be linked or read correctly.";
+        return;
+    }
+
     const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
     const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
     
     statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
     
     currentSpunSquad = [];
-    let yearNameSource = selectedNation.squads[selectedYear] || selectedNation.squads["HISTORIC"] || historicNameBank[selectedNation.country.substring(0,3)] || ["Player"];
+    let yearNameSource = selectedNation.squads[selectedYear] || selectedNation.squads["HISTORIC"] || sourceData.historicNameBank[selectedNation.country.substring(0,3)] || ["Player"];
 
     const positionDistribution = [
         { group: "Props", count: 4, prefixes: ["P. ", "O. ", "M. ", "T. "] },
@@ -243,14 +241,87 @@ pitchCircles.forEach(node => {
 
         if (spotsFilledCount === 15) {
             setTimeout(() => {
-                draftDashboard.classList.add("hidden"); simDashboard.classList.remove("hidden");
+                if (draftDashboard) draftDashboard.classList.add("hidden");
+                if (simDashboard) simDashboard.classList.remove("hidden");
                 populateManifestPreviewWindow();
-            }, 1000);
+            }, 800);
         }
     });
 });
 
+function populateManifestPreviewWindow() {
+    if (!manifestTeamBox) return;
+    let htmlContent = `<div class="manifest-header">Drafted Squad Roster Summary</div>`;
+    
+    const positionOrder = [
+        "Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", 
+        "Blindside Flanker", "Openside Flanker", "Number 8", "Scrum-half", 
+        "Fly-half", "Left Wing", "Inside Centre", "Outside Centre", "Right Wing", "Fullback"
+    ];
+
+    positionOrder.forEach(pos => {
+        const player = userTeam[pos];
+        if (player) {
+            htmlContent += `
+                <div class="manifest-row">
+                    <span class="manifest-pos">${pos}</span>
+                    <span>${player.name}</span>
+                    <span class="player-rating">${player.score}</span>
+                </div>`;
+        }
+    });
+    manifestTeamBox.innerHTML = htmlContent;
+}
+
+// SIMULATION ENGINE INTERACTION EXECUTION
+if (runSimBtn) {
+    runSimBtn.addEventListener("click", () => {
+        runSimBtn.disabled = true;
+        runSimBtn.classList.add("disabled");
+        simResults.innerHTML = "";
+
+        let tSum = 0; let count = 0;
+        for (let pos in userTeam) { tSum += userTeam[pos].score; count++; }
+        const squadRating = count > 0 ? Math.round(tSum / count) : 80;
+
+        const simulationStages = [
+            { text: "⏳ Initializing Simulation Matrix Engine...", time: 600 },
+            { text: "🏉 Quarter-Finals: Matchup VS Australia (2003 Classic Lineup)", time: 1400, oppRating: 86 },
+            { text: "🏉 Semi-Finals: Matchup VS France (2023 Campaign Squad)", time: 2600, oppRating: 89 },
+            { text: "🏆 Grand Final Championship: Matchup VS Classic Barbarians", time: 3800, oppRating: 92 }
+        ];
+
+        simulationStages.forEach((stage, idx) => {
+            setTimeout(() => {
+                if (idx === 0) {
+                    simResults.innerHTML += `<div class="sim-log-line">${stage.text}</div>`;
+                } else {
+                    const winVariance = (squadRating - stage.oppRating) * 2;
+                    const rng = Math.floor(Math.random() * 20) - 10 + winVariance;
+                    const userScore = Math.max(10, 24 + Math.round(rng / 2));
+                    const oppScore = Math.max(6, 21 - Math.round(rng / 2));
+
+                    if (userScore >= oppScore) {
+                        simResults.innerHTML += `<div class="sim-log-line" style="color: #4ade80;">✅ ${stage.text} -> WON ${userScore} - ${oppScore}</div>`;
+                        if (idx === simulationStages.length - 1) {
+                            simResults.innerHTML += `<div class="sim-log-line" style="color: var(--brand-gold); font-weight: bold; margin-top: 10px;">🎉 TOURNAMENT VICTOR! Your hybrid squad has successfully conquered the simulation!</div>`;
+                            if (restartBtn) restartBtn.classList.remove("hidden");
+                        }
+                    } else {
+                        simResults.innerHTML += `<div class="sim-log-line" style="color: #f87171;">❌ ${stage.text} -> LOST ${userScore} - ${oppScore}</div>`;
+                        simResults.innerHTML += `<div class="sim-log-line" style="color: #ef4444; font-weight: bold; margin-top: 10px;">💀 Campaign Defeat. Your team was knocked out of the tournament bracket.</div>`;
+                        if (restartBtn) restartBtn.classList.remove("hidden");
+                    }
+                }
+                simResults.scrollTop = simResults.scrollHeight;
+            }, stage.time);
+        });
+    });
+}
+
+if (restartBtn) { restartBtn.addEventListener("click", () => location.reload()); }
 document.querySelectorAll(".abort-reset-btn").forEach(btn => { btn.addEventListener("click", () => location.reload()); });
+
 document.getElementById("theme-toggle").addEventListener("click", () => {
     document.body.classList.toggle("light-theme");
     document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
