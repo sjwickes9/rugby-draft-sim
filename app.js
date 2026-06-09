@@ -6,17 +6,15 @@ const positionFamilies = {
     "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
 };
 
-// THE ALL-NATION HISTORICAL MATRICES (26 Certified Tournament Competitors)
+// THE ALL-NATION HISTORICAL MATRICES (Hex Escaped flags for UK nations to completely avoid unicode hidden errors)
 const historicalNations = [
     { country: "New Zealand", flag: "🇳🇿", tier: 1, dynamicSquad: { "Props": ["T. Woodcock", "O. Franks"], "Hooker": ["K. Mealamu"], "Second Rows": ["B. Retallick", "S. Whitelock"], "Back Row": ["J. Kaino", "R. McCaw", "K. Read"], "Scrum Halves": ["A. Smith"], "Fly Halves": ["D. Carter"], "Centres": ["M. Nonu", "C. Smith"], "Back Three": ["J. Savea", "B. Smith", "J. Lomu"] }},
     { country: "South Africa", flag: "🇿🇦", tier: 1, dynamicSquad: { "Props": ["O. du Randt", "F. Malherbe"], "Hooker": ["B. du Plessis"], "Second Rows": ["E. Etzebeth", "V. Matfield"], "Back Row": ["S. Burger", "S. Kolisi", "D. Vermeulen"], "Scrum Halves": ["F. de Klerk"], "Fly Halves": ["H. Pollard"], "Centres": ["D. de Allende", "L. Am"], "Back Three": ["B. Habana", "C. Kolbe", "P. Montgomery"] }},
-    { country: "England", flag: "🇬🇧", tier: 1, dynamicSquad: { "Props": ["P. Vickery", "J. Leonard"], "Hooker": ["P. Thompson"], "Second Rows": ["M. Johnson", "B. Kay"], "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], "Scrum Halves": ["M. Dawson"], "Fly Halves": ["J. Wilkinson"], "Centres": ["W. Greenwood", "M. Tindall"], "Back Three": ["B. Cohen", "J. Robinson", "M. Cueto"] }},
+    { country: "England", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}", tier: 1, dynamicSquad: { "Props": ["P. Vickery", "J. Leonard"], "Hooker": ["P. Thompson"], "Second Rows": ["M. Johnson", "B. Kay"], "Back Row": ["R. Hill", "N. Back", "L. Dallaglio"], "Scrum Halves": ["M. Dawson"], "Fly Halves": ["J. Wilkinson"], "Centres": ["W. Greenwood", "M. Tindall"], "Back Three": ["B. Cohen", "J. Robinson", "M. Cueto"] }},
     { country: "France", flag: "🇫🇷", tier: 1, dynamicSquad: { "Props": ["S. Marconnet", "N. Mas"], "Hooker": ["W. Servat"], "Second Rows": ["F. Pelous", "L. Nallet"], "Back Row": ["T. Dusautoir", "I. Harinordoquy", "G. Alldritt"], "Scrum Halves": ["A. Dupont"], "Fly Halves": ["F. Michalak"], "Centres": ["Y. Jauzion", "G. Fickou"], "Back Three": ["V. Clerc", "D. Penaud", "T. Ramos"] }},
     { country: "Ireland", flag: "🇮🇪", tier: 1, dynamicSquad: { "Props": ["A. Porter", "T. Furlong"], "Hooker": ["D. Sheehan"], "Second Rows": ["P. O'Connell", "J. Ryan"], "Back Row": ["P. O'Mahony", "J. van der Flier", "C. Doris"], "Scrum Halves": ["J. Gibson-Park"], "Fly Halves": ["J. Sexton"], "Centres": ["B. O'Driscoll", "B. Aki"], "Back Three": ["M. Hansen", "J. Lowe", "H. Keenan"] }},
     { country: "Australia", flag: "🇦🇺", tier: 1, dynamicSquad: { "Props": ["E. McKenzie", "A. Baxter"], "Hooker": ["P. Kearns"], "Second Rows": ["J. Eales", "N. Sharpe"], "Back Row": ["O. Finegan", "G. Smith", "T. Kefu"], "Scrum Halves": ["G. Gregan"], "Fly Halves": ["S. Larkham"], "Centres": ["T. Horan", "S. Mortlock"], "Back Three": ["D. Campese", "L. Tuqiri", "C. Latham"] }},
-    // WALES ESCAPE CODE
     { country: "Wales", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}", tier: 1, dynamicSquad: { "Props": ["G. Jenkins", "A. Jones"], "Hooker": ["K. Owens"], "Second Rows": ["A. W. Jones", "L. Charteris"], "Back Row": ["D. Lydiate", "S. Warburton", "T. Faletau"], "Scrum Halves": ["M. Phillips"], "Fly Halves": ["D. Biggar"], "Centres": ["J. Roberts", "J. Davies"], "Back Three": ["S. Williams", "G. North", "L. Halfpenny"] }},
-    // SCOTLAND ESCAPE CODE
     { country: "Scotland", flag: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}", tier: 2, dynamicSquad: { "Props": ["P. Wright", "Z. Fagerson"], "Hooker": ["C. Lawson"], "Second Rows": ["R. Gray", "G. Gilchrist"], "Back Row": ["J. White", "H. Watson", "M. Leslie"], "Scrum Halves": ["G. Laidlaw"], "Fly Halves": ["F. Russell"], "Centres": ["S. Hastings", "M. Harris"], "Back Three": ["D. van der Merwe", "T. Seymour", "S. Hogg"] }},
     { country: "Argentina", flag: "🇦🇷", tier: 2, dynamicSquad: { "Props": ["R. Roncero", "M. Scelzo"], "Hooker": ["M. Ledesma"], "Second Rows": ["P. Albacete", "T. Lavanini"], "Back Row": ["P. Matera", "M. Kremer", "J.M. Leguizamón"], "Scrum Halves": ["A. Pichot"], "Fly Halves": ["F. Contepomi"], "Centres": ["J.M. Hernández", "M. Moroni"], "Back Three": ["H. Agulla", "E. Boffelli", "J.C. Mallía"] }},
     { country: "Fiji", flag: "🇫🇯", tier: 2, dynamicSquad: { "Props": ["E. Mawi", "M. Saulo"], "Hooker": ["S. Matavesi"], "Second Rows": ["L. Nakarawa", "A. Ratuniyarawa"], "Back Row": ["D. Wainiqolo", "P. Yato", "V. Mata"], "Scrum Halves": ["F. Lomani"], "Fly Halves": ["B. Volavola"], "Centres": ["S. Radradra", "W. Nayacalevu"], "Back Three": ["J. Tuisova", "M. Habosi"], "Fullback": ["K. Murimurivalu"] }},
@@ -25,8 +23,8 @@ const historicalNations = [
     { country: "Samoa", flag: "🇼🇸", tier: 2, dynamicSquad: { "Props": ["C. Johnston", "L. Mulipola"], "Hooker": ["M. Schwalger"], "Second Rows": ["I. Tekori", "F. Levi"], "Back Row": ["M. Fa'asalele", "J. Lam", "S. Sione"], "Scrum Halves": ["K. Fotuali'i"], "Fly Halves": ["T. Pisi"], "Centres": ["S. Mapusua", "G. Pisi"], "Back Three": ["A. Tuilagi", "T. Nanai-Williams", "Tim Nanai"] }},
     { country: "Tonga", flag: "🇹🇴", tier: 2, dynamicSquad: { "Props": ["S. Taumalolo", "B. Tameifuna"], "Hooker": ["A. Lutui"], "Second Rows": ["S. Latu", "L. Lokotui"], "Back Row": ["S. Kalamafoni", "N. Latu", "V. Ma'afu"], "Scrum Halves": ["S. Takulua"], "Fly Halves": ["K. Morath"], "Centres": ["S. Piutau", "M. Fekitoa"], "Back Three": ["F. Vainikolo", "T. Veainu", "V. Lilo"] }},
     { country: "Georgia", flag: "🇬🇪", tier: 2, dynamicSquad: { "Props": ["D. Zirakashvili", "B. Gigashvili"], "Hooker": ["J. Bregvadze"], "Second Rows": ["K. Mikautadze", "N. Cheishvili"], "Back Row": ["M. Gorgodze", "G. Tskhadadze", "B. Saghinadze"], "Scrum Halves": ["V. Lobzhanidze"], "Fly Halves": ["L. Khmaladze"], "Centres": ["D. Kacharava", "M. Sharikadze"], "Back Three": ["A. Todua", "A. Niniashvili", "B. Tsiklauri"] }},
-    { country: "Canada", flag: "🇨🇦", tier: 3, dynamicSquad: { "Props": ["R. Snow", "H. Sears-Duru"], "Hooker": ["P. Riordan"], "Second Rows": ["J. Cudmore", "B. Beukeboom"], "Back Row": ["A. Charron", "J. Moonlight", "T. Ardron"], "Scrum Halves": ["G. Rees"], "Fly Halves": ["G. Pritchard"], "Centres": ["C. Hearn", "D. van der Merwe"], "Back Three": ["W. Stanley", "D. Paris", "J. Elkinson"] }},
-    { country: "United States", flag: "🇺🇸", tier: 3, dynamicSquad: { "Props": ["T. Lamositele", "E. Fry"], "Hooker": ["J. Taufete'e"], "Second Rows": ["S. Civetta", "G. Peterson"], "Back Row": ["A. MacGinty", "T. Clever", "C. Dolan"], "Scrum Halves": ["N. Augspurger"], "Fly Halves": ["M. Brache"], "Centres": ["P. Lasike", "B. Campbell"], "Back Three": ["B. Scully", "T. Ngwenya"], "Fullback": ["C. Wyles"] }},
+    { country: "Canada", flag: "🇨🇦", tier: 3, dynamicSquad: { "Props": ["R. Snow", "H. Sears-Duru"], "Hooker": ["P. Riordan"], "Second Rows": ["J. Cudmore", "B. Beukeboom"], "Back Row": ["A. Charron", "J. Moonlight", "T. Ardron"], "Scrum Halves": ["M. Williams"], "Fly Halves": ["G. Rees"], "Centres": ["C. Hearn", "D. van der Merwe"], "Back Three": ["W. Stanley", "D. Paris", "G. Pritchard"] }},
+    { country: "United States", flag: "🇺🇸", tier: 3, dynamicSquad: { "Props": ["T. Lamositele", "E. Fry"], "Hooker": ["J. Taufete'e"], "Second Rows": ["S. Civetta", "G. Peterson"], "Back Row": ["T. Clever", "C. Dolan", "J. Quill"], "Scrum Halves": ["N. Augspurger"], "Fly Halves": ["A. MacGinty"], "Centres": ["P. Lasike", "M. Brache"], "Back Three": ["B. Scully", "T. Ngwenya", "C. Wyles"] }},
     { country: "Uruguay", flag: "🇺🇾", tier: 3, dynamicSquad: { "Props": ["M. Sanguinetti", "D. Arbelo"], "Hooker": ["G. Kessler"], "Second Rows": ["M. Leindekar", "I. Dotti"], "Back Row": ["M. Gaminara", "S. Civetta", "A. Ormaechea"], "Scrum Halves": ["S. Arata"], "Fly Halves": ["F. Berchesi"], "Centres": ["A. Vilaseca", "T. Inciarte"], "Back Three": ["G. Mieres", "N. Freitas", "R. Silva"] }},
     { country: "Namibia", flag: "🇳🇦", tier: 3, dynamicSquad: { "Props": ["J. Redelinghuys", "A. Coetzee"], "Hooker": ["T. van Jaarsveld"], "Second Rows": ["T. Uanivi", "H. Ludik"], "Back Row": ["J. Burger", "T. Forbes", "R. Kitshoff"], "Scrum Halves": ["E. Jantjies"], "Fly Halves": ["T. Kotze"], "Centres": ["D. de la Harpe", "J. Deysel"], "Back Three": ["C. Bouwer", "J. Tromp", "M. Loubser"] }},
     { country: "Portugal", flag: "🇵🇹", tier: 3, dynamicSquad: { "Props": ["F. Fernandes", "D. Costa"], "Hooker": ["M. Tadjer"], "Second Rows": ["J. Madeira", "S. Cerqueira"], "Back Row": ["D. Wallis", "N. Martins", "R. Marta"], "Scrum Halves": ["S. Marques"], "Fly Halves": ["J. Lima"], "Centres": ["T. Appleton", "P. Bettencourt"], "Back Three": ["R. Storti", "V. Pinto", "N. Guedes"] }},
@@ -130,12 +128,18 @@ function triggerSpinEngineWithAnimation() {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
 
-        // TRUE RANDOM POOL PICK OUT OF ALL 26 NATIONS
-        const rolledNation = historicalNations[Math.floor(Math.random() * historicalNations.length)];
+        // CRITICAL UPDATE: WEIGHTED SELECTION SYSTEM (70% Tier 1, 20% Tier 2, 10% Tier 3)
+        const randRoll = Math.random();
+        let targetTier = 1;
+        if (randRoll > 0.70 && randRoll <= 0.90) targetTier = 2;
+        else if (randRoll > 0.90) targetTier = 3;
+
+        const tierCandidates = historicalNations.filter(n => n.tier === targetTier);
+        const rolledNation = tierCandidates[Math.floor(Math.random() * tierCandidates.length)];
+        
         const rolledYear = 1987 + (Math.floor(Math.random() * 10) * 4);
         const actualDisplayedYear = rolledYear > 2023 ? 2023 : rolledYear;
 
-        // VISUAL SYSTEM FLAGS UPDATE TERMINAL LATCH
         flagIndicator.textContent = rolledNation.flag;
         statusText.textContent = `${rolledNation.country.toUpperCase()} (${actualDisplayedYear}) Pool Open. Assign your player.`;
         
@@ -143,8 +147,7 @@ function triggerSpinEngineWithAnimation() {
         let baseRatingModifier = rolledNation.tier === 1 ? 88 : rolledNation.tier === 2 ? 79 : 68;
 
         displayOrder.forEach(positionGroup => {
-            const availableNames = rolledNation.dynamicSquad[positionGroup] || ["H. Player", "X. Replacement"];
-            
+            const availableNames = rolledNation.dynamicSquad[positionGroup] || ["H. Player"];
             availableNames.forEach(realName => {
                 let computedBase = baseRatingModifier + Math.floor(Math.random() * 8);
                 currentSpunSquad.push({
@@ -216,11 +219,7 @@ function evaluateEligibilityCircles(player) {
     pitchCircles.forEach(circle => {
         circle.classList.remove("highlight-eligible");
         if (circle.classList.contains("occupied")) return;
-
-        const badgePosition = circle.dataset.pos;
-        const targetFamily = positionFamilies[badgePosition];
-        
-        if (targetFamily === player.pos) {
+        if (positionFamilies[circle.dataset.pos] === player.pos) {
             circle.classList.add("highlight-eligible");
         }
     });
@@ -229,14 +228,8 @@ function evaluateEligibilityCircles(player) {
 pitchCircles.forEach(node => {
     node.addEventListener("click", () => {
         if (!selectedPlayer) return;
-
         const badgePosition = node.dataset.pos;
-        const targetFamily = positionFamilies[badgePosition];
-
-        if (targetFamily !== selectedPlayer.pos) {
-            alert(`Structural Conflict: Strategy constraints deny this slot configuration.`);
-            return;
-        }
+        if (positionFamilies[badgePosition] !== selectedPlayer.pos) return;
 
         let calculatedValue = selectedPlayer.rating;
         let requiresTag = false;
@@ -277,14 +270,20 @@ pitchCircles.forEach(node => {
     });
 });
 
+// STAGGERED REAL-TIME TOURNAMENT ENGINE
 document.getElementById("run-sim-btn").addEventListener("click", () => {
     let globalSum = 0;
     for (let k in userTeam) globalSum += userTeam[k].score;
     const squadOvr = Math.round(globalSum / 15);
     const logs = document.getElementById("sim-results");
+    const simBtn = document.getElementById("run-sim-btn");
     
-    logs.innerHTML = `[CONFIG] Injecting hybrid squad into world tournament replacement matrix...\n`;
+    simBtn.classList.add("disabled");
+    simBtn.disabled = true;
+    
+    logs.innerHTML = `[CONFIG] Injecting hybrid squad into world tournament...\n`;
     logs.innerHTML += `[RATING] Finalized Combined Squad Level: ${squadOvr} OVR\n\n`;
+    logs.scrollTop = logs.scrollHeight;
 
     function calculateFixture(teamRating, opponentRating) {
         const spread = teamRating - opponentRating;
@@ -295,35 +294,62 @@ document.getElementById("run-sim-btn").addEventListener("click", () => {
         return { team: teamScore, opp: oppScore, win: teamScore > oppScore };
     }
 
-    const match1 = calculateFixture(squadOvr, 82);
-    logs.innerHTML += `[POOL FIXTURE 1] Vs Initial Challenger\nScoreline: Hybrid XV ${match1.team} - ${match1.opp} Opponent\n\n`;
-    const match2 = calculateFixture(squadOvr, 76);
-    logs.innerHTML += `[POOL FIXTURE 2] Vs Mid-tier Seed\nScoreline: Hybrid XV ${match2.team} - ${match2.opp} Opponent\n\n`;
-
-    const qf = calculateFixture(squadOvr, 86);
-    logs.innerHTML += `--- KNOCKOUT ROUNDS BRACKET ---\n[QUARTER FINAL] Vs Championship Contender\nScoreline: Hybrid XV ${qf.team} - ${qf.opp} Opponent\n`;
-    
-    if (!qf.win) {
-        logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Quarter-Finals stage.`;
-    } else {
-        const sf = calculateFixture(squadOvr, 89);
-        logs.innerHTML += `\n[SEMI FINAL] Vs Major Superpower\nScoreline: Hybrid XV ${sf.team} - ${sf.opp} Opponent\n`;
-        
-        if (!sf.win) {
-            logs.innerHTML += `\n❌ RUN TERMINATED: Defeated in the Semi-Finals tier.`;
-        } else {
-            const f = calculateFixture(squadOvr, 92);
-            logs.innerHTML += `\n[RUGBY WORLD CUP FINAL] Vs Grand Finalist\nScoreline: Hybrid XV ${f.team} - ${f.opp} Opponent\n`;
-            
-            if (f.win) {
-                logs.innerHTML += `\n🏆 TOURNAMENT COMPLETE: WORLD CUP BRACKET CONQUERED!`;
-            } else {
-                logs.innerHTML += `\n❌ RUN TERMINATED: Silver Medal Finish. Lost in the Final match.`;
-            }
-        }
+    function getOpponent(tier) {
+        const pool = historicalNations.filter(n => n.tier === tier && n.country !== replacedCountryTarget);
+        const match = pool[Math.floor(Math.random() * pool.length)];
+        return `${match.flag} ${match.country}`;
     }
-    document.getElementById("restart-btn").classList.remove("hidden");
-    document.getElementById("run-sim-btn").classList.add("hidden");
+
+    const t3Opp = getOpponent(3);
+    const t2Opp = getOpponent(2);
+    const t1OppA = getOpponent(1);
+    const t1OppB = getOpponent(1);
+    const t1OppC = getOpponent(1);
+
+    const matchSchedule = [
+        { name: `POOL MATCH 1 vs ${t3Opp}`, rtg: 72 },
+        { name: `POOL MATCH 2 vs ${t2Opp}`, rtg: 80 },
+        { name: `QUARTER FINAL vs ${t1OppA}`, rtg: 85 },
+        { name: `SEMI FINAL vs ${t1OppB}`, rtg: 88 },
+        { name: `WORLD CUP GRAND FINAL vs ${t1OppC}`, rtg: 92 }
+    ];
+
+    let currentStep = 0;
+
+    function runNextFixture() {
+        if (currentStep >= matchSchedule.length) {
+            logs.innerHTML += `\n🏆 Congratulations, you won the World Cup!\n`;
+            logs.scrollTop = logs.scrollHeight;
+            document.getElementById("restart-btn").classList.remove("hidden");
+            return;
+        }
+
+        const match = matchSchedule[currentStep];
+        if (currentStep === 2) {
+            logs.innerHTML += `--- KNOCKOUT ROUNDS BRACKET ---\n`;
+        }
+
+        logs.innerHTML += `⏳ Simulating ${match.name}...\n`;
+        logs.scrollTop = logs.scrollHeight;
+
+        setTimeout(() => {
+            const res = calculateFixture(squadOvr, match.rtg);
+            logs.innerHTML += `🏈 Result: Hybrid XV ${res.team} - ${res.opp} ${match.name.split('vs')[1]}\n\n`;
+            logs.scrollTop = logs.scrollHeight;
+
+            if (!res.win) {
+                logs.innerHTML += `❌ Unlucky, you didn't win this time. Why don't you try again?\n`;
+                logs.scrollTop = logs.scrollHeight;
+                document.getElementById("restart-btn").classList.remove("hidden");
+                return;
+            }
+
+            currentStep++;
+            runNextFixture();
+        }, 2000); // 2-second spacing interval between matches
+    }
+
+    runNextFixture();
 });
 
 document.getElementById("restart-btn").addEventListener("click", () => { location.reload(); });
