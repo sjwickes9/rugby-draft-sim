@@ -19,7 +19,7 @@ let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
-let draftedPlayersBlacklist = []; // Global string tracking to prevent multi-year duplicates
+let draftedPlayersBlacklist = []; 
 
 // DOM Element Selectors
 const setupCard = document.getElementById("setup-card");
@@ -118,7 +118,6 @@ function triggerRosterSpinEngine() {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         
-        // 75% Tier 1 Weighted Selection Split
         const isTier1 = Math.random() < 0.75;
         const targetPool = isTier1 ? tier1Nations : tier2Nations;
         const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
@@ -129,7 +128,6 @@ function triggerRosterSpinEngine() {
         
         currentSpunSquad = [];
         
-        // Target exact era arrays or build context fallback
         let yearNameSource = [];
         if (selectedNation.squads && selectedNation.squads[selectedYear]) {
             yearNameSource = selectedNation.squads[selectedYear];
@@ -155,11 +153,8 @@ function triggerRosterSpinEngine() {
         positionDistribution.forEach(dist => {
             for (let i = 0; i < dist.count; i++) {
                 let baseSur = yearNameSource[nameIndex % yearNameSource.length];
+                baseSur = baseSur.trim();
                 
-                // Strip emoji tags if raw data contains prefix indicators
-                baseSur = baseSur.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, "").trim();
-                
-                // If the name doesn't already contain initials, give it one cleanly
                 const finalName = (baseSur.includes(". ")) ? baseSur : (dist.prefixes[i] || "J. ") + baseSur;
                 nameIndex++;
 
@@ -195,7 +190,6 @@ function renderRosterList() {
 
         const row = document.createElement("div"); row.className = "player-row";
         
-        // Strict conditional validation checks
         const isBlacklisted = draftedPlayersBlacklist.includes(player.name);
         const isRoleGroupFull = isPositionFamilyFullyOccupied(player.pos);
 
@@ -203,10 +197,10 @@ function renderRosterList() {
             row.classList.add("claimed-lockout");
         } else if (isBlacklisted) {
             row.classList.add("claimed-lockout");
-            row.title = `${player.name} has already been drafted into your squad from a different tournament year pool!`;
+            row.title = `${player.name} has already been drafted!`;
         } else if (isRoleGroupFull) {
             row.classList.add("position-filled-lockout");
-            row.title = `Your team's ${player.pos} brackets are fully occupied.`;
+            row.title = `Your team's ${player.pos} slots are full.`;
         }
 
         const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
@@ -282,7 +276,7 @@ pitchCircles.forEach(node => {
         }
 
         userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        draftedPlayersBlacklist.push(selectedPlayer.name); // Push to universal array to block future iterations
+        draftedPlayersBlacklist.push(selectedPlayer.name); 
         spotsFilledCount++;
         playerSelectedFromCurrentPool = true;
 
