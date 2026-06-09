@@ -30,6 +30,7 @@ const respinBtn = document.getElementById("respin-btn");
 const respinCountText = document.getElementById("respin-count");
 const rosterContainer = document.getElementById("roster-container");
 const statusText = document.getElementById("status-text");
+const flagIndicator = document.getElementById("flag-indicator");
 const pitchCircles = document.querySelectorAll(".pitch-circle");
 const runSimBtn = document.getElementById("run-sim-btn");
 const simResults = document.getElementById("sim-results");
@@ -106,7 +107,7 @@ if (respinBtn) {
     });
 }
 
-// ROSTER SPIN ENGINE - LINKED DIRECTLY TO EXTERNAL DATA WINDOW
+// ROSTER SPIN ENGINE - LINKED DIRECTLY TO YOUR SEPARATE GLOBAL VARIABLES
 function triggerRosterSpinEngine() {
     selectedPlayer = null;
     playerSelectedFromCurrentPool = false;
@@ -114,215 +115,37 @@ function triggerRosterSpinEngine() {
     respinBtn.classList.add("disabled"); respinBtn.disabled = true;
     rosterContainer.innerHTML = "";
     statusText.textContent = "";
+    if (flagIndicator) flagIndicator.innerHTML = "";
 
-    // Safely check if data source exists globally, fallback safely to empty sets if file isn't initialized yet
-    const sourceData = (typeof rugbyDataEngine !== 'undefined') ? rugbyDataEngine : { tier1Nations: [], tier2Nations: [], historicNameBank: {} };
-
-    const isTier1 = Math.random() < 0.75;
-    const targetPool = isTier1 ? sourceData.tier1Nations : sourceData.tier2Nations;
-    
-    if (!targetPool || targetPool.length === 0) {
-        statusText.textContent = "⚠️ Error: data.js file could not be linked or read correctly.";
+    // Double check that data lists loaded globally from your data.js
+    if (typeof tier1Nations === 'undefined' || typeof tier2Nations === 'undefined') {
+        statusText.textContent = "⚠️ Error: data.js arrays (tier1Nations/tier2Nations) could not be resolved.";
         return;
     }
 
+    const isTier1 = Math.random() < 0.75;
+    const targetPool = isTier1 ? tier1Nations : tier2Nations;
     const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
+    
+    // Pick a random available year configured for that specific nation
     const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
     
+    // Render status messages alongside your flag graphics embedding function
     statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
+    if (flagIndicator && typeof getFlagEmbed === 'function') {
+        flagIndicator.innerHTML = getFlagEmbed(selectedNation.country);
+    }
     
     currentSpunSquad = [];
-    let yearNameSource = selectedNation.squads[selectedYear] || selectedNation.squads["HISTORIC"] || sourceData.historicNameBank[selectedNation.country.substring(0,3)] || ["Player"];
-
-    const positionDistribution = [
-        { group: "Props", count: 4, prefixes: ["P. ", "O. ", "M. ", "T. "] },
-        { group: "Hookers", count: 2, prefixes: ["H. ", "K. "] },
-        { group: "Locks", count: 3, prefixes: ["L. ", "B. ", "F. "] },
-        { group: "Back Row", count: 4, prefixes: ["F. ", "N. ", "O. ", "S. "] },
-        { group: "Scrum Halves", count: 2, prefixes: ["S. ", "M. "] },
-        { group: "Fly Halves", count: 2, prefixes: ["F. ", "A. "] },
-        { group: "Centres", count: 3, prefixes: ["C. ", "I. ", "O. "] },
-        { group: "Back Three", count: 3, prefixes: ["W. ", "B. ", "F. "] }
-    ];
-
-    let nameIndex = 0;
-    positionDistribution.forEach(dist => {
-        for (let i = 0; i < dist.count; i++) {
-            let baseSur = yearNameSource[nameIndex % yearNameSource.length];
-            const finalName = (dist.prefixes[i] || "J. ") + baseSur;
-            nameIndex++;
-
-            let baseValue = isTier1 ? (84 + Math.floor(Math.random() * 9)) : (72 + Math.floor(Math.random() * 10));
-            if (isCareerMode) { baseValue += Math.floor(Math.random() * 5); }
-
-            currentSpunSquad.push({ name: finalName, pos: dist.group, rating: Math.min(99, baseValue) });
-        }
-    });
-
-    renderRosterList();
-    spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
-    if (respinsLeft > 0) { respinBtn.classList.remove("disabled"); respinBtn.disabled = false; }
-}
-
-function renderRosterList() {
-    rosterContainer.innerHTML = "";
-    let currentCategory = ""; let block = null;
-
-    currentSpunSquad.forEach(player => {
-        if (player.pos !== currentCategory) {
-            currentCategory = player.pos;
-            block = document.createElement("div"); block.className = "roster-group";
-            const head = document.createElement("div"); head.className = "group-header"; head.textContent = currentCategory;
-            block.appendChild(head); rosterContainer.appendChild(block);
-        }
-
-        const row = document.createElement("div"); row.className = "player-row";
-        const isBlacklisted = draftedPlayersBlacklist.includes(player.name);
-        const isRoleGroupFull = isPositionFamilyFullyOccupied(player.pos);
-
-        if (playerSelectedFromCurrentPool || isBlacklisted) row.classList.add("claimed-lockout");
-        else if (isRoleGroupFull) row.classList.add("position-filled-lockout");
-
-        const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
-        const r = document.createElement("span"); r.className = "player-rating"; r.textContent = isKnowledgeMode ? "??" : player.rating;
-
-        row.appendChild(n); row.appendChild(r); block.appendChild(row);
-
-        row.addEventListener("click", () => {
-            if (playerSelectedFromCurrentPool || isBlacklisted || isRoleGroupFull) return;
-            if (selectedPlayer && selectedPlayer.name === player.name) {
-                row.classList.remove("selected"); selectedPlayer = null;
-                pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
-            } else {
-                document.querySelectorAll(".player-row").forEach(el => el.classList.remove("selected"));
-                row.classList.add("selected"); selectedPlayer = player;
-                evaluateEligibilityCircles(player);
-            }
-        });
-    });
-}
-
-function evaluateEligibilityCircles(player) {
-    pitchCircles.forEach(circle => {
-        circle.classList.remove("highlight-eligible");
-        if (circle.classList.contains("occupied")) return;
-        if (positionFamilies[circle.dataset.pos] === player.pos) circle.classList.add("highlight-eligible");
-    });
-}
-
-function recalculateDashboardAverages() {
-    let tSum = 0, fSum = 0, bSum = 0, tCount = 0, fCount = 0, bCount = 0;
-    for (let pos in userTeam) {
-        let val = userTeam[pos].score; tSum += val; tCount++;
-        if (forwardPositions.includes(pos)) { fSum += val; fCount++; }
-        if (backPositions.includes(pos)) { bSum += val; bCount++; }
-    }
-    document.getElementById("avg-global-ovr").textContent = tCount > 0 ? Math.round(tSum / tCount) : "--";
-    document.getElementById("avg-forward-ovr").textContent = fCount > 0 ? Math.round(fSum / fCount) : "--";
-    document.getElementById("avg-back-ovr").textContent = bCount > 0 ? Math.round(bSum / bCount) : "--";
-}
-
-pitchCircles.forEach(node => {
-    node.addEventListener("click", () => {
-        const bPos = node.dataset.pos;
-        if (node.classList.contains("occupied") || !selectedPlayer || positionFamilies[bPos] !== selectedPlayer.pos) return;
-
-        let finalValue = selectedPlayer.rating;
-        userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        draftedPlayersBlacklist.push(selectedPlayer.name); 
-        spotsFilledCount++; playerSelectedFromCurrentPool = true;
-
-        node.classList.add("occupied");
-        node.innerHTML = `<div class="circle-num">${finalValue}</div><div class="circle-name">${selectedPlayer.name}</div>`;
-
-        selectedPlayer = null;
-        pitchCircles.forEach(c => c.classList.remove("highlight-eligible"));
-        recalculateDashboardAverages(); renderRosterList();
-
-        if (spotsFilledCount === 15) {
-            setTimeout(() => {
-                if (draftDashboard) draftDashboard.classList.add("hidden");
-                if (simDashboard) simDashboard.classList.remove("hidden");
-                populateManifestPreviewWindow();
-            }, 800);
-        }
-    });
-});
-
-function populateManifestPreviewWindow() {
-    if (!manifestTeamBox) return;
-    let htmlContent = `<div class="manifest-header">Drafted Squad Roster Summary</div>`;
     
-    const positionOrder = [
-        "Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", 
-        "Blindside Flanker", "Openside Flanker", "Number 8", "Scrum-half", 
-        "Fly-half", "Left Wing", "Inside Centre", "Outside Centre", "Right Wing", "Fullback"
-    ];
-
-    positionOrder.forEach(pos => {
-        const player = userTeam[pos];
-        if (player) {
-            htmlContent += `
-                <div class="manifest-row">
-                    <span class="manifest-pos">${pos}</span>
-                    <span>${player.name}</span>
-                    <span class="player-rating">${player.score}</span>
-                </div>`;
-        }
-    });
-    manifestTeamBox.innerHTML = htmlContent;
-}
-
-// SIMULATION ENGINE INTERACTION EXECUTION
-if (runSimBtn) {
-    runSimBtn.addEventListener("click", () => {
-        runSimBtn.disabled = true;
-        runSimBtn.classList.add("disabled");
-        simResults.innerHTML = "";
-
-        let tSum = 0; let count = 0;
-        for (let pos in userTeam) { tSum += userTeam[pos].score; count++; }
-        const squadRating = count > 0 ? Math.round(tSum / count) : 80;
-
-        const simulationStages = [
-            { text: "⏳ Initializing Simulation Matrix Engine...", time: 600 },
-            { text: "🏉 Quarter-Finals: Matchup VS Australia (2003 Classic Lineup)", time: 1400, oppRating: 86 },
-            { text: "🏉 Semi-Finals: Matchup VS France (2023 Campaign Squad)", time: 2600, oppRating: 89 },
-            { text: "🏆 Grand Final Championship: Matchup VS Classic Barbarians", time: 3800, oppRating: 92 }
-        ];
-
-        simulationStages.forEach((stage, idx) => {
-            setTimeout(() => {
-                if (idx === 0) {
-                    simResults.innerHTML += `<div class="sim-log-line">${stage.text}</div>`;
-                } else {
-                    const winVariance = (squadRating - stage.oppRating) * 2;
-                    const rng = Math.floor(Math.random() * 20) - 10 + winVariance;
-                    const userScore = Math.max(10, 24 + Math.round(rng / 2));
-                    const oppScore = Math.max(6, 21 - Math.round(rng / 2));
-
-                    if (userScore >= oppScore) {
-                        simResults.innerHTML += `<div class="sim-log-line" style="color: #4ade80;">✅ ${stage.text} -> WON ${userScore} - ${oppScore}</div>`;
-                        if (idx === simulationStages.length - 1) {
-                            simResults.innerHTML += `<div class="sim-log-line" style="color: var(--brand-gold); font-weight: bold; margin-top: 10px;">🎉 TOURNAMENT VICTOR! Your hybrid squad has successfully conquered the simulation!</div>`;
-                            if (restartBtn) restartBtn.classList.remove("hidden");
-                        }
-                    } else {
-                        simResults.innerHTML += `<div class="sim-log-line" style="color: #f87171;">❌ ${stage.text} -> LOST ${userScore} - ${oppScore}</div>`;
-                        simResults.innerHTML += `<div class="sim-log-line" style="color: #ef4444; font-weight: bold; margin-top: 10px;">💀 Campaign Defeat. Your team was knocked out of the tournament bracket.</div>`;
-                        if (restartBtn) restartBtn.classList.remove("hidden");
-                    }
-                }
-                simResults.scrollTop = simResults.scrollHeight;
-            }, stage.time);
-        });
-    });
-}
-
-if (restartBtn) { restartBtn.addEventListener("click", () => location.reload()); }
-document.querySelectorAll(".abort-reset-btn").forEach(btn => { btn.addEventListener("click", () => location.reload()); });
-
-document.getElementById("theme-toggle").addEventListener("click", () => {
-    document.body.classList.toggle("light-theme");
-    document.getElementById("theme-toggle").textContent = document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
-});
+    // Check if the exact chosen year blueprint roster exists, otherwise fallback intelligently
+    let finalSourceNames = [];
+    if (selectedNation.squads && selectedNation.squads[selectedYear]) {
+        finalSourceNames = selectedNation.squads[selectedYear];
+    } else if (selectedNation.squads && selectedNation.squads["HISTORIC"]) {
+        finalSourceNames = selectedNation.squads["HISTORIC"];
+    } else {
+        // Ultimate safe fallback using the local historic prefix dictionary or generic names
+        const keyPrefix = selectedNation.country.substring(0, 3);
+        finalSourceNames = (typeof historicNameBank !== 'undefined' && historicNameBank[keyPrefix]) 
+            ? historic
