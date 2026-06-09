@@ -1,4 +1,4 @@
-// TACTICAL NODE POSITION FAMILIES
+// POSITION REGISTRATION SCHEMA
 const positionFamilies = {
     "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hookers",
     "Lock 4": "Locks", "Lock 5": "Locks", "Blindside Flanker": "Back Row",
@@ -7,7 +7,6 @@ const positionFamilies = {
     "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
 };
 
-const displayOrder = ["Props", "Hookers", "Locks", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
 const forwardPositions = ["Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
 const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
@@ -21,7 +20,7 @@ let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
 let draftedPlayersBlacklist = []; 
 
-// DOM Element Selectors
+// DOM Element Registry Mapping
 const setupCard = document.getElementById("setup-card");
 const draftDashboard = document.getElementById("draft-dashboard");
 const simDashboard = document.getElementById("sim-dashboard");
@@ -87,6 +86,7 @@ function isPositionFamilyFullyOccupied(family) {
     return spotsInFamily.every(pos => userTeam[pos] !== undefined);
 }
 
+// RESTORED LABEL CONTROL: "Spin Team"
 spinBtn.addEventListener("click", () => {
     if (currentSpunSquad.length > 0 && !playerSelectedFromCurrentPool) {
         statusText.textContent = "⚠️ Selection Required! You must draft a player from this team before spinning. Use 'Respin' if you want a fresh pool.";
@@ -197,10 +197,8 @@ function renderRosterList() {
             row.classList.add("claimed-lockout");
         } else if (isBlacklisted) {
             row.classList.add("claimed-lockout");
-            row.title = `${player.name} has already been drafted!`;
         } else if (isRoleGroupFull) {
             row.classList.add("position-filled-lockout");
-            row.title = `Your team's ${player.pos} slots are full.`;
         }
 
         const n = document.createElement("span"); n.className = "player-name"; n.textContent = player.name;
@@ -418,6 +416,7 @@ if (runSimBtn) {
     });
 }
 
+// RESTORED LABEL CONTROL: "Restart Game"
 const restartBtn = document.getElementById("restart-btn");
 if (restartBtn) {
     restartBtn.addEventListener("click", () => { location.reload(); });
