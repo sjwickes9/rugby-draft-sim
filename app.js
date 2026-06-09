@@ -1,4 +1,4 @@
-// POSITION REGISTRATION SCHEMA
+// TACTICAL NODE POSITION FAMILIES
 const positionFamilies = {
     "Loosehead Prop": "Props", "Tighthead Prop": "Props", "Hooker": "Hookers",
     "Lock 4": "Locks", "Lock 5": "Locks", "Blindside Flanker": "Back Row",
@@ -7,6 +7,7 @@ const positionFamilies = {
     "Left Wing": "Back Three", "Right Wing": "Back Three", "Fullback": "Back Three"
 };
 
+const displayOrder = ["Props", "Hookers", "Locks", "Back Row", "Scrum Halves", "Fly Halves", "Centres", "Back Three"];
 const forwardPositions = ["Loosehead Prop", "Hooker", "Tighthead Prop", "Lock 4", "Lock 5", "Blindside Flanker", "Openside Flanker", "Number 8"];
 const backPositions = ["Scrum-half", "Fly-half", "Inside Centre", "Outside Centre", "Left Wing", "Right Wing", "Fullback"];
 
@@ -18,9 +19,9 @@ let isKnowledgeMode = false;
 let isCareerMode = false;
 let spotsFilledCount = 0;
 let playerSelectedFromCurrentPool = false;
-let draftedPlayersBlacklist = []; 
+let draftedPlayersBlacklist = [];
 
-// DOM Element Registry Mapping
+// DOM Element Selectors
 const setupCard = document.getElementById("setup-card");
 const draftDashboard = document.getElementById("draft-dashboard");
 const simDashboard = document.getElementById("sim-dashboard");
@@ -117,26 +118,18 @@ function triggerRosterSpinEngine() {
         spinnerAnchor.innerHTML = ''; 
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         
+        // 75% Tier 1 Weighted Probability Distribution Matrix
         const isTier1 = Math.random() < 0.75;
         const targetPool = isTier1 ? tier1Nations : tier2Nations;
         const selectedNation = targetPool[Math.floor(Math.random() * targetPool.length)];
         const selectedYear = selectedNation.years[Math.floor(Math.random() * selectedNation.years.length)];
         
+        // Dynamic flag delivery from isolated data layer
         flagIndicator.innerHTML = getFlagEmbed(selectedNation.country);
         statusText.textContent = `${selectedNation.country.toUpperCase()} (${selectedYear}) Pool opened. Choose ONE player.`;
         
         currentSpunSquad = [];
         
-        let yearNameSource = [];
-        if (selectedNation.squads && selectedNation.squads[selectedYear]) {
-            yearNameSource = selectedNation.squads[selectedYear];
-        } else if (selectedNation.squads && selectedNation.squads["HISTORIC"]) {
-            yearNameSource = selectedNation.squads["HISTORIC"];
-        } else {
-            const key = selectedNation.country.substring(0, 3);
-            yearNameSource = historicNameBank[key] || ["Jones", "Smith", "Williams", "Brown", "Davis", "Wilson", "Evans", "Thomas"];
-        }
-
         const positionDistribution = [
             { group: "Props", count: 4, prefixes: ["P. ", "O. ", "M. ", "T. "] },
             { group: "Hookers", count: 2, prefixes: ["H. ", "K. "] },
@@ -151,10 +144,8 @@ function triggerRosterSpinEngine() {
         let nameIndex = 0;
         positionDistribution.forEach(dist => {
             for (let i = 0; i < dist.count; i++) {
-                let baseSur = yearNameSource[nameIndex % yearNameSource.length];
-                baseSur = baseSur.trim();
-                
-                const finalName = (baseSur.includes(". ")) ? baseSur : (dist.prefixes[i] || "J. ") + baseSur;
+                const baseSur = selectedNation.rawNames[nameIndex % selectedNation.rawNames.length];
+                const finalName = (dist.prefixes[i] || "J. ") + baseSur;
                 nameIndex++;
 
                 let baseValue = isTier1 ? (84 + Math.floor(Math.random() * 9)) : (72 + Math.floor(Math.random() * 10));
@@ -192,9 +183,7 @@ function renderRosterList() {
         const isBlacklisted = draftedPlayersBlacklist.includes(player.name);
         const isRoleGroupFull = isPositionFamilyFullyOccupied(player.pos);
 
-        if (playerSelectedFromCurrentPool) {
-            row.classList.add("claimed-lockout");
-        } else if (isBlacklisted) {
+        if (playerSelectedFromCurrentPool || isBlacklisted) {
             row.classList.add("claimed-lockout");
         } else if (isRoleGroupFull) {
             row.classList.add("position-filled-lockout");
@@ -227,7 +216,7 @@ function evaluateEligibilityCircles(player) {
         circle.classList.remove("highlight-eligible");
         if (circle.classList.contains("occupied")) return;
         if (positionFamilies[circle.dataset.pos] === player.pos) {
-            circle.classList.add("highlight-eligible");
+            circle.add("highlight-eligible");
         }
     });
 }
@@ -273,7 +262,7 @@ pitchCircles.forEach(node => {
         }
 
         userTeam[bPos] = { name: selectedPlayer.name, score: finalValue };
-        draftedPlayersBlacklist.push(selectedPlayer.name); 
+        draftedPlayersBlacklist.push(selectedPlayer.name);
         spotsFilledCount++;
         playerSelectedFromCurrentPool = true;
 
