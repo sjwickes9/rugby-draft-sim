@@ -3,160 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rugby World Cup Historic Draft Simulator</title>
+    <title>Rugby Hybrid XV Draft Simulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <header>
-        <h1>Rugby World Cup <span>Historic Draft</span></h1>
-        <button id="theme-toggle" class="theme-toggle-btn">Light Mode</button>
+    <header class="app-header">
+        <h1>🏉 Rugby Hybrid XV Draft</h1>
+        <button id="theme-toggle" class="ui-btn-secondary">Dark Mode</button>
     </header>
 
     <main class="main-container">
-
-        <!-- CONFIGURATION SCREEN -->
-        <section id="setup-card" class="config-card">
-            <h2>Draft Configuration</h2>
+        <!-- SETUP VIEW (Always active with explicit defaults) -->
+        <section id="setup-card" class="card central-card">
+            <h2>Configure Selection Matrix</h2>
+            <p class="subtitle">Set your parameters to generate historical tournament pathways.</p>
             
-            <div class="form-group">
-                <label>Gameplay Variant</label>
-                <div id="variant-slider-track" class="custom-slider-track">
-                    <div id="variant-handle" class="custom-slider-handle"></div>
-                    <div id="variant-comp" class="slider-option active">Base Tournament</div>
-                    <div id="variant-career" class="slider-option">Peak Career OVR</div>
+            <form id="setup-form" class="setup-form-layout">
+                <div class="form-group">
+                    <label class="group-label">Match Variant Engine</label>
+                    <div class="slider-track" id="variant-slider-track">
+                        <span id="variant-comp" class="slider-label active">Base Multiplier</span>
+                        <span id="variant-career" class="slider-label">Career Peak</span>
+                        <div class="slider-handle" id="variant-handle"></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>Rating Visibility</label>
-                <div id="rating-slider-track" class="custom-slider-track">
-                    <div id="rating-handle" class="custom-slider-handle"></div>
-                    <div id="lbl-reveal" class="slider-option active">Reveal OVR</div>
-                    <div id="lbl-knowledge" class="slider-option">Hidden (Blind)</div>
+                <div class="form-group">
+                    <label class="group-label">Rating Visibility Control</label>
+                    <div class="slider-track" id="rating-slider-track">
+                        <span id="lbl-reveal" class="slider-label active">Live Ratings</span>
+                        <span id="lbl-knowledge" class="slider-label">Blind Knowledge</span>
+                        <div class="slider-handle" id="rating-handle"></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>Difficulty</label>
-                <div class="radio-matrix">
-                    <label class="radio-box">
-                        <input type="radio" name="difficulty" value="easy" checked>
-                        <div class="radio-tile"><b>Easy</b><br><small>3 Respins</small></div>
-                    </label>
-                    <label class="radio-box">
-                        <input type="radio" name="difficulty" value="normal">
-                        <div class="radio-tile"><b>Normal</b><br><small>1 Respin</small></div>
-                    </label>
-                    <label class="radio-box">
-                        <input type="radio" name="difficulty" value="hard">
-                        <div class="radio-tile"><b>Hard</b><br><small>0 Respins</small></div>
-                    </label>
+                <div class="form-group">
+                    <label class="group-label">Campaign Difficulty Strategy</label>
+                    <div class="radio-button-cluster">
+                        <label class="radio-card">
+                            <input type="radio" name="difficulty" value="easy">
+                            <div class="radio-design"></div>
+                            <div class="radio-text">
+                                <span class="title">Easy Tier</span>
+                                <span class="desc">Provides 3 Squad Respins</span>
+                            </div>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="difficulty" value="normal" checked>
+                            <div class="radio-design"></div>
+                            <div class="radio-text">
+                                <span class="title">Normal Tier</span>
+                                <span class="desc">Provides 1 Squad Respin</span>
+                            </div>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="difficulty" value="hard">
+                            <div class="radio-design"></div>
+                            <div class="radio-text">
+                                <span class="title">Hardcore Tier</span>
+                                <span class="desc">No Respins Allowed</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>Replace Opponent Spot</label>
-                <select id="replace-team-select">
-                    <option value="South Africa">South Africa</option>
-                    <option value="New Zealand">New Zealand</option>
-                    <option value="France">France</option>
-                    <option value="Australia">Australia</option>
-                </select>
-            </div>
-
-            <button id="start-game-btn" class="action-btn">Initialize Draft Bucket</button>
+                <!-- Fix applied: Safe internal container tag lookup fallback target -->
+                <button type="button" id="start-game-btn" class="ui-btn-primary full-width">Start drafting my team</button>
+            </form>
         </section>
 
-        <!-- MAIN ACTIVE DRAFT INTERFACE -->
-        <section id="draft-dashboard" class="dashboard-grid hidden">
-            
-            <!-- LEFT FIELD PACK -->
-            <div class="pitch-container">
-                <div class="live-dashboard-stats">
-                    <div class="stat-box">
-                        <span class="stat-lbl">Squad Avg:</span>
-                        <span id="avg-global-ovr" class="stat-val">--</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-lbl">Forwards:</span>
-                        <span id="avg-forward-ovr" class="stat-val">--</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-lbl">Backs:</span>
-                        <span id="avg-back-ovr" class="stat-val">--</span>
+        <!-- DRAFT HUB VIEW -->
+        <section id="draft-dashboard" class="hidden dashboard-grid">
+            <!-- Left Panel: Control & Pool Feed -->
+            <div class="control-panel card">
+                <div class="panel-header">
+                    <div class="national-flag" id="flag-indicator"></div>
+                    <div class="engine-controls">
+                        <button id="spin-btn" class="ui-btn-primary">Generate Pool</button>
+                        <button id="respin-btn" class="ui-btn-secondary">Respin Pool (<span id="respin-count">1</span>)</button>
                     </div>
                 </div>
-
-                <div class="rugby-pitch">
-                    <div class="pitch-line-half"></div>
-                    <div class="pitch-line-22m-top"></div>
-                    <div class="pitch-line-22m-bot"></div>
-
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Loosehead Prop"></div>
-                        <div class="pitch-circle" data-pos="Hooker"></div>
-                        <div class="pitch-circle" data-pos="Tighthead Prop"></div>
-                    </div>
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Lock 4"></div>
-                        <div class="pitch-circle" data-pos="Lock 5"></div>
-                    </div>
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Blindside Flanker"></div>
-                        <div class="pitch-circle" data-pos="Number 8"></div>
-                        <div class="pitch-circle" data-pos="Openside Flanker"></div>
-                    </div>
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Scrum-half"></div>
-                        <div class="pitch-circle" data-pos="Fly-half"></div>
-                    </div>
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Inside Centre"></div>
-                        <div class="pitch-circle" data-pos="Outside Centre"></div>
-                    </div>
-                    <div class="pitch-row">
-                        <div class="pitch-circle" data-pos="Left Wing"></div>
-                        <div class="pitch-circle" data-pos="Fullback"></div>
-                        <div class="pitch-circle" data-pos="Right Wing"></div>
-                    </div>
+                <div id="spinner-anchor"></div>
+                <p id="status-text" class="status-alert-box">Click "Generate Pool" to open up international historical rugby alignments.</p>
+                
+                <div class="scrollable-feed-frame">
+                    <div id="roster-container"></div>
                 </div>
+
+                <button class="abort-reset-btn ui-btn-danger">Abandon Campaign</button>
             </div>
 
-            <!-- RIGHT CONTROL SIDEBAR -->
-            <aside class="control-sidebar">
-                <div class="engine-console">
-                    <div id="status-text">Click 'Spin Squad' to pull players.</div>
-                    <div id="flag-indicator"></div>
-                    <div id="spinner-anchor"></div>
+            <!-- Right Panel: Dynamic Tactical Pitch Selection Interface -->
+            <div class="pitch-container card">
+                <div class="averages-dashboard">
+                    <div class="avg-box"><strong>Global:</strong> <span id="avg-global-ovr">--</span></div>
+                    <div class="avg-box"><strong>Forwards:</strong> <span id="avg-forward-ovr">--</span></div>
+                    <div class="avg-box"><strong>Backs:</strong> <span id="avg-back-ovr">--</span></div>
                 </div>
 
-                <div class="btn-matrix">
-                    <button id="spin-btn" class="core-btn spin-action">Spin Squad</button>
-                    <button id="respin-btn" class="core-btn respin-action disabled" disabled>Respin (<span id="respin-count">0</span>)</button>
+                <div class="rugby-pitch-layout">
+                    <!-- Front Row Row -->
+                    <div class="pitch-circle" data-pos="Loosehead Prop"><div class="circle-num">1</div><div class="circle-name">Loosehead Prop</div></div>
+                    <div class="pitch-circle" data-pos="Hooker"><div class="circle-num">2</div><div class="circle-name">Hooker</div></div>
+                    <div class="pitch-circle" data-pos="Tighthead Prop"><div class="circle-num">3</div><div class="circle-name">Tighthead Prop</div></div>
+
+                    <!-- Locks Row -->
+                    <div class="pitch-circle" data-pos="Lock 4"><div class="circle-num">4</div><div class="circle-name">Lock 4</div></div>
+                    <div class="pitch-circle" data-pos="Lock 5"><div class="circle-num">5</div><div class="circle-name">Lock 5</div></div>
+
+                    <!-- Back Row Forwards -->
+                    <div class="pitch-circle" data-pos="Blindside Flanker"><div class="circle-num">6</div><div class="circle-name">Blindside Flanker</div></div>
+                    <div class="pitch-circle" data-pos="Number 8"><div class="circle-num">8</div><div class="circle-name">Number 8</div></div>
+                    <div class="pitch-circle" data-pos="Openside Flanker"><div class="circle-num">7</div><div class="circle-name">Openside Flanker</div></div>
+
+                    <!-- Halfbacks -->
+                    <div class="pitch-circle" data-pos="Scrum-half"><div class="circle-num">9</div><div class="circle-name">Scrum-half</div></div>
+                    <div class="pitch-circle" data-pos="Fly-half"><div class="circle-num">10</div><div class="circle-name">Fly-half</div></div>
+
+                    <!-- Centres -->
+                    <div class="pitch-circle" data-pos="Inside Centre"><div class="circle-num">12</div><div class="circle-name">Inside Centre</div></div>
+                    <div class="pitch-circle" data-pos="Outside Centre"><div class="circle-num">13</div><div class="circle-name">Outside Centre</div></div>
+
+                    <!-- Back Three Layer -->
+                    <div class="pitch-circle" data-pos="Left Wing"><div class="circle-num">11</div><div class="circle-name">Left Wing</div></div>
+                    <div class="pitch-circle" data-pos="Fullback"><div class="circle-num">15</div><div class="circle-name">Fullback</div></div>
+                    <div class="pitch-circle" data-pos="Right Wing"><div class="circle-num">14</div><div class="circle-name">Right Wing</div></div>
                 </div>
-
-                <div id="roster-container" class="scroll-wrapper-box locked"></div>
-
-                <div class="dashboard-footer-ctrls">
-                    <button class="abort-reset-btn">Restart Draft</button>
-                </div>
-            </aside>
-        </section>
-
-        <!-- TOURNAMENT SIMULATOR PANEL -->
-        <section id="sim-dashboard" class="tournament-panel hidden">
-            <h2>Tournament Simulator</h2>
-            
-            <div id="manifest-team-box" class="manifest-preview-box">
-                <!-- Programmatically generated list maps inside this view -->
             </div>
-
-            <button id="run-sim-btn" class="success-btn">Kick Off Tournament</button>
-            <div id="sim-results" class="terminal-stream"></div>
-            <button id="restart-btn" class="action-btn hidden">Return to Main Menu</button>
         </section>
 
+        <!-- TOURNAMENT SIMULATION ENGINE DASHBOARD -->
+        <section id="sim-dashboard" class="hidden central-card-wide card">
+            <h2>IRB World Cup Tournament Simulator Engine</h2>
+            <div class="sim-split-frame">
+                <div id="manifest-team-box" class="manifest-box"></div>
+                <div class="terminal-box">
+                    <button id="run-sim-btn" class="ui-btn-success large-btn">Kickoff Campaign Stream</button>
+                    <div id="sim-results" class="terminal-logs"></div>
+                    <button id="restart-btn" class="ui-btn-primary hidden">Draft A New XV Squad</button>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script src="app.js"></script>
