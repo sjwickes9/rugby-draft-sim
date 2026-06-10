@@ -182,14 +182,6 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 
 /* ── Draft dashboard layout ── */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-.left-panel { display: flex; flex-direction: column; gap: 20px; }
 .panel-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -227,7 +219,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 .flag-wrapper { flex-shrink: 0; line-height: 1; }
 
 /* ── Roster list ── */
-.roster-scroll-boundary { max-height: 480px; overflow-y: auto; }
+.roster-scroll-boundary { overflow-y: auto; }
 .roster-group { margin-bottom: 12px; }
 .group-header {
     font-size: 0.72rem;
@@ -241,7 +233,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .player-row {
     display: grid;
-    grid-template-columns: 22px 1fr auto 32px;
+    grid-template-columns: 1fr auto 36px;
     align-items: center;
     gap: 6px;
     padding: 7px 8px;
@@ -253,7 +245,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .player-row:hover:not(.claimed-lockout) { background: rgba(255,255,255,0.05); }
 .player-row.selected { background: rgba(197,160,89,0.2) !important; border-color: var(--brand-gold); }
-.player-num { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-align: right; }
+/* player-num removed */
 .player-name { font-size: 0.85rem; font-weight: 600; }
 .player-pos-label { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
 .player-rating { font-family: monospace; font-weight: 700; color: var(--brand-gold); font-size: 0.85rem; text-align: right; }
@@ -386,14 +378,120 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 .manifest-name { font-weight: 500; }
 .manifest-nation { font-size: 0.72rem; color: var(--text-muted); }
 
+/* ── Roster panel stretches, abandon button anchored at bottom ── */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+}
+.roster-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    overflow: hidden;
+}
+.roster-scroll-boundary {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+.abandon-btn {
+    background: #db5a42;
+    color: #fff;
+    border: none;
+    padding: 11px;
+    width: 100%;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.abandon-btn:hover { background: #c44e38; color: #fff; }
+
+/* Dashboard fills full viewport height */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: calc(100vh - 100px);
+    min-height: 600px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
+    body { padding: 12px; }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: unset;
+    }
+    .left-panel { min-height: unset; }
+    .roster-panel { min-height: 300px; }
+    .roster-scroll-boundary { max-height: 300px; }
     .sim-layout-container { grid-template-columns: 1fr; }
 }
-@media (max-width: 600px) {
-    .card-container { margin: 20px auto; padding: 20px; }
-    .pitch-circle { width: 52px; height: 52px; }
+
+@media (max-width: 700px) {
+    body { padding: 8px; }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    header h1 { font-size: 1.1rem; }
+    .utility-controls { width: 100%; }
+    .utility-controls button { flex: 1; }
+
+    /* Setup card full-width */
+    .card-container {
+        margin: 12px auto;
+        padding: 18px;
+        border-radius: 8px;
+    }
+
+    /* Stats row — still 3 col but tighter */
+    .stat-val { font-size: 1.1rem; }
+    .stat-lbl { font-size: 0.65rem; }
+
+    /* Action cluster stack on very small */
+    .action-cluster { gap: 8px; }
+    .action-cluster button { padding: 10px 8px; font-size: 0.85rem; }
+
+    /* Pitch circles smaller on mobile */
+    .pitch-circle { width: 48px; height: 48px; }
+    .pitch-circle::before { font-size: 0.85rem; }
+    .pitch-circle::after { font-size: 0.38rem; }
+    .circle-name { font-size: 0.44rem; }
+    .pitch-row-tier { gap: 2.5%; }
+    .pitch-card { padding: 10px; }
+
+    /* Player rows more compact */
+    .player-name { font-size: 0.8rem; }
+    .player-pos-label { font-size: 0.64rem; }
+    .player-rating { font-size: 0.8rem; }
+
+    /* Roster panel on mobile — fixed sensible height */
+    .roster-panel { min-height: 280px; }
+    .roster-scroll-boundary { max-height: 280px; }
+
+    /* Sim screen */
+    .sim-layout-container { margin: 8px auto; gap: 12px; }
+    .terminal-window-shell { height: 350px; }
+    .manifest-row { font-size: 0.76rem; gap: 5px; }
+}
+
+@media (max-width: 400px) {
+    .pitch-circle { width: 40px; height: 40px; }
+    .pitch-circle::after { font-size: 0.32rem; }
+    .pitch-row-tier { gap: 2%; }
 }
 
 /* ── Out-of-position pitch nodes ── */
