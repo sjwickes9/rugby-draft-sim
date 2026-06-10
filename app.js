@@ -95,7 +95,7 @@ const manifestTeamBox = document.getElementById("manifest-team-box");
 document.addEventListener("DOMContentLoaded", () => {
     const teamSelect = document.getElementById("team-select");
     if (teamSelect) {
-        Object.keys(rwc2023Squads).sort().forEach(t => {
+        Object.keys(allSquads).sort().forEach(t => {
             const opt = document.createElement("option");
             opt.value = t; opt.textContent = t;
             teamSelect.appendChild(opt);
@@ -186,20 +186,22 @@ function triggerRosterSpinEngine() {
     statusText.textContent = "";
     if (flagIndicator) flagIndicator.innerHTML = "";
 
-    if (typeof rwc2023Squads === "undefined") {
+    if (typeof allSquads === "undefined") {
         statusText.textContent = "Error: data.js failed to load.";
         spinBtn.classList.remove("disabled"); spinBtn.disabled = false;
         return;
     }
 
-    const allNations = Object.keys(rwc2023Squads).filter(n => n !== replacedTeam);
+    const allNations = Object.keys(allSquads).filter(n => n !== replacedTeam);
     const nation = allNations[Math.floor(Math.random() * allNations.length)];
-    const squad = rwc2023Squads[nation];
+    const years = Object.keys(allSquads[nation]);
+    const year = years[Math.floor(Math.random() * years.length)];
+    const squad = allSquads[nation][year];
 
     if (flagIndicator && typeof getFlagEmbed === "function") {
         flagIndicator.innerHTML = getFlagEmbed(nation);
     }
-    statusText.textContent = nation.toUpperCase() + " — 2023 World Cup squad. Choose ONE player.";
+    statusText.textContent = nation.toUpperCase() + " — " + year + " World Cup squad. Choose ONE player.";
 
     currentSpunSquad = squad.map(p => ({
         name:      p.name,
@@ -207,7 +209,7 @@ function triggerRosterSpinEngine() {
         group:     primaryGroup(p),
         num:       p.num,
         rating:    isCareerMode ? p.careerRating : p.rating,
-        nation:    nation
+        nation:    nation + " '" + year.slice(2)
     }));
 
     renderRosterList();
@@ -256,12 +258,11 @@ function renderRosterList() {
                 row.classList.add("claimed-lockout");
             }
 
-            const numSpan  = document.createElement("span"); numSpan.className  = "player-num";       numSpan.textContent = player.num;
             const nameSpan = document.createElement("span"); nameSpan.className = "player-name";      nameSpan.textContent = player.name;
             const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = player.positions[0];
             const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "??" : player.rating;
 
-            row.appendChild(numSpan); row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
+            row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
             block.appendChild(row);
 
             if (!drafted && anySlotOpen && !locked) {
