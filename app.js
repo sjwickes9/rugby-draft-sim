@@ -521,11 +521,8 @@ async function runTournamentSimulation() {
     await addLog("Your Hybrid XV (avg: " + userR + ") replaces " + replacedTeam, null);
     await addLog("", null);
 
-    // ── Run all pool matches ──
+    // ── Run user's pool matches ──
     let userPoolPts = 0;
-    const otherPts  = {};
-    poolTeams.forEach(t => { otherPts[t] = 0; });
-
     for (const opp of poolTeams) {
         const res = simulateMatch(userR, teamStrengths[opp] || 72);
         userPoolPts += res.pts;
@@ -534,78 +531,95 @@ async function runTournamentSimulation() {
         await addLog(icon + "  vs " + opp + "  " + res.userScore + "-" + res.oppScore + "  (" + (res.pts>0?"+":"") + res.pts + " pts)", colour);
     }
 
-    // ── Simulate other pool matches to produce a full standings table ──
-    for (let i=0; i<poolTeams.length; i++) {
-        for (let j=i+1; j<poolTeams.length; j++) {
-            const t1 = poolTeams[i], t2 = poolTeams[j];
-            const r1 = teamStrengths[t1]||72, r2 = teamStrengths[t2]||72;
-            const res = simulateMatch(r1, r2);
-            otherPts[t1] += res.won ? res.pts : res.pts===0 ? 0 : res.pts;
-            otherPts[t2] += res.won ? 0 : res.pts;
-            // Clarify: winner gets their pts; loser gets theirs
-            const t1pts = res.won ? res.pts : (res.margin<=7?1:0);
-            const t2pts = res.won ? (res.margin<=7?1:0) : res.pts;
-            otherPts[t1] = (otherPts[t1] || 0);
-            otherPts[t2] = (otherPts[t2] || 0);
-        }
-    }
-    // Rebuild using proper per-match accounting
+    // ── Simulate other pool matches ──
     const otherPtsClean = {};
     poolTeams.forEach(t => { otherPtsClean[t] = 0; });
-    for (let i=0; i<poolTeams.length; i++) {
-        for (let j=i+1; j<poolTeams.length; j++) {
-            const t1=poolTeams[i], t2=poolTeams[j];
+    for (let i = 0; i < poolTeams.length; i++) {
+        for (let j = i+1; j < poolTeams.length; j++) {
+            const t1 = poolTeams[i], t2 = poolTeams[j];
             const res = simulateMatch(teamStrengths[t1]||72, teamStrengths[t2]||72);
-            const w = res.won ? t1 : t2;
-            const l = res.won ? t2 : t1;
-            otherPtsClean[w] += res.margin>21 ? 5 : 4;
-            otherPtsClean[l] += res.margin<=7 ? 1 : 0;
+            otherPtsClean[t1] += res.won ? (res.margin>21?5:4) : (res.margin<=7?1:0);
+            otherPtsClean[t2] += res.won ? (res.margin<=7?1:0) : (res.margin>21?5:4);
         }
     }
 
-    // ── Print standings table ──
+    // ── Pool standings ──
     await addLog("", null);
     await addLog("--- Pool " + pool + " Standings ---", "var(--brand-gold)");
-
     const table = [["Your XV", userPoolPts]];
     poolTeams.forEach(t => table.push([t, otherPtsClean[t]]));
     table.sort((a,b) => b[1]-a[1]);
-
-    for (let i=0; i<table.length; i++) {
-        const isUser = table[i][0]==="Your XV";
-        const marker = i===0 ? "1st" : i===1 ? "2nd" : i===2 ? "3rd" : (i+1)+"th";
-        const colour = isUser ? "#f3f4f6" : "var(--text-muted)";
-        await addLog(marker + "  " + table[i][0] + "  —  " + table[i][1] + " pts", colour);
+    for (let i = 0; i < table.length; i++) {
+        const isUser = table[i][0] === "Your XV";
+        const marker = ["1st","2nd","3rd","4th","5th"][i] || (i+1)+"th";
+        await addLog(marker + "  " + table[i][0] + "  —  " + table[i][1] + " pts", isUser ? "#f3f4f6" : "var(--text-muted)");
     }
 
-    const rank = table.findIndex(([t]) => t==="Your XV");
+    const rank = table.findIndex(([t]) => t === "Your XV");
     if (rank > 1) {
         await addLog("", null);
         await addLog("ELIMINATED — Your Hybrid XV did not qualify from Pool " + pool + ".", "#ef4444");
         restartBtn.classList.remove("hidden"); return;
     }
 
-    const qualified = rank===0 ? "1st" : "2nd";
+    const qualified = rank === 0 ? "1st" : "2nd";
     await addLog("", null);
     await addLog("QUALIFIED — " + qualified + " in Pool " + pool, "#4ade80");
 
+    // ── Simulate ALL pools to get real pool standings ──
+    // Then build a bracket from the actual finishes
+    const allStandings = simulateAllPools();
+    // Overwrite user's pool with the real results from above
+    const userPoolOrder = table.map(([t]) => t === "Your XV" ? replacedTeam : t);
+    allStandings[pool] = userPoolOrder;
+
+    // 2023 QF bracket: A1vD2, B1vC2, C1vB2, D1vA2
+    // SF1: winner(A1vD2) v winner(B1vC2)
+    // SF2: winner(C1vB2) v winner(D1vA2)
+    const qfPairings = [
+        { id:0, home: allStandings.A[0], away: allStandings.D[1], sf: "SF1" },
+        { id:1, home: allStandings.B[0], away: allStandings.C[1], sf: "SF1" },
+        { id:2, home: allStandings.C[0], away: allStandings.B[1], sf: "SF2" },
+        { id:3, home: allStandings.D[0], away: allStandings.A[1], sf: "SF2" },
+    ];
+
+    // Find which QF the user is in
+    const userQF = qfPairings.find(qf => qf.home === replacedTeam || qf.away === replacedTeam);
+    const qfOpp = userQF.home === replacedTeam ? userQF.away : userQF.home;
+    const userSF = userQF.sf;
+
     // ── Quarter-final ──
-    const qfOpp = getQFOpponent(pool, qualified, table);
     await addLog("", null);
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
     const qf = simulateMatch(userR, teamStrengths[qfOpp]||80);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
-    if (!qf.won) { await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444"); restartBtn.classList.remove("hidden"); return; }
+    if (!qf.won) {
+        await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444");
+        restartBtn.classList.remove("hidden"); return;
+    }
+
+    // Simulate the other QF in the same semi bracket → SF opponent
+    const otherQFSameSide = qfPairings.find(qf2 => qf2.sf === userSF && qf2.id !== userQF.id);
+    const oqRes = simulateMatch(teamStrengths[otherQFSameSide.home]||80, teamStrengths[otherQFSameSide.away]||80);
+    const sfOpp = oqRes.won ? otherQFSameSide.home : otherQFSameSide.away;
+
+    // Simulate both QFs on the other side → final opponent and 3rd place opponent
+    const otherSideQFs = qfPairings.filter(qf2 => qf2.sf !== userSF);
+    const os0Res = simulateMatch(teamStrengths[otherSideQFs[0].home]||80, teamStrengths[otherSideQFs[0].away]||80);
+    const os1Res = simulateMatch(teamStrengths[otherSideQFs[1].home]||80, teamStrengths[otherSideQFs[1].away]||80);
+    const otherSF_A = os0Res.won ? otherSideQFs[0].home : otherSideQFs[0].away;
+    const otherSF_B = os1Res.won ? otherSideQFs[1].home : otherSideQFs[1].away;
+    const otherSFRes = simulateMatch(teamStrengths[otherSF_A]||86, teamStrengths[otherSF_B]||86);
+    const finOpp  = otherSFRes.won ? otherSF_A : otherSF_B;
+    const tpOpp   = otherSFRes.won ? otherSF_B : otherSF_A;
 
     // ── Semi-final ──
-    const sfOpp = getSFOpponent(pool, qualified);
     await addLog("", null);
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sf = simulateMatch(userR, teamStrengths[sfOpp]||86);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
 
     if (!sf.won) {
-        const tpOpp = getThirdPlaceOpp(pool, sfOpp);
         await addLog("", null);
         await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
         const tp = simulateMatch(userR, teamStrengths[tpOpp]||84);
@@ -615,7 +629,6 @@ async function runTournamentSimulation() {
     }
 
     // ── Final ──
-    const finOpp = getFinalOpp(pool, sfOpp);
     await addLog("", null);
     await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
     const fin = simulateMatch(userR, teamStrengths[finOpp]||90);
@@ -628,37 +641,30 @@ async function runTournamentSimulation() {
     restartBtn.classList.remove("hidden");
 }
 
+// Simulate all four pool round-robins, return ordered standings {A:[1st,2nd,...], ...}
+function simulateAllPools() {
+    const standings = {};
+    for (const [p, teams] of Object.entries(rwc2023PoolStandings)) {
+        const pts = {};
+        teams.forEach(t => { pts[t] = 0; });
+        for (let i = 0; i < teams.length; i++) {
+            for (let j = i+1; j < teams.length; j++) {
+                const res = simulateMatch(teamStrengths[teams[i]]||65, teamStrengths[teams[j]]||65);
+                pts[teams[i]] += res.won ? (res.margin>21?5:4) : (res.margin<=7?1:0);
+                pts[teams[j]] += res.won ? (res.margin<=7?1:0) : (res.margin>21?5:4);
+            }
+        }
+        standings[p] = [...teams].sort((a,b) => pts[b]-pts[a]);
+    }
+    return standings;
+}
+
 // ============================================================
 // BRACKET HELPERS
 // ============================================================
 function getPoolFor(team) {
     for (const [k,v] of Object.entries(rwc2023PoolStandings)) { if (v.includes(team)) return k; }
     return "A";
-}
-
-function getQFOpponent(pool, qualified, table) {
-    // 2023 bracket: A1vD2, D1vA2, B1vC2, C1vB2
-    const crossMap = {A:"D", D:"A", B:"C", C:"B"};
-    const crossPool = crossMap[pool];
-    const crossRank = qualified==="1st" ? 1 : 0; // 0-indexed: 0=1st, 1=2nd
-    return rwc2023PoolStandings[crossPool][crossRank];
-}
-
-function getSFOpponent(pool, qualified) {
-    // After QFs, semi-finalists from the same bracket side meet
-    // Bracket: (A1/D2 winner) v (D1/A2 winner); (B1/C2 winner) v (C1/B2 winner)
-    const sfOpps = {A:"Argentina", B:"South Africa", C:"England", D:"New Zealand"};
-    return sfOpps[pool] || "South Africa";
-}
-
-function getThirdPlaceOpp(pool, sfOpp) {
-    const tpOpps = {A:"England", B:"New Zealand", C:"Argentina", D:"South Africa"};
-    return tpOpps[pool] || "Argentina";
-}
-
-function getFinalOpp(pool, sfOpp) {
-    const finOpps = {A:"South Africa", B:"New Zealand", C:"South Africa", D:"New Zealand"};
-    return finOpps[pool] || "South Africa";
 }
 
 // ============================================================
