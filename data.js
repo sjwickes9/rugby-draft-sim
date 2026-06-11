@@ -1102,7 +1102,7 @@ const allSquads = {
             {name:"Tony Underwood",positions:["Left Wing", "Right Wing"],num:22,rating:85,careerRating:87},
             {name:"Rory Underwood",positions:["Left Wing", "Right Wing"],num:23,rating:90,careerRating:92},
             {name:"Ian Hunter",positions:["Left Wing", "Right Wing"],num:24,rating:83,careerRating:85},
-            {name:"Mike Catt",positions:["Fullback"],num:25,rating:81,careerRating:83},
+            {name:"Mike Catt",positions:["Fullback", "Inside Centre", "Outside Centre", "Fly-half"],num:25,rating:81,careerRating:83},
             {name:"Jonathan Callard",positions:["Fullback"],num:26,rating:83,careerRating:85}
         ],
         "1999": [
@@ -1120,7 +1120,7 @@ const allSquads = {
             {name:"Richard Hill",positions:["Openside Flanker", "Blindside Flanker"],num:12,rating:92,careerRating:94},
             {name:"Neil Back",positions:["Openside Flanker", "Blindside Flanker"],num:13,rating:90,careerRating:92},
             {name:"Tim Rodber",positions:["Openside Flanker", "Blindside Flanker"],num:14,rating:90,careerRating:92},
-            {name:"Lawrence Dallaglio",positions:["Number 8"],num:15,rating:93,careerRating:95},
+            {name:"Lawrence Dallaglio",positions:["Number 8", "Openside Flanker"],num:15,rating:93,careerRating:95},
             {name:"Martin Corry",positions:["Number 8"],num:16,rating:86,careerRating:88},
             {name:"Joe Worsley",positions:["Number 8"],num:17,rating:83,careerRating:85},
             {name:"Matt Dawson",positions:["Scrum-half"],num:18,rating:88,careerRating:90},
@@ -1131,11 +1131,11 @@ const allSquads = {
             {name:"Phil de Glanville",positions:["Inside Centre", "Outside Centre"],num:23,rating:86,careerRating:88},
             {name:"Will Greenwood",positions:["Inside Centre", "Outside Centre"],num:24,rating:82,careerRating:84},
             {name:"Jeremy Guscott",positions:["Inside Centre", "Outside Centre"],num:25,rating:93,careerRating:95},
-            {name:"Austin Healey",positions:["Left Wing", "Right Wing"],num:26,rating:86,careerRating:88},
+            {name:"Austin Healey",positions:["Left Wing", "Right Wing", "Scrum-half"],num:26,rating:86,careerRating:88},
             {name:"Leon Lloyd",positions:["Left Wing", "Right Wing"],num:27,rating:84,careerRating:86},
             {name:"Dan Luger",positions:["Left Wing", "Right Wing"],num:28,rating:85,careerRating:87},
             {name:"David Rees",positions:["Left Wing", "Right Wing"],num:29,rating:86,careerRating:88},
-            {name:"Mike Catt",positions:["Fullback"],num:30,rating:86,careerRating:88},
+            {name:"Mike Catt",positions:["Fullback", "Inside Centre", "Outside Centre", "Fly-half"],num:30,rating:86,careerRating:88},
             {name:"Nick Beal",positions:["Fullback"],num:31,rating:83,careerRating:85},
             {name:"Matt Perry",positions:["Fullback"],num:32,rating:86,careerRating:88}
         ],
@@ -1304,7 +1304,7 @@ const allSquads = {
             {name:"Ruaridh McConnochie",positions:["Left Wing", "Right Wing"],num:29,rating:85,careerRating:87},
             {name:"Jack Nowell",positions:["Left Wing", "Right Wing"],num:30,rating:89,careerRating:91},
             {name:"Anthony Watson",positions:["Left Wing", "Right Wing"],num:31,rating:92,careerRating:94},
-            {name:"Elliot Daly",positions:["Fullback"],num:32,rating:90,careerRating:92}
+            {name:"Elliot Daly",positions:["Fullback", "Outside Centre", "Left Wing"],num:32,rating:90,careerRating:92}
         ],
         "2023": [
             {name:"Theo Dan",positions:["Hooker"],num:1,rating:84,careerRating:86},
