@@ -74,15 +74,57 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 /* ── Setup card ── */
 .card-container {
     max-width: 550px;
-    margin: 60px auto;
+    margin: 40px auto;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 30px;
 }
-.setup-title { margin-bottom: 24px; }
-.setup-title h2 { font-size: 1.3rem; margin-bottom: 6px; }
-.setup-title p { font-size: 0.85rem; color: var(--text-muted); }
+.setup-title { margin-bottom: 16px; }
+.setup-title h2 { font-size: 1.4rem; }
+
+/* ── Explainer box ── */
+.explainer-box {
+    background: rgba(197,160,89,0.07);
+    border: 1px solid rgba(197,160,89,0.25);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.explainer-lead {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--brand-gold);
+}
+.explainer-box p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+.explainer-rules {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.explainer-rules li {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding-left: 14px;
+    position: relative;
+}
+.explainer-rules li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--brand-gold);
+    font-size: 0.75rem;
+}
 
 .control-group { margin-bottom: 24px; }
 .control-group > label {
