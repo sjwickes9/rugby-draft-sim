@@ -635,10 +635,29 @@ async function runTournamentSimulation() {
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     if (fin.won) {
         await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
+        await addLog("", null);
+        await addLog("But the challenge doesn't end here...", "var(--text-muted)");
+        await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
+        await addLog("", null);
+
+        // Show boss challenge button
+        const bossBtn = document.createElement("button");
+        bossBtn.textContent = "Accept the Ultimate Challenge";
+        bossBtn.className = "btn-primary btn-full";
+        bossBtn.style.marginTop = "10px";
+        document.getElementById("sim-log").appendChild(bossBtn);
+
+        bossBtn.addEventListener("click", async () => {
+            bossBtn.remove();
+            await runBossStage();
+        }, { once: true });
+
+        // Also show play again
+        restartBtn.classList.remove("hidden");
     } else {
         await addLog("Runners-up. A magnificent campaign — one step short of glory.", "#c5a059");
+        restartBtn.classList.remove("hidden");
     }
-    restartBtn.classList.remove("hidden");
 }
 
 // Simulate all four pool round-robins, return ordered standings {A:[1st,2nd,...], ...}
@@ -677,3 +696,161 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
     document.getElementById("theme-toggle").textContent =
         document.body.classList.contains("light-theme") ? "Dark Mode" : "Light Mode";
 });
+
+// ============================================================
+// BOSS STAGE — SANZAAR, LIONS, ALL TIME XV
+// ============================================================
+
+const BOSS_TEAMS = {
+
+  // ── SANZAAR Barbarians ──────────────────────────────────────
+  // Greatest specialist in each position from NZ, SA & Australia
+  // Deliberately spread across all three nations
+  sanzaar: {
+    name: "SANZAAR Barbarians",
+    flavour: "The greatest specialist in every position from New Zealand, South Africa and Australia — the most powerful rugby nations on earth.",
+    players: [
+      { pos:"Loosehead Prop",    name:"Os Du Randt",                 nation:"SA '99",   r:92 },
+      { pos:"Hooker",            name:"Sean Fitzpatrick",             nation:"NZ '95",   r:97 },
+      { pos:"Tighthead Prop",    name:"Carl Hayman",                  nation:"NZ '07",   r:94 },
+      { pos:"Lock",              name:"Victor Matfield",              nation:"SA '07",   r:97 },
+      { pos:"Lock",              name:"John Eales",                   nation:"AUS '99",  r:96 },
+      { pos:"Blindside Flanker", name:"Michael Jones",                nation:"NZ '87",   r:95 },
+      { pos:"Openside Flanker",  name:"Richie McCaw",                 nation:"NZ '11",   r:99 },
+      { pos:"Number 8",          name:"Kieran Read",                  nation:"NZ '15",   r:96 },
+      { pos:"Scrum-half",        name:"Joost van der Westhuizen",     nation:"SA '95",   r:96 },
+      { pos:"Fly-half",          name:"Dan Carter",                   nation:"NZ '15",   r:99 },
+      { pos:"Left Wing",         name:"Jonah Lomu",                   nation:"NZ '95",   r:97 },
+      { pos:"Inside Centre",     name:"Tim Horan",                    nation:"AUS '99",  r:95 },
+      { pos:"Outside Centre",    name:"Jean de Villiers",             nation:"SA '07",   r:92 },
+      { pos:"Right Wing",        name:"Bryan Habana",                 nation:"SA '07",   r:97 },
+      { pos:"Fullback",          name:"Christian Cullen",             nation:"NZ '99",   r:94 },
+    ]
+  },
+
+  // ── British & Irish Lions All Time ──────────────────────────
+  // Pre-RWC legends alongside the modern greats — a genuine all-time XV
+  lions: {
+    name: "British & Irish Lions All Time",
+    flavour: "From the 1971 Invincibles to the modern era — the finest specialist in every position from England, Wales, Scotland and Ireland.",
+    players: [
+      { pos:"Loosehead Prop",    name:"Fran Cotton",                  nation:"ENG '74",  r:94 },
+      { pos:"Hooker",            name:"Keith Wood",                   nation:"IRE '03",  r:93 },
+      { pos:"Tighthead Prop",    name:"Graham Price",                 nation:"WAL '77",  r:93 },
+      { pos:"Lock",              name:"Willie John McBride",           nation:"IRE '74",  r:97 },
+      { pos:"Lock",              name:"Martin Johnson",                nation:"ENG '97",  r:97 },
+      { pos:"Blindside Flanker", name:"Richard Hill",                 nation:"ENG '03",  r:94 },
+      { pos:"Openside Flanker",  name:"Sam Warburton",                nation:"WAL '11",  r:93 },
+      { pos:"Number 8",          name:"Mervyn Davies",                nation:"WAL '71",  r:95 },
+      { pos:"Scrum-half",        name:"Gareth Edwards",               nation:"WAL '71",  r:99 },
+      { pos:"Fly-half",          name:"Barry John",                   nation:"WAL '71",  r:97 },
+      { pos:"Left Wing",         name:"Gerald Davies",                nation:"WAL '71",  r:95 },
+      { pos:"Inside Centre",     name:"Mike Gibson",                  nation:"IRE '71",  r:94 },
+      { pos:"Outside Centre",    name:"Brian O'Driscoll",             nation:"IRE '01",  r:96 },
+      { pos:"Right Wing",        name:"Jason Robinson",               nation:"ENG '03",  r:93 },
+      { pos:"Fullback",          name:"JPR Williams",                 nation:"WAL '71",  r:96 },
+    ]
+  },
+
+  // ── All Time World XV ───────────────────────────────────────
+  // The single greatest specialist at every position in rugby history
+  // Spans pre-RWC greats through to the modern era
+  alltimexv: {
+    name: "All Time World XV",
+    flavour: "The single greatest specialist at every position across all of rugby history. From Gareth Edwards to Dan Carter, from Colin Meads to Richie McCaw.",
+    players: [
+      { pos:"Loosehead Prop",    name:"Ian McLauchlan",               nation:"SCO '74",  r:94 },
+      { pos:"Hooker",            name:"Sean Fitzpatrick",             nation:"NZ '95",   r:97 },
+      { pos:"Tighthead Prop",    name:"Os Du Randt",                  nation:"SA '99",   r:93 },
+      { pos:"Lock",              name:"Colin Meads",                  nation:"NZ '67",   r:98 },
+      { pos:"Lock",              name:"Victor Matfield",              nation:"SA '07",   r:97 },
+      { pos:"Blindside Flanker", name:"Willie John McBride",          nation:"IRE '74",  r:97 },
+      { pos:"Openside Flanker",  name:"Richie McCaw",                 nation:"NZ '11",   r:99 },
+      { pos:"Number 8",          name:"Mervyn Davies",                nation:"WAL '71",  r:95 },
+      { pos:"Scrum-half",        name:"Gareth Edwards",               nation:"WAL '71",  r:99 },
+      { pos:"Fly-half",          name:"Dan Carter",                   nation:"NZ '15",   r:99 },
+      { pos:"Left Wing",         name:"Jonah Lomu",                   nation:"NZ '95",   r:97 },
+      { pos:"Inside Centre",     name:"Tim Horan",                    nation:"AUS '99",  r:95 },
+      { pos:"Outside Centre",    name:"Brian O'Driscoll",             nation:"IRE '11",  r:96 },
+      { pos:"Right Wing",        name:"David Campese",                nation:"AUS '91",  r:96 },
+      { pos:"Fullback",          name:"Serge Blanco",                 nation:"FRA '87",  r:97 },
+    ]
+  }
+};
+
+function getBossRating(team) {
+    return Math.round(team.players.reduce((s,p) => s + p.r, 0) / team.players.length);
+}
+
+async function runBossStage() {
+    const userR = getUserRating();
+    const bossOrder = ["sanzaar","lions","alltimexv"];
+    const bossLabels = {
+        sanzaar:    "⚫ BONUS MATCH — SANZAAR BARBARIANS",
+        lions:      "🔴 BONUS MATCH — BRITISH & IRISH LIONS ALL TIME",
+        alltimexv:  "🏆 BONUS MATCH — ALL TIME WORLD XV"
+    };
+
+    for (const bossKey of bossOrder) {
+        const boss = BOSS_TEAMS[bossKey];
+        const bossR = getBossRating(boss);
+
+        await addLog("", null);
+        await addLog("─────────────────────────────────────", "var(--text-muted)");
+        await addLog(bossLabels[bossKey], "var(--brand-gold)");
+        await addLog(boss.flavour, "var(--text-muted)");
+        await addLog("", null);
+
+        // Show their lineup
+        await addLog("Their XV:", "var(--brand-gold)");
+        for (const p of boss.players) {
+            const shortPos = {
+                "Loosehead Prop":"Prop","Tighthead Prop":"Prop","Hooker":"Hooker",
+                "Lock":"Lock","Blindside Flanker":"Flanker","Openside Flanker":"Flanker",
+                "Number 8":"No.8","Scrum-half":"SH","Fly-half":"FH",
+                "Inside Centre":"Centre","Outside Centre":"Centre",
+                "Left Wing":"Wing","Right Wing":"Wing","Fullback":"FB"
+            }[p.pos] || p.pos;
+            await addLog(
+                shortPos.padEnd(8) + "  " + p.name.padEnd(28) + "  " + p.nation + "  (" + p.r + ")",
+                "var(--text-muted)"
+            );
+        }
+
+        await addLog("", null);
+        await addLog("Their average rating: " + bossR + "  |  Your rating: " + userR, null);
+        await addLog("", null);
+        await addLog("=== KICK OFF ===", "var(--brand-gold)");
+
+        const res = simulateMatch(userR, bossR);
+        await addLog(
+            (res.won ? "WIN " : "LOSS") + "  " + res.userScore + "-" + res.oppScore,
+            res.won ? "#4ade80" : "#f87171"
+        );
+
+        if (!res.won) {
+            await addLog("", null);
+            if (bossKey === "sanzaar") {
+                await addLog("The SANZAAR Barbarians were too strong. A valiant effort against the best of the Southern Hemisphere.", "#c5a059");
+            } else if (bossKey === "lions") {
+                await addLog("The Lions held firm. You pushed the greatest British & Irish players in history to the limit.", "#c5a059");
+            } else {
+                await addLog("The All Time XV prevail. No team in history has beaten this side — and yours came closer than most.", "#c5a059");
+            }
+            restartBtn.classList.remove("hidden");
+            return;
+        }
+
+        if (bossKey === "sanzaar") {
+            await addLog("The SANZAAR Barbarians are beaten! Extraordinary. Now face the Lions...", "#4ade80");
+        } else if (bossKey === "lions") {
+            await addLog("The Lions fall! Your Hybrid XV has conquered British & Irish rugby royalty. One final challenge awaits...", "#4ade80");
+        } else {
+            await addLog("", null);
+            await addLog("THE ALL TIME XV ARE BEATEN.", "var(--brand-gold)");
+            await addLog("Your Hybrid XV has done the impossible. World Champions, and conquerors of the greatest teams ever assembled. Legendary.", "var(--brand-gold)");
+            restartBtn.classList.remove("hidden");
+            return;
+        }
+    }
+}
