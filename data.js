@@ -1092,7 +1092,7 @@ const allSquads = {
             {name:"Neil Back",positions:["Openside Flanker", "Blindside Flanker"],num:12,rating:79,careerRating:92},
             {name:"Dean Richards",positions:["Number 8"],num:13,rating:90,careerRating:90},
             {name:"Ben Clarke",positions:["Number 8"],num:14,rating:87,careerRating:87},
-            {name:"Kyran Bracken",positions:["Scrum-half"],num:15,rating:85,careerRating:93},
+            {name:"Kyran Bracken",positions:["Scrum-half"],num:15,rating:78,careerRating:93},
             {name:"Dewi Morris",positions:["Scrum-half"],num:16,rating:84,careerRating:84},
             {name:"Rob Andrew",positions:["Fly-half"],num:17,rating:92,careerRating:92},
             {name:"Will Carling",positions:["Inside Centre", "Outside Centre"],num:18,rating:88,careerRating:88},
