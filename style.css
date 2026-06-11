@@ -85,45 +85,43 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 
 /* ── Explainer box ── */
 .explainer-box {
-    background: rgba(197,160,89,0.07);
-    border: 1px solid rgba(197,160,89,0.25);
+    background: rgba(197,160,89,0.08);
+    border: 1px solid rgba(197,160,89,0.3);
     border-radius: 8px;
     padding: 16px 18px;
     margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
 }
 .explainer-lead {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 0.93rem;
+    font-weight: 700;
     color: var(--brand-gold);
+    margin-bottom: 10px;
+    line-height: 1.4;
 }
-.explainer-box p {
-    font-size: 0.82rem;
+.explainer-body {
+    font-size: 0.81rem;
     color: var(--text-muted);
     line-height: 1.55;
+    margin-bottom: 8px;
 }
 .explainer-rules {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
 }
-.explainer-rules li {
+.explainer-rule {
     font-size: 0.8rem;
     color: var(--text-muted);
-    padding-left: 14px;
+    padding-left: 16px;
     position: relative;
+    line-height: 1.4;
 }
-.explainer-rules li::before {
+.explainer-rule::before {
     content: "→";
     position: absolute;
     left: 0;
     color: var(--brand-gold);
-    font-size: 0.75rem;
 }
 
 .control-group { margin-bottom: 24px; }
