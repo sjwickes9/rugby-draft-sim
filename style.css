@@ -252,7 +252,19 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 
 .claimed-lockout { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
 
-/* ── Rugby pitch ── */
+/* ── Pitch positional stagger ── */
+/* Number 8: top aligns with midpoint of flankers (offset down by half circle height) */
+.pitch-circle[data-num="8"]  { margin-top: calc(var(--circle-size, 68px) * 0.5); }
+
+/* Fly-half: top aligns with midpoint of scrum-half */
+.pitch-circle[data-num="10"] { margin-top: calc(var(--circle-size, 68px) * 0.5); }
+
+/* Outside centre: top aligns with midpoint of inside centre */
+.pitch-circle[data-num="13"] { margin-top: calc(var(--circle-size, 68px) * 0.5); }
+
+/* Wingers: top aligns with midpoint of outside centre (so offset = 1.5x circle height from row top) */
+.pitch-circle[data-num="11"],
+.pitch-circle[data-num="14"] { margin-top: calc(var(--circle-size, 68px) * 1.5); }
 .pitch-card { display: flex; justify-content: center; align-items: center; padding: 20px; }
 .rugby-pitch-canvas {
     width: 100%;
@@ -277,10 +289,11 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 .line-10m-bottom { bottom: 22%; }
 .line-dead-base  { bottom: 0;   border-top-style: solid; border-top-width: 4px; }
 
-.pitch-row-tier { display: flex; justify-content: center; width: 100%; z-index: 5; gap: 4%; }
+.pitch-row-tier { display: flex; justify-content: center; align-items: flex-start; width: 100%; z-index: 5; gap: 4%; }
 
 .pitch-circle {
-    width: 68px; height: 68px;
+    --circle-size: 68px;
+    width: var(--circle-size); height: var(--circle-size);
     border-radius: 50% !important;
     background: rgba(0,0,0,0.75);
     border: 2px dashed rgba(255,255,255,0.5);
@@ -466,7 +479,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     .action-cluster button { padding: 10px 8px; font-size: 0.85rem; }
 
     /* Pitch circles smaller on mobile */
-    .pitch-circle { width: 48px; height: 48px; }
+    .pitch-circle { --circle-size: 48px; width: 48px; height: 48px; }
     .pitch-circle::before { font-size: 0.85rem; }
     .pitch-circle::after { font-size: 0.38rem; }
     .circle-name { font-size: 0.44rem; }
@@ -489,7 +502,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 
 @media (max-width: 400px) {
-    .pitch-circle { width: 40px; height: 40px; }
+    .pitch-circle { --circle-size: 40px; width: 40px; height: 40px; }
     .pitch-circle::after { font-size: 0.32rem; }
     .pitch-row-tier { gap: 2%; }
 }
