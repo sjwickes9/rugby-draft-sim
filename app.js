@@ -56,6 +56,28 @@ function primaryGroup(player) {
     return posFamily[player.positions[0]] || "Back Three";
 }
 
+// Shorten full position names to display labels in squad list
+function shortenPos(pos) {
+    const map = {
+        "Loosehead Prop":   "Prop",
+        "Tighthead Prop":   "Prop",
+        "Hooker":           "Hooker",
+        "Lock":             "Lock",
+        "Blindside Flanker":"Flanker",
+        "Openside Flanker": "Flanker",
+        "Number 8":         "Number 8",
+        "Scrum-half":       "Scrum-half",
+        "Fly-half":         "Fly-half",
+        "Inside Centre":    "Centre",
+        "Outside Centre":   "Centre",
+        "Left Wing":        "Wing",
+        "Right Wing":       "Wing",
+        "Fullback":         "Fullback",
+    };
+    return map[pos] || pos;
+}
+
+
 // All families a player is recognised in (no penalty)
 function recognisedFamilies(player) {
     return [...new Set(player.positions.map(p => posFamily[p]).filter(Boolean))];
@@ -259,8 +281,8 @@ function renderRosterList() {
             }
 
             const nameSpan = document.createElement("span"); nameSpan.className = "player-name";      nameSpan.textContent = player.name;
-            const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = player.positions[0];
-            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "??" : player.rating;
+            const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = shortenPos(player.positions[0]);
+            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "" : player.rating;
 
             row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
             block.appendChild(row);
