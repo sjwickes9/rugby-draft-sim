@@ -431,6 +431,14 @@ function populateManifestPreviewWindow() {
                    "Blindside Flanker","Openside Flanker","Number 8",
                    "Scrum-half","Fly-half",
                    "Left Wing","Inside Centre","Outside Centre","Right Wing","Fullback"];
+    const posShort = {
+        "Loosehead Prop":"Prop", "Tighthead Prop":"Prop", "Hooker":"Hooker",
+        "Lock 4":"Lock", "Lock 5":"Lock",
+        "Blindside Flanker":"Flanker", "Openside Flanker":"Flanker", "Number 8":"No. 8",
+        "Scrum-half":"Scrum-half", "Fly-half":"Fly-half",
+        "Inside Centre":"Centre", "Outside Centre":"Centre",
+        "Left Wing":"Wing", "Right Wing":"Wing", "Fullback":"Fullback"
+    };
     let html = `<div class="manifest-header">Your Hybrid XV — replacing ${replacedTeam}</div>`;
     order.forEach((pos, i) => {
         const p = userTeam[pos];
@@ -440,7 +448,7 @@ function populateManifestPreviewWindow() {
             : "";
         html += `<div class="manifest-row">
             <span class="manifest-num">${i+1}</span>
-            <span class="manifest-pos">${pos}</span>
+            <span class="manifest-pos">${posShort[pos] || pos}</span>
             <span class="manifest-name">${p.name} <span class="manifest-nation">(${p.nation})</span>${oopBadge}</span>
             <span class="player-rating${p.outOfPosition ? ' oop-rating' : ''}">${p.score}</span>
         </div>`;
