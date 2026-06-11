@@ -231,7 +231,14 @@ function triggerRosterSpinEngine() {
     });
     const nation = pool[Math.floor(Math.random() * pool.length)];
     const years = Object.keys(allSquads[nation]);
-    const year = years[Math.floor(Math.random() * years.length)];
+    // Weight recent years more heavily — older tournaments have lower ratings overall
+    const yearWeights = { "1987":1,"1991":1,"1995":2,"1999":2,"2003":3,"2007":3,"2011":4,"2015":4,"2019":5,"2023":5 };
+    const yearPool = [];
+    years.forEach(y => {
+        const w = yearWeights[y] || 2;
+        for (let i = 0; i < w; i++) yearPool.push(y);
+    });
+    const year = yearPool[Math.floor(Math.random() * yearPool.length)];
     const squad = allSquads[nation][year];
 
     if (flagIndicator && typeof getFlagEmbed === "function") {
@@ -489,12 +496,14 @@ function getUserRating() {
 
 function simulateMatch(userR, oppR) {
     const diff = userR - oppR;
-    const v = () => Math.floor(Math.random()*15)-7;
-    let uS = Math.max(3, Math.round(22 + diff*0.6 + v()));
-    let oS = Math.max(3, Math.round(22 - diff*0.6 + v()));
+    // Variance ±10 makes upsets genuinely possible — rugby is unpredictable
+    const v = () => Math.floor(Math.random()*21)-10;
+    // Multiplier 0.35 dampens the rating gap so a 10-pt deficit isn't a death sentence
+    let uS = Math.max(3, Math.round(22 + diff*0.35 + v()));
+    let oS = Math.max(3, Math.round(22 - diff*0.35 + v()));
     if (uS === oS) uS += 3;
-    const margin = Math.abs(uS-oS);
     const won = uS > oS;
+    const margin = Math.abs(uS-oS);
     // bonus point: 4+ tries approximated as margin > 21; losing bonus: margin <=7
     const pts = won ? (margin>21 ? 5 : 4) : (margin<=7 ? 1 : 0);
     return { userScore:uS, oppScore:oS, won, margin, pts };
@@ -588,10 +597,13 @@ async function runTournamentSimulation() {
     const qfOpp = userQF.home === replacedTeam ? userQF.away : userQF.home;
     const userSF = userQF.sf;
 
+    // Small knockout boost — crowd factor / tournament momentum for the user's team
+    const koBoost = 3;
+
     // ── Quarter-final ──
     await addLog("", null);
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
-    const qf = simulateMatch(userR, teamStrengths[qfOpp]||80);
+    const qf = simulateMatch(userR + koBoost, teamStrengths[qfOpp]||80);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     if (!qf.won) {
         await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444");
@@ -616,13 +628,13 @@ async function runTournamentSimulation() {
     // ── Semi-final ──
     await addLog("", null);
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
-    const sf = simulateMatch(userR, teamStrengths[sfOpp]||86);
+    const sf = simulateMatch(userR + koBoost, teamStrengths[sfOpp]||86);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
 
     if (!sf.won) {
         await addLog("", null);
         await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
-        const tp = simulateMatch(userR, teamStrengths[tpOpp]||84);
+        const tp = simulateMatch(userR + koBoost, teamStrengths[tpOpp]||84);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
@@ -631,7 +643,7 @@ async function runTournamentSimulation() {
     // ── Final ──
     await addLog("", null);
     await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
-    const fin = simulateMatch(userR, teamStrengths[finOpp]||90);
+    const fin = simulateMatch(userR + koBoost, teamStrengths[finOpp]||90);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     if (fin.won) {
         await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
