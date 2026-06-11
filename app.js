@@ -215,7 +215,21 @@ function triggerRosterSpinEngine() {
     }
 
     const allNations = Object.keys(allSquads).filter(n => n !== replacedTeam);
-    const nation = allNations[Math.floor(Math.random() * allNations.length)];
+
+    // Weighted draw — tier 1 nations appear ~3x more often than tier 3
+    const weights = {
+        "New Zealand":3,"South Africa":3,"Australia":3,"England":3,"France":3,
+        "Ireland":3,"Wales":3,"Scotland":3,"Argentina":3,
+        "Fiji":2,"Samoa":2,"Japan":2,"Italy":2,"Tonga":2,"Georgia":2,
+        "Romania":1,"Canada":1,"USA":1,"Namibia":1,"Portugal":1,
+        "Russia":1,"Uruguay":1,"Chile":1,"Spain":1,"Zimbabwe":1,"Ivory Coast":1,
+    };
+    const pool = [];
+    allNations.forEach(n => {
+        const w = weights[n] || 1;
+        for (let i = 0; i < w; i++) pool.push(n);
+    });
+    const nation = pool[Math.floor(Math.random() * pool.length)];
     const years = Object.keys(allSquads[nation]);
     const year = years[Math.floor(Math.random() * years.length)];
     const squad = allSquads[nation][year];
