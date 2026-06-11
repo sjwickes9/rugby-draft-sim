@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Build your ultimate Hybrid XV from every Rugby World Cup squad in history. Draft players across 10 tournaments, then simulate the 2023 World Cup.">
     <title>Rugby Hybrid XV Draft</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,19 +18,31 @@
     <main>
         <!-- SCREEN 1: SETUP -->
         <div id="setup-card" class="card-container">
+
             <div class="setup-title">
-                <h2>Configure Selection Matrix</h2>
-                <p>Set parameters to generate historical tournament pathways.</p>
+                <h2>Rugby Hybrid XV Draft</h2>
+            </div>
+
+            <div class="explainer-box">
+                <p class="explainer-lead">Build the ultimate rugby team from history — then take them to the World Cup.</p>
+                <p>Each turn, a random nation and tournament year is spun — from the 1987 World Cup all the way to 2023. Pick one player from that squad and place them on your pitch. Build a full XV across 15 spins, choosing the best player available each time.</p>
+                <p>Your Hybrid XV replaces a real team in the 2023 Rugby World Cup bracket. Once your squad is complete, simulate the tournament and see how far they go.</p>
+                <ul class="explainer-rules">
+                    <li>5,700+ players across all 10 World Cups</li>
+                    <li>Players can be placed out of position, but with a rating penalty</li>
+                    <li>Use respins to reject a squad and draw another</li>
+                    <li>Try Career Peak mode to rate players at their all-time best</li>
+                </ul>
             </div>
 
             <div class="control-group">
                 <label>Replace Which Team</label>
                 <select id="team-select" class="team-select"></select>
-                <p class="control-hint">Your Hybrid XV takes this team's place in the 2023 World Cup.</p>
+                <p class="control-hint">Your Hybrid XV takes this team's place in the 2023 World Cup bracket.</p>
             </div>
 
             <div class="control-group">
-                <label>Match Variant Engine</label>
+                <label>Rating Mode</label>
                 <div id="variant-slider-track" class="slider-track">
                     <div id="variant-handle" class="slider-handle"></div>
                     <div class="slider-options">
@@ -37,7 +50,7 @@
                         <div id="variant-career" class="slider-opt">Career Peak</div>
                     </div>
                 </div>
-                <p class="control-hint" id="variant-hint">Players are rated as they were at the 2023 World Cup.</p>
+                <p class="control-hint" id="variant-hint">Players are rated as they were at that year's World Cup.</p>
             </div>
 
             <div class="control-group">
@@ -49,18 +62,19 @@
                         <div id="lbl-knowledge" class="slider-opt">Hide Ratings</div>
                     </div>
                 </div>
+                <p class="control-hint">Hide Ratings tests your rugby knowledge — pick players without seeing their scores.</p>
             </div>
 
             <div class="control-group">
-                <label>Campaign Difficulty</label>
+                <label>Difficulty</label>
                 <div class="radio-options">
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="easy" id="diff-easy">
-                        <label for="diff-easy" class="radio-label">Easy<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">3 Squad Respins</span></label>
+                        <label for="diff-easy" class="radio-label">Easy<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">3 Respins</span></label>
                     </div>
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="normal" id="diff-normal" checked>
-                        <label for="diff-normal" class="radio-label">Normal<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">1 Squad Respin</span></label>
+                        <label for="diff-normal" class="radio-label">Normal<br><span style="font-size:0.75rem;font-weight:normal;opacity:0.8;">1 Respin</span></label>
                     </div>
                     <div class="radio-box">
                         <input type="radio" name="difficulty" value="hard" id="diff-hard">
@@ -69,7 +83,7 @@
                 </div>
             </div>
 
-            <button id="start-game-btn" class="btn-primary btn-full">Start drafting my team</button>
+            <button id="start-game-btn" class="btn-primary btn-full">Start Drafting</button>
         </div>
 
         <!-- SCREEN 2: DRAFT DASHBOARD -->
@@ -89,7 +103,7 @@
                     </div>
                     <div class="status-feed-box">
                         <div id="flag-indicator" class="flag-wrapper"></div>
-                        <div id="status-text">Click "Spin Team" to draw a 2023 World Cup squad.</div>
+                        <div id="status-text">Click "Spin Team" to draw a squad from World Cup history.</div>
                     </div>
                 </div>
                 <div class="panel-card roster-panel">
@@ -113,8 +127,8 @@
                         <div class="pitch-circle" data-pos="Tighthead Prop" data-num="3" data-label="PROP"></div>
                     </div>
                     <div class="pitch-row-tier">
-                        <div class="pitch-circle" data-pos="Lock 4" data-num="4" data-label="LOCK 4"></div>
-                        <div class="pitch-circle" data-pos="Lock 5" data-num="5" data-label="LOCK 5"></div>
+                        <div class="pitch-circle" data-pos="Lock 4" data-num="4" data-label="LOCK"></div>
+                        <div class="pitch-circle" data-pos="Lock 5" data-num="5" data-label="LOCK"></div>
                     </div>
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Blindside Flanker" data-num="6" data-label="FLANKER"></div>
@@ -127,8 +141,8 @@
                     </div>
                     <div class="pitch-row-tier">
                         <div class="pitch-circle" data-pos="Left Wing" data-num="11" data-label="WING"></div>
-                        <div class="pitch-circle" data-pos="Inside Centre" data-num="12" data-label="INSIDE CENTRE"></div>
-                        <div class="pitch-circle" data-pos="Outside Centre" data-num="13" data-label="OUTSIDE CENTRE"></div>
+                        <div class="pitch-circle" data-pos="Inside Centre" data-num="12" data-label="CENTRE"></div>
+                        <div class="pitch-circle" data-pos="Outside Centre" data-num="13" data-label="CENTRE"></div>
                         <div class="pitch-circle" data-pos="Right Wing" data-num="14" data-label="WING"></div>
                     </div>
                     <div class="pitch-row-tier">
