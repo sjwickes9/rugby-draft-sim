@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         // 🏴󠁧󠁢󠁷󠁬󠁳󠁿 Hidden dev mode — appears at bottom of list
         const devOpt = document.createElement("option");
-        devOpt.value = "Cymru"; devOpt.textContent = "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymru (Dev Mode)";
+        devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
         teamSelect.appendChild(devOpt);
         teamSelect.value = "England";
     }
@@ -180,7 +180,7 @@ function activateCymruMode() {
 
     // Run a fake world cup win then launch boss
     (async () => {
-        await addLog("🏴󠁧󠁢󠁷󠁬󠁳 CYMRU DEV MODE ACTIVATED", "var(--brand-gold)");
+        await addLog("*** CYMRU DEV MODE ACTIVATED ***", "var(--brand-gold)");
         await addLog("Skipping to boss stage with a 99-rated side...", "var(--text-muted)");
         await addLog("", null);
         await addLog("=== POOL C — RESULTS ===", "var(--brand-gold)");
