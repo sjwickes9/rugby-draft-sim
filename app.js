@@ -489,7 +489,7 @@ if (runSimBtn) {
 }
 
 function getUserRating() {
-    let s=0,c=0;
+    let s=0, c=0;
     for (let p in userTeam) { s+=userTeam[p].score; c++; }
     return c>0 ? Math.round(s/c) : 80;
 }
@@ -652,12 +652,13 @@ async function runTournamentSimulation() {
         await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
         await addLog("", null);
 
-        // Show boss challenge button
+        // Show boss challenge button — appended to sim-results (the terminal viewport)
         const bossBtn = document.createElement("button");
         bossBtn.textContent = "Accept the Ultimate Challenge";
         bossBtn.className = "btn-primary btn-full";
-        bossBtn.style.marginTop = "10px";
-        document.getElementById("sim-log").appendChild(bossBtn);
+        bossBtn.style.cssText = "margin:12px 0;display:block;width:100%;";
+        document.getElementById("sim-results").appendChild(bossBtn);
+        document.getElementById("sim-results").scrollTop = document.getElementById("sim-results").scrollHeight;
 
         bossBtn.addEventListener("click", async () => {
             bossBtn.remove();
