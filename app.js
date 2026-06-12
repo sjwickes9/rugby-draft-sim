@@ -122,6 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
             opt.value = t; opt.textContent = t;
             teamSelect.appendChild(opt);
         });
+        // 🏴󠁧󠁢󠁷󠁬󠁳󠁿 Hidden dev mode — appears at bottom of list
+        const devOpt = document.createElement("option");
+        devOpt.value = "Cymru"; devOpt.textContent = "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymru (Dev Mode)";
+        teamSelect.appendChild(devOpt);
         teamSelect.value = "England";
     }
 
@@ -132,11 +136,90 @@ document.addEventListener("DOMContentLoaded", () => {
         respinsLeft = setting === "easy" ? 3 : setting === "normal" ? 1 : 0;
         if (respinCountText) respinCountText.textContent = respinsLeft;
         replacedTeam = teamSelect ? teamSelect.value : "England";
+
+        if (replacedTeam === "Cymru") {
+            // Dev mode: skip straight to boss stage with a 99-rated squad
+            activateCymruMode();
+            return;
+        }
+
         setupCard.classList.add("hidden");
         draftDashboard.classList.remove("hidden");
         recalculateDashboardAverages();
     });
 });
+
+function activateCymruMode() {
+    // Fill userTeam with 99-rated Welsh legends
+    const cymruSquad = [
+        { pos:"Loosehead Prop",    name:"Gethin Jenkins",    nation:"WAL '11" },
+        { pos:"Hooker",            name:"Ken Owens",          nation:"WAL '19" },
+        { pos:"Tighthead Prop",    name:"Adam Jones",         nation:"WAL '11" },
+        { pos:"Lock 4",            name:"Alun Wyn Jones",     nation:"WAL '19" },
+        { pos:"Lock 5",            name:"Paul O'Connell",     nation:"IRE '11" },
+        { pos:"Blindside Flanker", name:"Sam Warburton",      nation:"WAL '11" },
+        { pos:"Openside Flanker",  name:"Justin Tipuric",     nation:"WAL '19" },
+        { pos:"Number 8",          name:"Taulupe Faletau",    nation:"WAL '19" },
+        { pos:"Scrum-half",        name:"Gareth Edwards",     nation:"Lions"   },
+        { pos:"Fly-half",          name:"Barry John",         nation:"Lions"   },
+        { pos:"Left Wing",         name:"Shane Williams",     nation:"WAL '07" },
+        { pos:"Inside Centre",     name:"Brian O'Driscoll",   nation:"IRE '11" },
+        { pos:"Outside Centre",    name:"Scott Gibbs",        nation:"WAL '99" },
+        { pos:"Right Wing",        name:"Gerald Davies",      nation:"WAL '71" },
+        { pos:"Fullback",          name:"JPR Williams",       nation:"WAL '71" },
+    ];
+    cymruSquad.forEach(p => {
+        userTeam[p.pos] = { name: p.name, score: 99, nation: p.nation, outOfPosition: false };
+    });
+    replacedTeam = "Wales";  // replaces Wales in the bracket
+
+    // Skip straight to simulation screen and boss stage
+    setupCard.classList.add("hidden");
+    draftDashboard.classList.add("hidden");
+    simDashboard.classList.remove("hidden");
+
+    // Run a fake world cup win then launch boss
+    (async () => {
+        await addLog("🏴󠁧󠁢󠁷󠁬󠁳󠁿 CYMRU DEV MODE ACTIVATED", "var(--brand-gold)");
+        await addLog("Skipping to boss stage with a 99-rated side...", "var(--text-muted)");
+        await addLog("", null);
+        await addLog("=== POOL C — RESULTS ===", "var(--brand-gold)");
+        await addLog("WIN  vs Fiji        45-0", "#4ade80");
+        await addLog("WIN  vs Australia   38-7", "#4ade80");
+        await addLog("WIN  vs Georgia     52-3", "#4ade80");
+        await addLog("WIN  vs Portugal    61-0", "#4ade80");
+        await addLog("QUALIFIED — 1st in Pool C", "#4ade80");
+        await addLog("", null);
+        await addLog("=== QUARTER-FINAL ===", "var(--brand-gold)");
+        await addLog("WIN  vs Argentina   33-18", "#4ade80");
+        await addLog("", null);
+        await addLog("=== SEMI-FINAL ===", "var(--brand-gold)");
+        await addLog("WIN  vs Ireland     27-24", "#4ade80");
+        await addLog("", null);
+        await addLog("=== FINAL ===", "var(--brand-gold)");
+        await addLog("WIN  vs South Africa  21-18", "#4ade80");
+        await addLog("", null);
+        await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
+        await addLog("", null);
+        await addLog("But the challenge doesn't end here...", "var(--text-muted)");
+        await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
+        await addLog("", null);
+
+        const bossBtn = document.createElement("button");
+        bossBtn.textContent = "Accept the Ultimate Challenge";
+        bossBtn.className = "btn-primary btn-full";
+        bossBtn.style.cssText = "margin:12px 0;display:block;width:100%;";
+        document.getElementById("sim-results").appendChild(bossBtn);
+        document.getElementById("sim-results").scrollTop = document.getElementById("sim-results").scrollHeight;
+
+        bossBtn.addEventListener("click", async () => {
+            bossBtn.remove();
+            await runBossStage();
+        }, { once: true });
+
+        restartBtn.classList.remove("hidden");
+    })();
+}
 
 // ============================================================
 // SLIDERS
