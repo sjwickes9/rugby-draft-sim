@@ -494,6 +494,23 @@ function getUserRating() {
     return c>0 ? Math.round(s/c) : 80;
 }
 
+// Analytical win probability derived from the simulateMatch distribution
+function winProbability(userR, oppR) {
+    const diff = userR - oppR;
+    const prob = Math.round(100 / (1 + Math.exp(-diff * 0.13)));
+    return Math.min(95, Math.max(5, prob));
+}
+
+function oddsText(prob) {
+    if (prob >= 90) return "Your team are overwhelming favourites.";
+    if (prob >= 78) return "Your team are strong favourites.";
+    if (prob >= 65) return "Your team are slight favourites.";
+    if (prob >= 47) return "This is too close to call.";
+    if (prob >= 35) return "Your team are slight underdogs.";
+    if (prob >= 22) return "Your team are significant underdogs.";
+    return "Your team are heavy underdogs — an upset would be historic.";
+}
+
 function simulateMatch(userR, oppR) {
     const diff = userR - oppR;
     // Variance ±10 makes upsets genuinely possible — rugby is unpredictable
@@ -599,11 +616,15 @@ async function runTournamentSimulation() {
 
     // Small knockout boost — crowd factor / tournament momentum for the user's team
     const koBoost = 3;
+    const effectiveR = userR + koBoost;
 
     // ── Quarter-final ──
     await addLog("", null);
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
-    const qf = simulateMatch(userR + koBoost, teamStrengths[qfOpp]||80);
+    const qfOppR = teamStrengths[qfOpp]||80;
+    const qfProb = winProbability(effectiveR, qfOppR);
+    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     if (!qf.won) {
         await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444");
@@ -628,13 +649,19 @@ async function runTournamentSimulation() {
     // ── Semi-final ──
     await addLog("", null);
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
-    const sf = simulateMatch(userR + koBoost, teamStrengths[sfOpp]||86);
+    const sfOppR = teamStrengths[sfOpp]||86;
+    const sfProb = winProbability(effectiveR, sfOppR);
+    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
 
     if (!sf.won) {
         await addLog("", null);
         await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
-        const tp = simulateMatch(userR + koBoost, teamStrengths[tpOpp]||84);
+        const tpOppR = teamStrengths[tpOpp]||84;
+        const tpProb = winProbability(effectiveR, tpOppR);
+        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
@@ -643,7 +670,10 @@ async function runTournamentSimulation() {
     // ── Final ──
     await addLog("", null);
     await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
-    const fin = simulateMatch(userR + koBoost, teamStrengths[finOpp]||90);
+    const finOppR = teamStrengths[finOpp]||90;
+    const finProb = winProbability(effectiveR, finOppR);
+    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     if (fin.won) {
         await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
@@ -832,6 +862,9 @@ async function runBossStage() {
 
         await addLog("", null);
         await addLog("Their average rating: " + bossR + "  |  Your rating: " + userR, null);
+        await addLog("", null);
+        const bossProb = winProbability(userR, bossR);
+        await addLog(oddsText(bossProb) + " (" + bossProb + "% chance of winning)", "var(--text-muted)");
         await addLog("", null);
         await addLog("=== KICK OFF ===", "var(--brand-gold)");
 
