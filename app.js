@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             opt.value = t; opt.textContent = t;
             teamSelect.appendChild(opt);
         });
-        // 🏴󠁧󠁢󠁷󠁬󠁳󠁿 Hidden dev mode — appears at bottom of list
+        //  Hidden dev mode — appears at bottom of list
         const devOpt = document.createElement("option");
         devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
         teamSelect.appendChild(devOpt);
