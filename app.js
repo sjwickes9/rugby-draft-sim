@@ -2,7 +2,95 @@
 // RUGBY HYBRID XV DRAFT — APP LOGIC
 // ============================================================
 
-const OUT_OF_POSITION_PENALTY = 10;
+// ============================================================
+// OUT-OF-POSITION PENALTY SYSTEM
+// ============================================================
+// Returns penalty points for placing a player at a pitch node.
+// Returns null if placement is FORBIDDEN (front-row safety law).
+
+const POS_GROUP = {
+    "Loosehead Prop":   "front-row", "Tighthead Prop": "front-row", "Hooker": "front-row",
+    "Lock":             "lock",
+    "Blindside Flanker":"back-row",  "Openside Flanker":"back-row", "Number 8":"back-row",
+    "Scrum-half":       "half-back", "Fly-half":       "half-back",
+    "Inside Centre":    "centre",    "Outside Centre": "centre",
+    "Left Wing":        "wing",      "Right Wing":     "wing",
+    "Fullback":         "fullback",
+};
+
+const NODE_GROUP = {
+    "Loosehead Prop":   "front-row", "Hooker":"front-row", "Tighthead Prop":"front-row",
+    "Lock 4":           "lock",      "Lock 5":"lock",
+    "Blindside Flanker":"back-row",  "Openside Flanker":"back-row", "Number 8":"back-row",
+    "Scrum-half":       "half-back", "Fly-half":"half-back",
+    "Inside Centre":    "centre",    "Outside Centre":"centre",
+    "Left Wing":        "wing",      "Right Wing":"wing",
+    "Fullback":         "fullback",
+};
+
+function playerGroups(player) {
+    return [...new Set(player.positions.map(p => POS_GROUP[p]).filter(Boolean))];
+}
+
+function isForbidden(player, nodePos) {
+    // Front-row safety law: only players with a front-row position listed can play there
+    if (NODE_GROUP[nodePos] === "front-row" && !playerGroups(player).includes("front-row")) return true;
+    return false;
+}
+
+function oopPenalty(player, nodePos) {
+    const ng = NODE_GROUP[nodePos];
+    const pg = playerGroups(player);
+
+    // No penalty if node group matches player's listed groups
+    if (pg.includes(ng)) return 0;
+    // No penalty if the exact node position is in player's positions list
+    if (player.positions.includes(nodePos)) return 0;
+    // Props at either side = no penalty (both are "front-row" group)
+    if (ng === "front-row" && pg.includes("front-row")) return 5; // prop↔hooker only
+
+    if (pg.includes("front-row")) {
+        if (ng === "lock" || ng === "back-row") return 10;
+        return 15;
+    }
+    if (pg.includes("lock")) {
+        if (ng === "back-row") return 5;
+        return 10;
+    }
+    if (pg.includes("back-row")) {
+        if (ng === "lock") return 5;
+        return 10;
+    }
+    if (pg.includes("half-back")) {
+        if (ng === "front-row" || ng === "lock" || ng === "back-row") return 15;
+        if (ng === "half-back") return 3;
+        return 5;
+    }
+    if (pg.includes("centre")) {
+        if (ng === "lock") return 15;
+        if (ng === "back-row") return 10;
+        if (ng === "half-back") return 7;
+        if (ng === "fullback") return 5;
+        if (ng === "wing") return 3;
+        return 15;
+    }
+    if (pg.includes("wing")) {
+        if (ng === "front-row" || ng === "lock" || ng === "back-row") return 15;
+        if (ng === "half-back") return 10;
+        if (ng === "centre") return 5;
+        if (ng === "fullback") return 3;
+        return 10;
+    }
+    if (pg.includes("fullback")) {
+        if (ng === "front-row" || ng === "lock" || ng === "back-row") return 15;
+        if (ng === "half-back" && nodePos === "Scrum-half") return 10;
+        if (ng === "half-back") return 5;
+        if (ng === "centre") return 5;
+        if (ng === "wing") return 2;
+        return 10;
+    }
+    return 10;
+}
 
 // Pitch node label -> position family
 const pitchNodeFamily = {
@@ -47,13 +135,12 @@ const backNodes    = ["Scrum-half","Fly-half","Inside Centre","Outside Centre","
 
 // Given a player and a pitch node position label, is placement in-position?
 function isInPosition(player, nodePos) {
-    const targetFamily = pitchNodeFamily[nodePos];
-    return player.positions.some(p => posFamily[p] === targetFamily);
+    return oopPenalty(player, nodePos) === 0;
 }
 
 // Get the display group for a player's PRIMARY position
 function primaryGroup(player) {
-    return posFamily[player.positions[0]] || "Back Three";
+    return POS_GROUP[player.positions[0]] || "wing";
 }
 
 // Shorten full position names to display labels in squad list
@@ -78,9 +165,9 @@ function shortenPos(pos) {
 }
 
 
-// All families a player is recognised in (no penalty)
+// All groups a player is recognised in (no penalty)
 function recognisedFamilies(player) {
-    return [...new Set(player.positions.map(p => posFamily[p]).filter(Boolean))];
+    return [...new Set(player.positions.map(p => POS_GROUP[p]).filter(Boolean))];
 }
 
 // ── Runtime state ──────────────────────────────────────────
@@ -122,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             opt.value = t; opt.textContent = t;
             teamSelect.appendChild(opt);
         });
-        // Hidden dev mode — appears at bottom of list
+        // 🏴󠁧󠁢󠁷󠁬󠁳󠁿 Hidden dev mode — appears at bottom of list
         const devOpt = document.createElement("option");
         devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
         teamSelect.appendChild(devOpt);
@@ -350,7 +437,7 @@ function triggerRosterSpinEngine() {
 // Check if ALL pitch nodes for a given family are occupied
 function isFamilyFull(family) {
     return Array.from(pitchCircles)
-        .filter(c => pitchNodeFamily[c.dataset.pos] === family)
+        .filter(c => NODE_GROUP[c.dataset.pos] === family)
         .every(c => c.classList.contains("occupied"));
 }
 
@@ -363,11 +450,15 @@ function renderRosterList() {
         groups[p.group].push(p);
     });
 
-    const groupOrder = ["Props","Hookers","Locks","Back Row","Scrum Halves","Fly Halves","Centres","Back Three"];
+    const groupOrder = ["front-row","lock","back-row","half-back","centre","wing","fullback"];
+    const groupLabels = {
+        "front-row":"Front Row","lock":"Locks","back-row":"Back Row",
+        "half-back":"Half-backs","centre":"Centres","wing":"Wings","fullback":"Fullbacks"
+    };
     groupOrder.forEach(g => {
         if (!groups[g] || !groups[g].length) return;
         const block = document.createElement("div"); block.className = "roster-group";
-        const head = document.createElement("div"); head.className = "group-header"; head.textContent = g;
+        const head = document.createElement("div"); head.className = "group-header"; head.textContent = groupLabels[g] || g;
         block.appendChild(head);
         rosterContainer.appendChild(block);
 
@@ -414,24 +505,27 @@ function renderRosterList() {
 // ============================================================
 function clearPitchHighlights() {
     pitchCircles.forEach(c => {
-        c.classList.remove("highlight-eligible", "highlight-outofpos");
+        c.classList.remove("highlight-eligible", "highlight-outofpos", "highlight-forbidden");
         c.removeAttribute("title");
+        delete c.dataset.penalty;
     });
 }
 
 function highlightEligibleNodes(player) {
     clearPitchHighlights();
-    const recognised = recognisedFamilies(player);
     pitchCircles.forEach(circle => {
         if (circle.classList.contains("occupied")) return;
-        const nodeFamily = pitchNodeFamily[circle.dataset.pos];
-        if (recognised.includes(nodeFamily)) {
-            // In-position — gold highlight
+        const nodePos = circle.dataset.pos;
+        if (isForbidden(player, nodePos)) {
+            circle.classList.add("highlight-forbidden");
+            return;
+        }
+        const penalty = oopPenalty(player, nodePos);
+        if (penalty === 0) {
             circle.classList.add("highlight-eligible");
         } else {
-            // Out of position — amber highlight, with tooltip
             circle.classList.add("highlight-outofpos");
-            circle.title = player.name + " is not recognised at " + circle.dataset.pos + ". -" + OUT_OF_POSITION_PENALTY + " rating penalty applies.";
+            circle.dataset.penalty = penalty;
         }
     });
 }
@@ -461,23 +555,21 @@ pitchCircles.forEach(node => {
             return;
         }
 
-        // Must have a player selected, and the node must be eligible (either in or out of position)
+        // Must have a player selected, and the node must not be forbidden or already occupied
         if (!selectedPlayer) return;
-        const nodeFamily = pitchNodeFamily[nodePos];
-        const recognised = recognisedFamilies(selectedPlayer);
-        const eligible = recognised.includes(nodeFamily) || true; // out-of-pos nodes are still clickable
-        // But we only allow it if the node was highlighted (either colour)
         if (!node.classList.contains("highlight-eligible") && !node.classList.contains("highlight-outofpos")) return;
 
-        const inPos = recognised.includes(nodeFamily);
+        const penalty = oopPenalty(selectedPlayer, nodePos);
         const baseRating = selectedPlayer.rating;
-        const finalRating = inPos ? baseRating : Math.max(0, baseRating - OUT_OF_POSITION_PENALTY);
+        const finalRating = Math.max(0, baseRating - penalty);
+        const inPos = (penalty === 0);
 
         userTeam[nodePos] = {
-            name: selectedPlayer.name,
-            score: finalRating,
-            nation: selectedPlayer.nation,
-            outOfPosition: !inPos,
+            name:           selectedPlayer.name,
+            score:          finalRating,
+            nation:         selectedPlayer.nation,
+            outOfPosition:  !inPos,
+            penalty:        penalty,
             originalRating: baseRating
         };
         globalDraftedNames.add(selectedPlayer.name);
@@ -489,8 +581,14 @@ pitchCircles.forEach(node => {
 
         if (!inPos) {
             node.classList.add("occupied-oop");
-            node.title = selectedPlayer.name + " is out of position here. Rating reduced from " + baseRating + " to " + finalRating + ".";
-            node.innerHTML = `<div class="circle-num oop-num">${finalRating}<span class="oop-icon">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
+            node.dataset.oopPenalty = penalty;
+            node.innerHTML = `<div class="circle-num oop-num">${finalRating}<span class="oop-icon" data-penalty="${penalty}">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
+            const icon = node.querySelector(".oop-icon");
+            if (icon) {
+                icon.addEventListener("mouseenter", () => showOopTooltip(icon, penalty));
+                icon.addEventListener("mouseleave",  hideOopTooltip);
+                icon.addEventListener("click", e => { e.stopPropagation(); toggleOopTooltip(icon, penalty); });
+            }
         } else {
             node.innerHTML = `<div class="circle-num">${finalRating}</div><div class="circle-name">${selectedPlayer.name}</div>`;
         }
@@ -548,7 +646,7 @@ function populateManifestPreviewWindow() {
         const p = userTeam[pos];
         if (!p) return;
         const oopBadge = p.outOfPosition
-            ? `<span class="manifest-oop" title="Out of position: ${p.originalRating} reduced to ${p.score}">⚠ OOP</span>`
+            ? `<span class="manifest-oop">⚠ -${p.penalty || '?'}pts</span>`
             : "";
         html += `<div class="manifest-row">
             <span class="manifest-num">${i+1}</span>
@@ -813,6 +911,46 @@ function getPoolFor(team) {
 }
 
 // ============================================================
+// ============================================================
+// OOP TOOLTIP — hover on desktop, tap on mobile
+// ============================================================
+let currentOopTooltip = null;
+
+function showOopTooltip(icon, penalty) {
+    hideOopTooltip();
+    const tip = document.createElement("div");
+    tip.className = "oop-tooltip";
+    tip.textContent = "Out of position penalty: -" + penalty + " points";
+    document.body.appendChild(tip);
+    currentOopTooltip = tip;
+    positionTooltip(tip, icon);
+}
+
+function positionTooltip(tip, anchor) {
+    const rect = anchor.getBoundingClientRect();
+    tip.style.position = "fixed";
+    tip.style.zIndex   = "9999";
+    // Try above first, fall back to below
+    const tipH = tip.offsetHeight || 32;
+    const top  = rect.top - tipH - 6;
+    tip.style.top  = (top > 0 ? top : rect.bottom + 6) + "px";
+    tip.style.left = Math.max(4, rect.left + rect.width/2 - tip.offsetWidth/2) + "px";
+}
+
+function hideOopTooltip() {
+    if (currentOopTooltip) { currentOopTooltip.remove(); currentOopTooltip = null; }
+}
+
+function toggleOopTooltip(icon, penalty) {
+    if (currentOopTooltip) { hideOopTooltip(); return; }
+    showOopTooltip(icon, penalty);
+}
+
+// Dismiss tooltip on outside click
+document.addEventListener("click", e => {
+    if (currentOopTooltip && !e.target.classList.contains("oop-icon")) hideOopTooltip();
+});
+
 // MISC
 // ============================================================
 if (restartBtn) restartBtn.addEventListener("click", () => location.reload());
