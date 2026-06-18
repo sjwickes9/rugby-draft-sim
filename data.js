@@ -557,9 +557,9 @@ const allSquads = {
             {name:"Scott Staniforth",positions:["Fullback", "Left Wing"],num:33,rating:86,careerRating:86},
             {name:"Sean Hardman",positions:["Hooker"],num:34,rating:84,careerRating:84},
             {name:"Stephen Hoiles",positions:["Number 8"],num:35,rating:87,careerRating:87},
-            {name:"Stephen Larkham",positions:["Inside Centre", "Fly-half"],num:36,rating:95,careerRating:95},
+            {name:"Stephen Larkham",positions:["Fly-half", "Inside Centre"],num:36,rating:95,careerRating:95},
             {name:"Stephen Moore",positions:["Hooker"],num:37,rating:85,careerRating:94},
-            {name:"Stirling Mortlock",positions:["Fullback", "Inside Centre"],num:38,rating:91,careerRating:91},
+            {name:"Stirling Mortlock",positions:["Outside Centre", "Inside Centre"],num:38,rating:91,careerRating:91},
             {name:"Tatafu Polota-Nau",positions:["Hooker"],num:39,rating:81,careerRating:90},
             {name:"Wycliff Palu",positions:["Number 8", "Blindside Flanker"],num:40,rating:86,careerRating:91}
         ],
