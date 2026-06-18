@@ -1225,7 +1225,7 @@ const allSquads = {
             {name:"Louis Deacon",positions:["Lock"],num:15,rating:86,careerRating:86},
             {name:"Manu Tuilagi",positions:["Inside Centre", "Left Wing"],num:16,rating:84,careerRating:91},
             {name:"Mark Cueto",positions:["Fullback", "Left Wing"],num:17,rating:92,careerRating:92},
-            {name:"Matt Banahan",positions:["Fullback", "Inside Centre"],num:18,rating:87,careerRating:87},
+            {name:"Matt Banahan",positions:["Left Wing", "Inside Centre"],num:18,rating:87,careerRating:87},
             {name:"Matt Stevens",positions:["Tighthead Prop", "Loosehead Prop"],num:19,rating:90,careerRating:90},
             {name:"Mike Tindall",positions:["Inside Centre", "Outside Centre"],num:20,rating:90,careerRating:94},
             {name:"Nick Easter",positions:["Lock", "Number 8"],num:21,rating:90,careerRating:90},
@@ -1269,7 +1269,7 @@ const allSquads = {
             {name:"Owen Farrell",positions:["Fly-half", "Inside Centre"],num:27,rating:88,careerRating:93},
             {name:"Richard Wigglesworth",positions:["Scrum-half"],num:28,rating:90,careerRating:90},
             {name:"Rob Webber",positions:["Hooker"],num:29,rating:86,careerRating:86},
-            {name:"Sam Burgess",positions:["Number 8", "Inside Centre"],num:30,rating:85,careerRating:85},
+            {name:"Sam Burgess",positions:["Inside Centre", "Blindside Flanker"],num:30,rating:85,careerRating:85},
             {name:"Tom Wood",positions:["Number 8", "Openside Flanker"],num:31,rating:90,careerRating:90},
             {name:"Tom Youngs",positions:["Hooker", "Inside Centre"],num:32,rating:90,careerRating:90}
         ],
