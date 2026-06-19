@@ -518,7 +518,7 @@ const allSquads = {
             {name:"Nathan Sharpe",positions:["Lock"],num:26,rating:86,careerRating:95},
             {name:"Phil Waugh",positions:["Openside Flanker", "Blindside Flanker"],num:27,rating:85,careerRating:91},
             {name:"Stephen Larkham",positions:["Inside Centre", "Fly-half"],num:28,rating:94,careerRating:95},
-            {name:"Stirling Mortlock",positions:["Fullback", "Inside Centre"],num:29,rating:89,careerRating:91},
+            {name:"Stirling Mortlock",positions:["Inside Centre", "Outside Centre"],num:29,rating:89,careerRating:91},
             {name:"Wendell Sailor",positions:["Left Wing", "Right Wing"],num:30,rating:88,careerRating:88}
         ],
         "2007": [
@@ -4738,7 +4738,7 @@ const allSquads = {
             {name:"Scott Cummings",positions:["Lock"],num:26,rating:79,careerRating:84},
             {name:"Sean Maitland",positions:["Left Wing", "Fullback"],num:27,rating:86,careerRating:86},
             {name:"Simon Berghan",positions:["Tighthead Prop"],num:28,rating:84,careerRating:84},
-            {name:"Stuart Hogg",positions:["Fly-half", "Fullback"],num:29,rating:93,careerRating:93},
+            {name:"Stuart Hogg",positions:["Fullback", "Fly-half"],num:29,rating:93,careerRating:93},
             {name:"Stuart McInally",positions:["Openside Flanker", "Hooker"],num:30,rating:88,careerRating:89},
             {name:"Tommy Seymour",positions:["Fullback", "Left Wing"],num:31,rating:86,careerRating:86},
             {name:"WP Nel",positions:["Tighthead Prop", "Loosehead Prop"],num:32,rating:88,careerRating:89},
