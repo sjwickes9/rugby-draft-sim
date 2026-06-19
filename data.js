@@ -439,7 +439,7 @@ const allSquads = {
             {name:"George Gregan",positions:["Scrum-half"],num:8,rating:85,careerRating:97},
             {name:"Ilivasi Tabua",positions:["Openside Flanker", "Blindside Flanker"],num:9,rating:85,careerRating:85},
             {name:"Jason Little",positions:["Inside Centre", "Left Wing"],num:10,rating:86,careerRating:91},
-            {name:"Joe Roff",positions:["Left Wing", "Fullback"],num:11,rating:79,careerRating:91},
+            {name:"Joe Roff",positions:["Left Wing", "Fullback"],num:11,rating:82,careerRating:91},
             {name:"John Eales",positions:["Number 8", "Lock"],num:12,rating:93,careerRating:95},
             {name:"Mark Hartill",positions:["Tighthead Prop", "Loosehead Prop"],num:13,rating:85,careerRating:85},
             {name:"Matt Burke",positions:["Fullback"],num:14,rating:83,careerRating:90},
