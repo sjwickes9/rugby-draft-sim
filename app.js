@@ -210,9 +210,9 @@ document.addEventListener("DOMContentLoaded", () => {
             teamSelect.appendChild(opt);
         });
         //  Hidden dev mode — appears at bottom of list
-        const devOpt = document.createElement("option");
-        devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
-        teamSelect.appendChild(devOpt);
+        // const devOpt = document.createElement("option");
+        // devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
+        // teamSelect.appendChild(devOpt);
         teamSelect.value = "England";
     }
 
