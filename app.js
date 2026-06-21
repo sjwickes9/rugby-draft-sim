@@ -761,7 +761,7 @@ function showShareButton(headline, colour) {
 
     const btn = document.createElement("button");
     btn.id = "share-team-btn";
-    btn.textContent = canUseNativeShare() ? "Share Your Team Card" : "Download Your Card";
+    btn.textContent = canUseNativeShare() ? "Share Your Card" : "Download Your Card";
     btn.className = "btn-primary share-team-btn";
     btn.addEventListener("click", generateShareGraphic);
 
@@ -782,7 +782,7 @@ function showShareButton(headline, colour) {
 }
 
 function generateShareGraphic() {
-    const W = 1080, H = 1560; // portrait, social-friendly
+    const W = 1080, H = 1750; // portrait, social-friendly
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
@@ -819,10 +819,10 @@ function generateShareGraphic() {
     wrapCanvasText(ctx, lastResultHeadline || "Campaign complete", W/2, 200, W-160, 44);
 
     // ── Full-width pitch diagram with ratings + nation/year per player ──
-    drawMiniPitch(ctx, W/2, 580, 920, 760);
+    drawMiniPitch(ctx, W/2, 720, 920, 900);
 
     // ── Results recap (replaces the old duplicate squad list) ──
-    const recapTop = 1040;
+    const recapTop = 1230;
     ctx.textAlign = "left";
     ctx.font = "bold 24px Georgia, serif";
     ctx.fillStyle = gold;
@@ -887,24 +887,24 @@ function drawMiniPitch(ctx, cx, cy, w, h) {
     });
 
     // Node layout as fractions of pitch width/height, matching the live pitch.
-    // Rows are spaced so each circle + its name/nation text never overlaps
-    // the row above or below it.
+    // Six distinct row-bands, evenly spaced so a circle + its two lines of
+    // text never collides with the row above or below it.
     const nodes = [
         { pos:"Loosehead Prop", xf:0.20, yf:0.07 },
         { pos:"Hooker",         xf:0.50, yf:0.07 },
         { pos:"Tighthead Prop", xf:0.80, yf:0.07 },
-        { pos:"Lock 4",         xf:0.35, yf:0.21 },
-        { pos:"Lock 5",         xf:0.65, yf:0.21 },
-        { pos:"Blindside Flanker", xf:0.18, yf:0.35 },
-        { pos:"Number 8",      xf:0.50, yf:0.39 },
-        { pos:"Openside Flanker", xf:0.82, yf:0.35 },
-        { pos:"Scrum-half",    xf:0.34, yf:0.53 },
-        { pos:"Fly-half",      xf:0.66, yf:0.53 },
-        { pos:"Left Wing",     xf:0.07, yf:0.71 },
-        { pos:"Inside Centre", xf:0.36, yf:0.67 },
-        { pos:"Outside Centre",xf:0.64, yf:0.67 },
-        { pos:"Right Wing",    xf:0.93, yf:0.71 },
-        { pos:"Fullback",      xf:0.50, yf:0.86 },
+        { pos:"Lock 4",         xf:0.35, yf:0.236 },
+        { pos:"Lock 5",         xf:0.65, yf:0.236 },
+        { pos:"Blindside Flanker", xf:0.18, yf:0.402 },
+        { pos:"Number 8",      xf:0.50, yf:0.402 },
+        { pos:"Openside Flanker", xf:0.82, yf:0.402 },
+        { pos:"Scrum-half",    xf:0.34, yf:0.568 },
+        { pos:"Fly-half",      xf:0.66, yf:0.568 },
+        { pos:"Left Wing",     xf:0.07, yf:0.734 },
+        { pos:"Inside Centre", xf:0.36, yf:0.734 },
+        { pos:"Outside Centre",xf:0.64, yf:0.734 },
+        { pos:"Right Wing",    xf:0.93, yf:0.734 },
+        { pos:"Fullback",      xf:0.50, yf:0.90 },
     ];
 
     const r = 36;
@@ -913,6 +913,11 @@ function drawMiniPitch(ctx, cx, cy, w, h) {
         const x = left + w * n.xf;
         const y = top  + h * n.yf;
         const p = userTeam[n.pos];
+
+        // How much horizontal room this node actually has before its text
+        // would run off the canvas edge (with a margin either side).
+        const distToCanvasEdge = Math.min(x, ctx.canvas.width - x);
+        const maxTextWidth = Math.max(100, distToCanvasEdge * 2 - 30);
 
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI*2);
@@ -928,18 +933,31 @@ function drawMiniPitch(ctx, cx, cy, w, h) {
         ctx.textAlign = "center";
         ctx.fillText(p ? String(p.score) : "—", x, y + 9);
 
-        // Player name beneath the circle
+        // Player name beneath the circle — auto-shrinks to fit on one line
+        // rather than truncating, so the full name is always readable.
         ctx.fillStyle = "#f3f4f6";
-        ctx.font = "bold 14px Arial";
         const name = p ? p.name : "";
-        ctx.fillText(truncateCanvasText(ctx, name, r*2.8), x, y + r + 18);
+        fitCanvasTextOneLine(ctx, name, maxTextWidth, 14, 9);
+        ctx.fillText(name, x, y + r + 18);
 
         // Nation and year beneath the name
         ctx.fillStyle = "#9ca39c";
-        ctx.font = "12px Arial";
         const nation = p ? p.nation : "";
-        ctx.fillText(truncateCanvasText(ctx, nation, r*2.8), x, y + r + 32);
+        fitCanvasTextOneLine(ctx, nation, maxTextWidth, 12, 9);
+        ctx.fillText(nation, x, y + r + 32);
     });
+}
+
+// Shrinks ctx.font (Arial, bold) down from a starting size until the given
+// text fits within maxWidth on a single line, never going below minSize.
+// Leaves ctx.font set to the resulting size as a side effect.
+function fitCanvasTextOneLine(ctx, text, maxWidth, startSize, minSize) {
+    let size = startSize;
+    ctx.font = "bold " + size + "px Arial";
+    while (size > minSize && ctx.measureText(text).width > maxWidth) {
+        size -= 1;
+        ctx.font = "bold " + size + "px Arial";
+    }
 }
 
 function truncateCanvasText(ctx, text, maxWidth) {
