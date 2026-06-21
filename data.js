@@ -4648,7 +4648,7 @@ const allSquads = {
             {name:"Alastair Kellock",positions:["Lock"],num:3,rating:88,careerRating:88},
             {name:"Allan Jacobsen",positions:["Loosehead Prop", "Tighthead Prop"],num:4,rating:88,careerRating:88},
             {name:"Chris Cusiter",positions:["Scrum-half"],num:5,rating:89,careerRating:89},
-            {name:"Chris Paterson",positions:["Fly-half", "Fullback"],num:6,rating:90,careerRating:90},
+            {name:"Chris Paterson",positions:["Fullback", "Fly-half"],num:6,rating:90,careerRating:90},
             {name:"Dan Parks",positions:["Fly-half"],num:7,rating:90,careerRating:90},
             {name:"Dougie Hall",positions:["Hooker"],num:8,rating:84,careerRating:84},
             {name:"Euan Murray",positions:["Tighthead Prop", "Loosehead Prop"],num:9,rating:84,careerRating:84},
