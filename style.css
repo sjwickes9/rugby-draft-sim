@@ -86,11 +86,15 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     font-size: 1rem;
     margin-top: 0;
     width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
 }
 @media (max-width: 600px) {
     .result-actions-row { flex-direction: column; }
     .result-action-btn,
-    .share-team-btn { flex: 1 1 auto; width: 100%; }
+    .share-team-btn { flex: 1 1 auto; width: 100%; font-size: 0.92rem; }
 }
 
 /* ── Setup card ── */
@@ -475,10 +479,11 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 .score-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .score-col-right { text-align: left; border-left: 1px solid rgba(255,255,255,0.08); padding-left: 16px; }
 .score-row {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: var(--text-muted);
-    white-space: normal;
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     line-height: 1.4;
 }
 @media (max-width: 600px) {
