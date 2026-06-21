@@ -477,7 +477,7 @@ function renderRosterList() {
 
             const nameSpan = document.createElement("span"); nameSpan.className = "player-name";      nameSpan.textContent = player.name;
             const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = shortenPos(player.positions[0]);
-            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "" : player.rating;
+            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = "";
 
             row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
             block.appendChild(row);
@@ -582,7 +582,7 @@ pitchCircles.forEach(node => {
         if (!inPos) {
             node.classList.add("occupied-oop");
             node.dataset.oopPenalty = penalty;
-            node.innerHTML = `<div class="circle-num oop-num">${finalRating}<span class="oop-icon" data-penalty="${penalty}">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
+            node.innerHTML = `<div class="circle-num oop-num"><span class="oop-icon" data-penalty="${penalty}">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
             const icon = node.querySelector(".oop-icon");
             if (icon) {
                 icon.addEventListener("mouseenter", () => showOopTooltip(icon, penalty));
@@ -590,7 +590,7 @@ pitchCircles.forEach(node => {
                 icon.addEventListener("click", e => { e.stopPropagation(); toggleOopTooltip(icon, penalty); });
             }
         } else {
-            node.innerHTML = `<div class="circle-num">${finalRating}</div><div class="circle-name">${selectedPlayer.name}</div>`;
+            node.innerHTML = `<div class="circle-num"></div><div class="circle-name">${selectedPlayer.name}</div>`;
         }
 
         selectedPlayer = null;
@@ -604,6 +604,7 @@ pitchCircles.forEach(node => {
                 draftDashboard.classList.add("hidden");
                 simDashboard.classList.remove("hidden");
                 populateManifestPreviewWindow();
+                populatePreKickoffSummary();
             }, 800);
         }
     });
@@ -613,15 +614,11 @@ pitchCircles.forEach(node => {
 // DASHBOARD AVERAGES
 // ============================================================
 function recalculateDashboardAverages() {
-    let tS=0,fS=0,bS=0,tC=0,fC=0,bC=0;
-    for (let pos in userTeam) {
-        const v = userTeam[pos].score; tS+=v; tC++;
-        if (forwardNodes.includes(pos)) { fS+=v; fC++; }
-        if (backNodes.includes(pos))    { bS+=v; bC++; }
-    }
-    document.getElementById("avg-global-ovr").textContent  = tC>0 ? Math.round(tS/tC)  : "--";
-    document.getElementById("avg-forward-ovr").textContent = fC>0 ? Math.round(fS/fC)  : "--";
-    document.getElementById("avg-back-ovr").textContent    = bC>0 ? Math.round(bS/bC)  : "--";
+    // Ratings are never shown during the draft — this is a blind draft by design.
+    // The real averages first appear on the pre-kickoff summary screen.
+    document.getElementById("avg-global-ovr").textContent  = "??";
+    document.getElementById("avg-forward-ovr").textContent = "??";
+    document.getElementById("avg-back-ovr").textContent    = "??";
 }
 
 // ============================================================
@@ -646,16 +643,51 @@ function populateManifestPreviewWindow() {
         const p = userTeam[pos];
         if (!p) return;
         const oopBadge = p.outOfPosition
-            ? `<span class="manifest-oop">⚠ -${p.penalty || '?'}pts</span>`
+            ? `<span class="manifest-oop">⚠ OOP</span>`
             : "";
         html += `<div class="manifest-row">
             <span class="manifest-num">${i+1}</span>
             <span class="manifest-pos">${posShort[pos] || pos}</span>
             <span class="manifest-name">${p.name} <span class="manifest-nation">(${p.nation})</span>${oopBadge}</span>
-            <span class="player-rating${p.outOfPosition ? ' oop-rating' : ''}">${p.score}</span>
         </div>`;
     });
     manifestTeamBox.innerHTML = html;
+}
+
+// ============================================================
+// PRE-KICKOFF SUMMARY — the FIRST moment ratings are revealed
+// ============================================================
+function populatePreKickoffSummary() {
+    const box = document.getElementById("pre-kickoff-summary");
+    if (!box) return;
+
+    let tS=0,fS=0,bS=0,tC=0,fC=0,bC=0;
+    for (let pos in userTeam) {
+        const v = userTeam[pos].score; tS+=v; tC++;
+        if (forwardNodes.includes(pos)) { fS+=v; fC++; }
+        if (backNodes.includes(pos))    { bS+=v; bC++; }
+    }
+    const overall = tC>0 ? Math.round(tS/tC) : 0;
+    const fwd     = fC>0 ? Math.round(fS/fC) : 0;
+    const bck     = bC>0 ? Math.round(bS/bC) : 0;
+
+    box.innerHTML = `
+        <div class="prekick-header">Your Hybrid XV is ready</div>
+        <div class="prekick-stats">
+            <div class="prekick-stat">
+                <div class="prekick-val">${overall}</div>
+                <div class="prekick-lbl">Overall Rating</div>
+            </div>
+            <div class="prekick-stat">
+                <div class="prekick-val">${fwd}</div>
+                <div class="prekick-lbl">Forwards Rating</div>
+            </div>
+            <div class="prekick-stat">
+                <div class="prekick-val">${bck}</div>
+                <div class="prekick-lbl">Backs Rating</div>
+            </div>
+        </div>
+    `;
 }
 
 // ============================================================
