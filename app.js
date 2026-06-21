@@ -735,9 +735,20 @@ let lastResultHeadline = "";
 let matchHistory = []; // { stage, opponent, userScore, oppScore, won } per match this run
 let lastResultColour   = "#4ade80";
 
+function isMobileDevice() {
+    // Explicit mobile check — some desktop browsers partially implement the
+    // Web Share API without a real OS share sheet, so we check the device
+    // itself rather than trusting feature detection alone.
+    const ua = navigator.userAgent || "";
+    const mobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
+    const touchPrimary = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    return mobileUA || touchPrimary;
+}
+
 function canUseNativeShare() {
-    // Web Share API with file support — available on iOS Safari and Android Chrome,
-    // not on desktop browsers (where we fall back to a normal download).
+    // Web Share API with file support — only treated as usable on mobile,
+    // where it opens a genuine OS share sheet. Desktop always downloads.
+    if (!isMobileDevice()) return false;
     return !!(navigator.share && navigator.canShare &&
         navigator.canShare({ files: [new File([""], "test.png", { type: "image/png" })] }));
 }
@@ -750,19 +761,28 @@ function showShareButton(headline, colour) {
 
     const btn = document.createElement("button");
     btn.id = "share-team-btn";
-    btn.textContent = canUseNativeShare() ? "Share Your Team Card" : "Download Your Team Card";
-    btn.className = "btn-primary btn-full";
-    btn.style.cssText = "margin-top:10px;width:100%;";
+    btn.textContent = canUseNativeShare() ? "Share Your Team Card" : "Download Your Card";
+    btn.className = "btn-primary share-team-btn";
     btn.addEventListener("click", generateShareGraphic);
 
-    // Insert it right after the restart button so it's visible at the end of the run
+    // Insert it right after the restart button so the two sit side by side
     if (restartBtn && restartBtn.parentNode) {
+        restartBtn.classList.add("result-action-btn");
         restartBtn.parentNode.insertBefore(btn, restartBtn.nextSibling);
+
+        // Wrap both buttons in a flex row if not already wrapped
+        if (!restartBtn.parentNode.classList.contains("result-actions-row")) {
+            const row = document.createElement("div");
+            row.className = "result-actions-row";
+            restartBtn.parentNode.insertBefore(row, restartBtn);
+            row.appendChild(restartBtn);
+            row.appendChild(btn);
+        }
     }
 }
 
 function generateShareGraphic() {
-    const W = 1080, H = 1500; // portrait, social-friendly
+    const W = 1080, H = 1560; // portrait, social-friendly
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
@@ -799,10 +819,10 @@ function generateShareGraphic() {
     wrapCanvasText(ctx, lastResultHeadline || "Campaign complete", W/2, 200, W-160, 44);
 
     // ── Full-width pitch diagram with ratings + nation/year per player ──
-    drawMiniPitch(ctx, W/2, 560, 920, 700);
+    drawMiniPitch(ctx, W/2, 580, 920, 760);
 
     // ── Results recap (replaces the old duplicate squad list) ──
-    const recapTop = 980;
+    const recapTop = 1040;
     ctx.textAlign = "left";
     ctx.font = "bold 24px Georgia, serif";
     ctx.fillStyle = gold;
@@ -866,26 +886,28 @@ function drawMiniPitch(ctx, cx, cy, w, h) {
         ctx.stroke();
     });
 
-    // Node layout as fractions of pitch width/height, matching the live pitch
+    // Node layout as fractions of pitch width/height, matching the live pitch.
+    // Rows are spaced so each circle + its name/nation text never overlaps
+    // the row above or below it.
     const nodes = [
         { pos:"Loosehead Prop", xf:0.20, yf:0.07 },
         { pos:"Hooker",         xf:0.50, yf:0.07 },
         { pos:"Tighthead Prop", xf:0.80, yf:0.07 },
-        { pos:"Lock 4",         xf:0.35, yf:0.20 },
-        { pos:"Lock 5",         xf:0.65, yf:0.20 },
-        { pos:"Blindside Flanker", xf:0.18, yf:0.34 },
-        { pos:"Number 8",      xf:0.50, yf:0.38 },
-        { pos:"Openside Flanker", xf:0.82, yf:0.34 },
-        { pos:"Scrum-half",    xf:0.34, yf:0.52 },
-        { pos:"Fly-half",      xf:0.66, yf:0.52 },
-        { pos:"Left Wing",     xf:0.07, yf:0.72 },
-        { pos:"Inside Centre", xf:0.36, yf:0.68 },
-        { pos:"Outside Centre",xf:0.64, yf:0.68 },
-        { pos:"Right Wing",    xf:0.93, yf:0.72 },
-        { pos:"Fullback",      xf:0.50, yf:0.90 },
+        { pos:"Lock 4",         xf:0.35, yf:0.21 },
+        { pos:"Lock 5",         xf:0.65, yf:0.21 },
+        { pos:"Blindside Flanker", xf:0.18, yf:0.35 },
+        { pos:"Number 8",      xf:0.50, yf:0.39 },
+        { pos:"Openside Flanker", xf:0.82, yf:0.35 },
+        { pos:"Scrum-half",    xf:0.34, yf:0.53 },
+        { pos:"Fly-half",      xf:0.66, yf:0.53 },
+        { pos:"Left Wing",     xf:0.07, yf:0.71 },
+        { pos:"Inside Centre", xf:0.36, yf:0.67 },
+        { pos:"Outside Centre",xf:0.64, yf:0.67 },
+        { pos:"Right Wing",    xf:0.93, yf:0.71 },
+        { pos:"Fullback",      xf:0.50, yf:0.86 },
     ];
 
-    const r = 42;
+    const r = 36;
 
     nodes.forEach(n => {
         const x = left + w * n.xf;
@@ -910,13 +932,13 @@ function drawMiniPitch(ctx, cx, cy, w, h) {
         ctx.fillStyle = "#f3f4f6";
         ctx.font = "bold 14px Arial";
         const name = p ? p.name : "";
-        ctx.fillText(truncateCanvasText(ctx, name, r*2.8), x, y + r + 20);
+        ctx.fillText(truncateCanvasText(ctx, name, r*2.8), x, y + r + 18);
 
         // Nation and year beneath the name
         ctx.fillStyle = "#9ca39c";
         ctx.font = "12px Arial";
         const nation = p ? p.nation : "";
-        ctx.fillText(truncateCanvasText(ctx, nation, r*2.8), x, y + r + 36);
+        ctx.fillText(truncateCanvasText(ctx, nation, r*2.8), x, y + r + 32);
     });
 }
 
