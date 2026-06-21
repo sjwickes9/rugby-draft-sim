@@ -412,7 +412,7 @@ const allSquads = {
             {name:"Ewen McKenzie",positions:["Loosehead Prop", "Tighthead Prop"],num:9,rating:84,careerRating:91},
             {name:"Jason Little",positions:["Inside Centre", "Left Wing"],num:10,rating:81,careerRating:91},
             {name:"Jeff Miller",positions:["Openside Flanker", "Blindside Flanker"],num:11,rating:85,careerRating:85},
-            {name:"John Eales",positions:["Number 8", "Lock"],num:12,rating:88,careerRating:95},
+            {name:"John Eales",positions:["Lock"],num:12,rating:88,careerRating:95},
             {name:"John Flett",positions:["Left Wing", "Right Wing"],num:13,rating:80,careerRating:80},
             {name:"Marty Roebuck",positions:["Fullback"],num:14,rating:82,careerRating:82},
             {name:"Michael Lynagh",positions:["Fly-half"],num:15,rating:93,careerRating:94},
@@ -440,7 +440,7 @@ const allSquads = {
             {name:"Ilivasi Tabua",positions:["Openside Flanker", "Blindside Flanker"],num:9,rating:85,careerRating:85},
             {name:"Jason Little",positions:["Inside Centre", "Left Wing"],num:10,rating:86,careerRating:91},
             {name:"Joe Roff",positions:["Left Wing", "Fullback"],num:11,rating:82,careerRating:91},
-            {name:"John Eales",positions:["Number 8", "Lock"],num:12,rating:93,careerRating:95},
+            {name:"John Eales",positions:["Lock"],num:12,rating:93,careerRating:95},
             {name:"Mark Hartill",positions:["Tighthead Prop", "Loosehead Prop"],num:13,rating:85,careerRating:85},
             {name:"Matt Burke",positions:["Fullback"],num:14,rating:83,careerRating:90},
             {name:"Matt Pini",positions:["Fullback"],num:15,rating:82,careerRating:82},
@@ -472,7 +472,7 @@ const allSquads = {
             {name:"Jeremy Paul",positions:["Hooker", "Loosehead Prop"],num:12,rating:82,careerRating:87},
             {name:"Jim Williams",positions:["Number 8", "Openside Flanker"],num:13,rating:83,careerRating:83},
             {name:"Joe Roff",positions:["Left Wing", "Fullback"],num:14,rating:88,careerRating:91},
-            {name:"John Eales",positions:["Number 8", "Lock"],num:15,rating:95,careerRating:95},
+            {name:"John Eales",positions:["Lock"],num:15,rating:95,careerRating:95},
             {name:"Mark Connors",positions:["Openside Flanker", "Lock"],num:16,rating:83,careerRating:83},
             {name:"Matt Burke",positions:["Fullback"],num:17,rating:90,careerRating:90},
             {name:"Matt Cockbain",positions:["Openside Flanker", "Lock"],num:18,rating:85,careerRating:92},
@@ -1435,7 +1435,7 @@ const allSquads = {
             {name:"Simon Raiwalui",positions:["Lock"],num:26,rating:77,careerRating:77},
             {name:"Tabai Matson",positions:["Inside Centre", "Outside Centre"],num:27,rating:73,careerRating:73},
             {name:"Viliame Satala",positions:["Inside Centre", "Outside Centre"],num:28,rating:74,careerRating:74},
-            {name:"Waisake Sotutu",positions:["Inside Centre", "Loosehead Prop"],num:29,rating:75,careerRating:75},
+            {name:"Waisake Sotutu",positions:["Inside Centre", "Left Wing"],num:29,rating:75,careerRating:75},
             {name:"Waisale Serevi",positions:["Fly-half", "Scrum-half"],num:30,rating:92,careerRating:92}
         ],
         "2003": [
@@ -2945,7 +2945,7 @@ const allSquads = {
         ],
         "1999": [
             {name:"Akira Yoshida",positions:["Inside Centre", "Outside Centre"],num:1,rating:73,careerRating:73},
-            {name:"Andrew McCormick",positions:["Hooker", "Outside Centre"],num:2,rating:76,careerRating:76},
+            {name:"Andrew McCormick",positions:["Outside Centre"],num:2,rating:76,careerRating:76},
             {name:"Atsushi Koga",positions:["Inside Centre", "Outside Centre"],num:3,rating:73,careerRating:73},
             {name:"Daisuke Ohata",positions:["Inside Centre", "Left Wing"],num:4,rating:74,careerRating:77},
             {name:"Graeme Bachop",positions:["Scrum-half"],num:5,rating:73,careerRating:88},
@@ -4817,7 +4817,7 @@ const allSquads = {
         "1999": [
             {name:"Adrian Garvey",positions:["Tighthead Prop", "Loosehead Prop"],num:1,rating:88,careerRating:88},
             {name:"Albert van den Berg",positions:["Lock"],num:2,rating:84,careerRating:93},
-            {name:"André Venter",positions:["Hooker", "Blindside Flanker"],num:3,rating:88,careerRating:88},
+            {name:"André Venter",positions:["Blindside Flanker"],num:3,rating:88,careerRating:88},
             {name:"André Vos",positions:["Number 8", "Openside Flanker"],num:4,rating:84,careerRating:84},
             {name:"Anton Leonard",positions:["Number 8"],num:5,rating:84,careerRating:84},
             {name:"Bobby Skinstad",positions:["Openside Flanker", "Number 8"],num:6,rating:93,careerRating:93},
