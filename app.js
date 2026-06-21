@@ -692,6 +692,194 @@ function oddsText(prob) {
     return "Your team are heavy underdogs — an upset would be historic.";
 }
 
+// ============================================================
+// OPPOSITION LINEUPS — best 2023 player per position, per nation
+// ============================================================
+function getOppositionLineup(nationName) {
+    if (!allSquads[nationName] || !allSquads[nationName]["2023"]) return null;
+    const squad = allSquads[nationName]["2023"];
+
+    const lineup = {};
+    const usedNames = new Set();
+
+    const nodeOrder = [
+        "Hooker","Loosehead Prop","Tighthead Prop",
+        "Lock 4","Lock 5",
+        "Blindside Flanker","Openside Flanker","Number 8",
+        "Scrum-half","Fly-half",
+        "Left Wing","Right Wing","Inside Centre","Outside Centre","Fullback"
+    ];
+    const nodeToDataPos = {
+        "Hooker": ["Hooker"], "Loosehead Prop": ["Loosehead Prop"], "Tighthead Prop": ["Tighthead Prop"],
+        "Lock 4": ["Lock"], "Lock 5": ["Lock"],
+        "Blindside Flanker": ["Blindside Flanker"], "Openside Flanker": ["Openside Flanker"], "Number 8": ["Number 8"],
+        "Scrum-half": ["Scrum-half"], "Fly-half": ["Fly-half"],
+        "Left Wing": ["Left Wing"], "Right Wing": ["Right Wing"],
+        "Inside Centre": ["Inside Centre"], "Outside Centre": ["Outside Centre"], "Fullback": ["Fullback"],
+    };
+
+    nodeOrder.forEach(node => {
+        const wantedPositions = nodeToDataPos[node];
+
+        // Pass 1: only consider players whose PRIMARY position (positions[0])
+        // matches this node — primary-position players always take priority
+        // over secondary-position players, regardless of rating.
+        let best = null;
+        squad.forEach(p => {
+            if (usedNames.has(p.name)) return;
+            const primaryMatches = wantedPositions.includes(p.positions[0]);
+            if (!primaryMatches) return;
+            if (!best || p.rating > best.rating) best = p;
+        });
+
+        // Pass 2: no primary-position candidate found — fall back to anyone
+        // who lists this position anywhere in their positions array.
+        if (!best) {
+            squad.forEach(p => {
+                if (usedNames.has(p.name)) return;
+                const matches = p.positions.some(pos => wantedPositions.includes(pos));
+                if (!matches) return;
+                if (!best || p.rating > best.rating) best = p;
+            });
+        }
+
+        if (best) {
+            lineup[node] = { name: best.name, score: best.rating };
+            usedNames.add(best.name);
+        }
+    });
+
+    // Fill any gaps with the next-best unused player overall
+    nodeOrder.forEach(node => {
+        if (lineup[node]) return;
+        let best = null;
+        squad.forEach(p => {
+            if (usedNames.has(p.name)) return;
+            if (!best || p.rating > best.rating) best = p;
+        });
+        if (best) {
+            lineup[node] = { name: best.name, score: best.rating };
+            usedNames.add(best.name);
+        }
+    });
+
+    return lineup;
+}
+
+// ============================================================
+// SCORE BREAKDOWN — tries, conversions, penalties, scorers
+// ============================================================
+const TRY_WEIGHTS = {
+    "Left Wing": 16.67, "Right Wing": 16.67,
+    "Inside Centre": 10.19, "Outside Centre": 10.19,
+    "Fullback": 10.19,
+    "Number 8": 6.48,
+    "Scrum-half": 5.56,
+    "Hooker": 4.63,
+    "Blindside Flanker": 3.70, "Openside Flanker": 3.70,
+    "Fly-half": 4.63,
+    "Lock 4": 1.85, "Lock 5": 1.85,
+    "Loosehead Prop": 1.85, "Tighthead Prop": 1.85,
+};
+
+function decideKicker(team) {
+    const fh = team["Fly-half"];
+    const fb = team["Fullback"];
+    if (!fh && !fb) return null;
+    if (!fh) return { pos: "Fullback", name: fb.name };
+    if (!fb) return { pos: "Fly-half", name: fh.name };
+    const fhR = fh.score, fbR = fb.score;
+    return (fbR - fhR >= 5)
+        ? { pos: "Fullback", name: fb.name }
+        : { pos: "Fly-half", name: fh.name };
+}
+
+function pickWeightedScorer(team) {
+    const entries = Object.keys(team)
+        .filter(pos => team[pos] && TRY_WEIGHTS[pos])
+        .map(pos => ({ pos, name: team[pos].name, weight: TRY_WEIGHTS[pos] }));
+    if (!entries.length) return null;
+    const total = entries.reduce((s,e) => s+e.weight, 0);
+    let r = Math.random() * total;
+    for (const e of entries) {
+        if (r < e.weight) return e;
+        r -= e.weight;
+    }
+    return entries[entries.length-1];
+}
+
+function buildScoreBreakdown(finalScore, team) {
+    const kicker = decideKicker(team);
+    let remaining = finalScore;
+    const tryScorers = {};
+    let tries = 0, conversions = 0, penalties = 0;
+
+    const maxTries = Math.max(1, Math.floor(finalScore / 6));
+    while (remaining >= 5 && tries < maxTries) {
+        const canConvert = remaining - 7 >= 0;
+        if (canConvert && Math.random() < 0.78) {
+            remaining -= 7; tries++; conversions++;
+        } else {
+            remaining -= 5; tries++;
+        }
+        const scorer = pickWeightedScorer(team);
+        if (scorer) {
+            tryScorers[scorer.name] = (tryScorers[scorer.name] || 0) + 1;
+        }
+    }
+    while (remaining >= 3) { remaining -= 3; penalties++; }
+    if (remaining === 2 && conversions === 0 && tries > 0) { conversions++; remaining -= 2; }
+
+    const tryList = Object.entries(tryScorers).map(([name,count]) => ({ name, count }));
+    return { tries: tryList, tryCount: tries, conversions, penalties, kicker };
+}
+
+function renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup) {
+    const userBD = buildScoreBreakdown(userScore, userTeamObj);
+    const oppBD  = oppLineup ? buildScoreBreakdown(oppScore, oppLineup) : null;
+
+    const fmtTries = (bd) => bd.tries.length
+        ? bd.tries.map(t => t.count > 1 ? (t.name + " x" + t.count) : t.name).join(", ")
+        : "—";
+
+    const userLines = [];
+    userLines.push("T: " + fmtTries(userBD));
+    if (userBD.conversions) userLines.push("C: " + (userBD.kicker ? userBD.kicker.name : "—") + " x" + userBD.conversions);
+    if (userBD.penalties)   userLines.push("P: " + (userBD.kicker ? userBD.kicker.name : "—") + " x" + userBD.penalties);
+
+    const oppLines = [];
+    if (oppBD) {
+        oppLines.push("T: " + fmtTries(oppBD));
+        if (oppBD.conversions) oppLines.push("C: " + (oppBD.kicker ? oppBD.kicker.name : "—") + " x" + oppBD.conversions);
+        if (oppBD.penalties)   oppLines.push("P: " + (oppBD.kicker ? oppBD.kicker.name : "—") + " x" + oppBD.penalties);
+    }
+    return { userLines, oppLines };
+}
+
+async function addScoreBreakdownLog(userTeamObj, userScore, oppNationName, oppScore) {
+    const oppLineup = getOppositionLineup(oppNationName);
+    const bd = renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup);
+
+    const maxLines = Math.max(bd.userLines.length, bd.oppLines.length);
+    for (let i = 0; i < maxLines; i++) {
+        const left  = bd.userLines[i] || "";
+        const right = bd.oppLines[i]  || "";
+        await addLog("   " + left.padEnd(28) + "  " + right, "var(--text-muted)");
+    }
+}
+
+// Same as addScoreBreakdownLog but takes a ready-made lineup object directly
+// (used for boss-stage matches, which already have a hand-built opponent lineup)
+async function addScoreBreakdownLogForBoss(userTeamObj, userScore, oppLineup, oppScore) {
+    const bd = renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup);
+    const maxLines = Math.max(bd.userLines.length, bd.oppLines.length);
+    for (let i = 0; i < maxLines; i++) {
+        const left  = bd.userLines[i] || "";
+        const right = bd.oppLines[i]  || "";
+        await addLog("   " + left.padEnd(28) + "  " + right, "var(--text-muted)");
+    }
+}
+
 function simulateMatch(userR, oppR) {
     const diff = userR - oppR;
     // Variance ±10 makes upsets genuinely possible — rugby is unpredictable
@@ -736,6 +924,7 @@ async function runTournamentSimulation() {
         const icon = res.won ? "WIN " : "LOSS";
         const colour = res.won ? "#4ade80" : "#f87171";
         await addLog(icon + "  vs " + opp + "  " + res.userScore + "-" + res.oppScore + "  (" + (res.pts>0?"+":"") + res.pts + " pts)", colour);
+        await addScoreBreakdownLog(userTeam, res.userScore, opp, res.oppScore);
     }
 
     // ── Simulate other pool matches ──
@@ -807,6 +996,7 @@ async function runTournamentSimulation() {
     await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
+    await addScoreBreakdownLog(userTeam, qf.userScore, qfOpp, qf.oppScore);
     if (!qf.won) {
         await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444");
         restartBtn.classList.remove("hidden"); return;
@@ -835,6 +1025,7 @@ async function runTournamentSimulation() {
     await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
+    await addScoreBreakdownLog(userTeam, sf.userScore, sfOpp, sf.oppScore);
 
     if (!sf.won) {
         await addLog("", null);
@@ -844,6 +1035,7 @@ async function runTournamentSimulation() {
         await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
+        await addScoreBreakdownLog(userTeam, tp.userScore, tpOpp, tp.oppScore);
         await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
     }
@@ -856,6 +1048,7 @@ async function runTournamentSimulation() {
     await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
+    await addScoreBreakdownLog(userTeam, fin.userScore, finOpp, fin.oppScore);
     if (fin.won) {
         await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
         await addLog("", null);
@@ -1046,6 +1239,24 @@ function getBossRating(team) {
     return Math.round(team.players.reduce((s,p) => s + p.r, 0) / team.players.length);
 }
 
+// Convert a BOSS_TEAMS entry into the position-map shape used by the
+// score breakdown system. Locks/props in BOSS_TEAMS share one "pos" label
+// for both starting slots, so split them across Lock 4/Lock 5 etc.
+function bossTeamToLineup(team) {
+    const lineup = {};
+    let lockSlot = 4, propSlot = 0;
+    const propOrder = ["Loosehead Prop", "Tighthead Prop"];
+    team.players.forEach(p => {
+        if (p.pos === "Lock") {
+            lineup["Lock " + lockSlot] = { name: p.name, score: p.r };
+            lockSlot++;
+        } else {
+            lineup[p.pos] = { name: p.name, score: p.r };
+        }
+    });
+    return lineup;
+}
+
 async function runBossStage() {
     const userR = getUserRating();
     const bossOrder = ["sanzaar","lions","alltimexv"];
@@ -1094,6 +1305,7 @@ async function runBossStage() {
             (res.won ? "WIN " : "LOSS") + "  " + res.userScore + "-" + res.oppScore,
             res.won ? "#4ade80" : "#f87171"
         );
+        await addScoreBreakdownLogForBoss(userTeam, res.userScore, bossTeamToLineup(boss), res.oppScore);
 
         if (!res.won) {
             await addLog("", null);
