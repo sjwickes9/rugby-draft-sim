@@ -719,6 +719,227 @@ if (runSimBtn) {
     });
 }
 
+// ============================================================
+// SHARE GRAPHIC — downloadable PNG of squad + pitch + result
+// ============================================================
+let lastResultHeadline = "";
+let lastResultColour   = "#4ade80";
+
+function showShareButton(headline, colour) {
+    lastResultHeadline = headline;
+    lastResultColour   = colour || "#4ade80";
+
+    if (document.getElementById("share-team-btn")) return; // already showing
+
+    const btn = document.createElement("button");
+    btn.id = "share-team-btn";
+    btn.textContent = "Download Your Team Card";
+    btn.className = "btn-primary btn-full";
+    btn.style.cssText = "margin-top:10px;width:100%;";
+    btn.addEventListener("click", generateShareGraphic);
+
+    // Insert it right after the restart button so it's visible at the end of the run
+    if (restartBtn && restartBtn.parentNode) {
+        restartBtn.parentNode.insertBefore(btn, restartBtn.nextSibling);
+    }
+}
+
+function generateShareGraphic() {
+    const W = 1080, H = 1350; // portrait, social-friendly
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    // ── Background ──
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, "#0f1b12");
+    bgGrad.addColorStop(1, "#162018");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    const gold = "#c5a059";
+    const goldFaint = "rgba(197,160,89,0.25)";
+    const textMuted = "#9ca39c";
+    const white = "#f3f4f6";
+
+    // ── Header ──
+    ctx.textAlign = "center";
+    ctx.fillStyle = gold;
+    ctx.font = "bold 52px Georgia, serif";
+    ctx.fillText("RUGBY HYBRID XV", W/2, 80);
+    ctx.font = "26px Georgia, serif";
+    ctx.fillStyle = textMuted;
+    ctx.fillText("replacing " + (replacedTeam || "—"), W/2, 118);
+
+    // Divider
+    ctx.strokeStyle = goldFaint;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(80, 145); ctx.lineTo(W-80, 145); ctx.stroke();
+
+    // ── Result headline ──
+    ctx.font = "bold 38px Georgia, serif";
+    ctx.fillStyle = lastResultColour;
+    wrapCanvasText(ctx, lastResultHeadline || "Campaign complete", W/2, 200, W-160, 44);
+
+    // ── Mini pitch diagram ──
+    drawMiniPitch(ctx, W/2, 470, 480, 480);
+
+    // ── Squad list (two columns) ──
+    const order = ["Loosehead Prop","Hooker","Tighthead Prop","Lock 4","Lock 5",
+                   "Blindside Flanker","Openside Flanker","Number 8",
+                   "Scrum-half","Fly-half",
+                   "Left Wing","Inside Centre","Outside Centre","Right Wing","Fullback"];
+    const posShort = {
+        "Loosehead Prop":"Prop", "Tighthead Prop":"Prop", "Hooker":"Hooker",
+        "Lock 4":"Lock", "Lock 5":"Lock",
+        "Blindside Flanker":"Flanker", "Openside Flanker":"Flanker", "Number 8":"No.8",
+        "Scrum-half":"Scrum-half", "Fly-half":"Fly-half",
+        "Inside Centre":"Centre", "Outside Centre":"Centre",
+        "Left Wing":"Wing", "Right Wing":"Wing", "Fullback":"Fullback"
+    };
+
+    ctx.textAlign = "left";
+    ctx.font = "bold 24px Georgia, serif";
+    ctx.fillStyle = gold;
+    ctx.fillText("THE SQUAD", 80, 770);
+    ctx.strokeStyle = goldFaint;
+    ctx.beginPath(); ctx.moveTo(80, 782); ctx.lineTo(W-80, 782); ctx.stroke();
+
+    const colX = [80, W/2 + 20];
+    const colW = W/2 - 100;
+    const rowH = 38;
+    let rowsLeft = order.slice(0, 8);
+    let rowsRight = order.slice(8);
+
+    [rowsLeft, rowsRight].forEach((rows, colIdx) => {
+        rows.forEach((pos, i) => {
+            const p = userTeam[pos];
+            const y = 815 + i * rowH;
+            const x = colX[colIdx];
+
+            ctx.font = "15px Arial";
+            ctx.fillStyle = textMuted;
+            ctx.fillText((posShort[pos] || pos).toUpperCase(), x, y);
+
+            ctx.font = "bold 18px Arial";
+            ctx.fillStyle = white;
+            const name = p ? p.name : "—";
+            ctx.fillText(truncateCanvasText(ctx, name, colW - 10), x, y + 22);
+        });
+    });
+
+    // ── Footer ──
+    ctx.textAlign = "center";
+    ctx.font = "16px Arial";
+    ctx.fillStyle = textMuted;
+    ctx.fillText("rugbydraft.team", W/2, H - 40);
+
+    // ── Trigger download ──
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "my-hybrid-xv.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
+}
+
+// Draws a simplified rugby pitch with each position circle and player name
+function drawMiniPitch(ctx, cx, cy, w, h) {
+    const left = cx - w/2, top = cy - h/2;
+    const gold = "#c5a059";
+
+    // Pitch background
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(left, top, w, h);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(left, top, w, h);
+
+    // Pitch markings (halfway + 22m lines)
+    [0.15, 0.42, 0.58, 0.85].forEach(frac => {
+        ctx.beginPath();
+        ctx.moveTo(left, top + h*frac);
+        ctx.lineTo(left + w, top + h*frac);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.stroke();
+    });
+
+    // Node layout as fractions of pitch width/height, matching the live pitch
+    const nodes = [
+        { pos:"Loosehead Prop", xf:0.20, yf:0.06, label:"1" },
+        { pos:"Hooker",         xf:0.50, yf:0.06, label:"2" },
+        { pos:"Tighthead Prop", xf:0.80, yf:0.06, label:"3" },
+        { pos:"Lock 4",         xf:0.35, yf:0.18, label:"4" },
+        { pos:"Lock 5",         xf:0.65, yf:0.18, label:"5" },
+        { pos:"Blindside Flanker", xf:0.20, yf:0.30, label:"6" },
+        { pos:"Number 8",      xf:0.50, yf:0.34, label:"8" },
+        { pos:"Openside Flanker", xf:0.80, yf:0.30, label:"7" },
+        { pos:"Scrum-half",    xf:0.35, yf:0.46, label:"9" },
+        { pos:"Fly-half",      xf:0.65, yf:0.46, label:"10" },
+        { pos:"Left Wing",     xf:0.08, yf:0.66, label:"11" },
+        { pos:"Inside Centre", xf:0.36, yf:0.62, label:"12" },
+        { pos:"Outside Centre",xf:0.64, yf:0.62, label:"13" },
+        { pos:"Right Wing",    xf:0.92, yf:0.66, label:"14" },
+        { pos:"Fullback",      xf:0.50, yf:0.86, label:"15" },
+    ];
+
+    nodes.forEach(n => {
+        const x = left + w * n.xf;
+        const y = top  + h * n.yf;
+        const r = 30;
+
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fillStyle = "rgba(197,160,89,0.15)";
+        ctx.fill();
+        ctx.strokeStyle = gold;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = gold;
+        ctx.font = "bold 13px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(n.label, x, y + 4);
+
+        const p = userTeam[n.pos];
+        const surname = p ? p.name.split(" ").slice(-1)[0] : "";
+        ctx.fillStyle = "#f3f4f6";
+        ctx.font = "bold 12px Arial";
+        ctx.fillText(truncateCanvasText(ctx, surname, r*2.6), x, y + r + 16);
+    });
+}
+
+function truncateCanvasText(ctx, text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let t = text;
+    while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth) {
+        t = t.slice(0, -1);
+    }
+    return t + "…";
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    let line = "";
+    let lines = [];
+    words.forEach(word => {
+        const test = line ? line + " " + word : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = test;
+        }
+    });
+    if (line) lines.push(line);
+    const startY = y - (lines.length - 1) * lineHeight / 2;
+    lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+}
+
 function getUserRating() {
     let s=0, c=0;
     for (let p in userTeam) { s+=userTeam[p].score; c++; }
@@ -1028,6 +1249,7 @@ async function runTournamentSimulation() {
     if (rank > 1) {
         await addLog("", null);
         await addLog("ELIMINATED — Your Hybrid XV did not qualify from Pool " + pool + ".", "#ef4444");
+        showShareButton("Eliminated at the Pool Stage", "#f87171");
         restartBtn.classList.remove("hidden"); return;
     }
 
@@ -1072,6 +1294,7 @@ async function runTournamentSimulation() {
     await addScoreBreakdownLog(userTeam, qf.userScore, qfOpp, qf.oppScore);
     if (!qf.won) {
         await addLog("KNOCKED OUT at the quarter-final stage.", "#ef4444");
+        showShareButton("Knocked Out — Quarter-Final", "#f87171");
         restartBtn.classList.remove("hidden"); return;
     }
 
@@ -1110,6 +1333,7 @@ async function runTournamentSimulation() {
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         await addScoreBreakdownLog(userTeam, tp.userScore, tpOpp, tp.oppScore);
         await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
+        showShareButton(tp.won ? "Bronze Medal — 3rd Place" : "4th Place Finish", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
     }
 
@@ -1128,6 +1352,7 @@ async function runTournamentSimulation() {
         await addLog("But the challenge doesn't end here...", "var(--text-muted)");
         await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
         await addLog("", null);
+        showShareButton("WORLD CHAMPIONS", "#c5a059");
 
         // Show boss challenge button — appended to sim-results (the terminal viewport)
         const bossBtn = document.createElement("button");
@@ -1146,6 +1371,7 @@ async function runTournamentSimulation() {
         restartBtn.classList.remove("hidden");
     } else {
         await addLog("Runners-up. A magnificent campaign — one step short of glory.", "#c5a059");
+        showShareButton("Runners-Up — World Cup Final", "#c5a059");
         restartBtn.classList.remove("hidden");
     }
 }
@@ -1384,10 +1610,13 @@ async function runBossStage() {
             await addLog("", null);
             if (bossKey === "sanzaar") {
                 await addLog("The SANZAAR Barbarians were too strong. A valiant effort against the best of the Southern Hemisphere.", "#c5a059");
+                showShareButton("World Champions — Fell to SANZAAR Barbarians", "#c5a059");
             } else if (bossKey === "lions") {
                 await addLog("The Lions held firm. You pushed the greatest British & Irish players in history to the limit.", "#c5a059");
+                showShareButton("World Champions — Fell to the Lions", "#c5a059");
             } else {
                 await addLog("The All Time XV prevail. No team in history has beaten this side — and yours came closer than most.", "#c5a059");
+                showShareButton("World Champions — Fell to the All Time XV", "#c5a059");
             }
             restartBtn.classList.remove("hidden");
             return;
@@ -1401,6 +1630,7 @@ async function runBossStage() {
             await addLog("", null);
             await addLog("THE ALL TIME XV ARE BEATEN.", "var(--brand-gold)");
             await addLog("Your Hybrid XV has done the impossible. World Champions, and conquerors of the greatest teams ever assembled. Legendary.", "var(--brand-gold)");
+            showShareButton("LEGENDARY — Beat the All Time XV", "#c5a059");
             restartBtn.classList.remove("hidden");
             return;
         }
