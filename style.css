@@ -442,6 +442,28 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .sim-log-line { display: block; margin-bottom: 5px; }
 
+/* Two-column scorer breakdown (T/C/P) shown under each match result */
+.score-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+    margin: 2px 0 10px 0;
+    padding-left: 12px;
+}
+.score-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.score-col-right { text-align: left; border-left: 1px solid rgba(255,255,255,0.08); padding-left: 16px; }
+.score-row {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+@media (max-width: 600px) {
+    .score-breakdown { grid-template-columns: 1fr; gap: 6px 0; }
+    .score-col-right { border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 4px; margin-top: 2px; }
+}
+
 /* Manifest */
 .manifest-header {
     font-size: 1rem; font-weight: 700; color: var(--brand-gold);
