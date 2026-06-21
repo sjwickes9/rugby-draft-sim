@@ -71,6 +71,28 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 
 .btn-full { width: 100%; padding: 14px; margin-top: 10px; font-size: 1rem; }
 
+/* Play Again + Share/Download buttons after a run ends — side by side on
+   desktop with Play Again on the left, stacked full-width on mobile. */
+.result-actions-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 15px;
+}
+.result-action-btn,
+.share-team-btn {
+    flex: 1 1 0;
+    padding: 14px;
+    font-size: 1rem;
+    margin-top: 0;
+    width: auto;
+}
+@media (max-width: 600px) {
+    .result-actions-row { flex-direction: column; }
+    .result-action-btn,
+    .share-team-btn { flex: 1 1 auto; width: 100%; }
+}
+
 /* ── Setup card ── */
 .card-container {
     max-width: 550px;
