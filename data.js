@@ -3609,7 +3609,7 @@ const allSquads = {
             {name:"Brad Thorn",positions:["Lock", "Number 8"],num:8,rating:94,careerRating:94},
             {name:"Conrad Smith",positions:["Inside Centre", "Outside Centre"],num:9,rating:91,careerRating:92},
             {name:"Corey Flynn",positions:["Hooker"],num:10,rating:89,careerRating:89},
-            {name:"Cory Jane",positions:["Fullback", "Left Wing"],num:11,rating:95,careerRating:95},
+            {name:"Cory Jane",positions:["Left Wing"],num:11,rating:95,careerRating:95},
             {name:"Hosea Gear",positions:["Inside Centre", "Left Wing"],num:12,rating:88,careerRating:88},
             {name:"Isaia Toeava",positions:["Fullback", "Inside Centre"],num:13,rating:91,careerRating:91},
             {name:"Israel Dagg",positions:["Fullback", "Left Wing"],num:14,rating:91,careerRating:91},
@@ -3629,7 +3629,7 @@ const allSquads = {
             {name:"Stephen Donald",positions:["Fly-half", "Inside Centre"],num:28,rating:90,careerRating:90},
             {name:"Tony Woodcock",positions:["Loosehead Prop", "Tighthead Prop"],num:29,rating:97,careerRating:97},
             {name:"Victor Vito",positions:["Number 8"],num:30,rating:92,careerRating:94},
-            {name:"Zac Guildford",positions:["Fullback", "Inside Centre"],num:31,rating:88,careerRating:88}
+            {name:"Zac Guildford",positions:["Right Wing", "Inside Centre"],num:31,rating:88,careerRating:88}
         ],
         "2015": [
             {name:"Aaron Smith",positions:["Scrum-half"],num:1,rating:94,careerRating:97},
