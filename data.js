@@ -2647,7 +2647,7 @@ const allSquads = {
             {name:"Matteo Mazzantini",positions:["Scrum-half"],num:20,rating:74,careerRating:74},
             {name:"Matthew Phillips",positions:["Number 8"],num:21,rating:77,careerRating:77},
             {name:"Mauro Bergamasco",positions:["Openside Flanker", "Scrum-half"],num:22,rating:77,careerRating:89},
-            {name:"Mirco Bergamasco",positions:["Left Wing, "Inside Centre"],num:23,rating:78,careerRating:85},
+            {name:"Mirco Bergamasco",positions:["Left Wing", "Inside Centre"],num:23,rating:78,careerRating:85},
             {name:"Nicola Mazzucato",positions:["Left Wing", "Right Wing"],num:24,rating:80,careerRating:80},
             {name:"Ramiro Martínez",positions:["Loosehead Prop", "Tighthead Prop"],num:25,rating:75,careerRating:75},
             {name:"Rima Wakarua",positions:["Fly-half"],num:26,rating:72,careerRating:72},
