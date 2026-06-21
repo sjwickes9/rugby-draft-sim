@@ -6041,7 +6041,7 @@ const allSquads = {
             {name:"Eli Walker",positions:["Left Wing", "Right Wing"],num:9,rating:79,careerRating:79},
             {name:"Gareth Anscombe",positions:["Fly-half", "Fullback"],num:10,rating:78,careerRating:83},
             {name:"Gareth Davies",positions:["Scrum-half"],num:11,rating:78,careerRating:88},
-            {name:"George North",positions:["Left Wing, "Outside Centre"],num:12,rating:91,careerRating:97},
+            {name:"George North",positions:["Left Wing", "Outside Centre"],num:12,rating:91,careerRating:97},
             {name:"Gethin Jenkins",positions:["Loosehead Prop", "Tighthead Prop"],num:13,rating:94,careerRating:94},
             {name:"Hallam Amos",positions:["Fullback", "Left Wing"],num:14,rating:81,careerRating:85},
             {name:"Jake Ball",positions:["Lock"],num:15,rating:85,careerRating:87},
