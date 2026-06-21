@@ -888,28 +888,51 @@ function renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup) {
     return { userLines, oppLines };
 }
 
+// Renders the try/conversion/penalty breakdown for both teams as a genuine
+// two-column block (not padded text) so it stays aligned regardless of
+// font or container width.
 async function addScoreBreakdownLog(userTeamObj, userScore, oppNationName, oppScore) {
     const oppLineup = getOppositionLineup(oppNationName);
     const bd = renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup);
-
-    const maxLines = Math.max(bd.userLines.length, bd.oppLines.length);
-    for (let i = 0; i < maxLines; i++) {
-        const left  = bd.userLines[i] || "";
-        const right = bd.oppLines[i]  || "";
-        await addLog("   " + left.padEnd(28) + "  " + right, "var(--text-muted)");
-    }
+    await addScoreBreakdownBlock(bd);
 }
 
 // Same as addScoreBreakdownLog but takes a ready-made lineup object directly
 // (used for boss-stage matches, which already have a hand-built opponent lineup)
 async function addScoreBreakdownLogForBoss(userTeamObj, userScore, oppLineup, oppScore) {
     const bd = renderScoreBreakdown(userTeamObj, userScore, oppScore, oppLineup);
-    const maxLines = Math.max(bd.userLines.length, bd.oppLines.length);
-    for (let i = 0; i < maxLines; i++) {
-        const left  = bd.userLines[i] || "";
-        const right = bd.oppLines[i]  || "";
-        await addLog("   " + left.padEnd(28) + "  " + right, "var(--text-muted)");
-    }
+    await addScoreBreakdownBlock(bd);
+}
+
+// Builds and inserts a two-column scorers block: "Your XV" on the left,
+// the opposition on the right, T/C/P rows stacked underneath each.
+async function addScoreBreakdownBlock(bd) {
+    const wrap = document.createElement("div");
+    wrap.className = "sim-log-line score-breakdown";
+
+    const colLeft  = document.createElement("div");
+    colLeft.className = "score-col score-col-left";
+    bd.userLines.forEach(line => {
+        const row = document.createElement("div");
+        row.className = "score-row";
+        row.textContent = line;
+        colLeft.appendChild(row);
+    });
+
+    const colRight = document.createElement("div");
+    colRight.className = "score-col score-col-right";
+    bd.oppLines.forEach(line => {
+        const row = document.createElement("div");
+        row.className = "score-row";
+        row.textContent = line;
+        colRight.appendChild(row);
+    });
+
+    wrap.appendChild(colLeft);
+    wrap.appendChild(colRight);
+    simResults.appendChild(wrap);
+    simResults.scrollTop = simResults.scrollHeight;
+    await delay(900);
 }
 
 function simulateMatch(userR, oppR) {
