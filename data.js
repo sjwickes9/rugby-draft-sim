@@ -3621,7 +3621,7 @@ const allSquads = {
             {name:"Ma'a Nonu",positions:["Inside Centre", "Left Wing"],num:20,rating:92,careerRating:93},
             {name:"Mils Muliaina",positions:["Fullback", "Left Wing"],num:21,rating:97,careerRating:97},
             {name:"Owen Franks",positions:["Tighthead Prop", "Loosehead Prop"],num:22,rating:93,careerRating:97},
-            {name:"Piri Weepu",positions:["Fly-half"],num:23,rating:97,careerRating:97},
+            {name:"Piri Weepu",positions:["Scrum-half"],num:23,rating:97,careerRating:97},
             {name:"Richard Kahui",positions:["Inside Centre", "Left Wing"],num:24,rating:93,careerRating:93},
             {name:"Richie McCaw",positions:["Openside Flanker"],num:25,rating:99,careerRating:99},
             {name:"Sam Whitelock",positions:["Lock"],num:26,rating:90,careerRating:97},
