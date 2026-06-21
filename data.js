@@ -374,7 +374,7 @@ const allSquads = {
         "1987": [
             {name:"Andrew Leeds",positions:["Fullback"],num:1,rating:77,careerRating:77},
             {name:"Andrew Slack",positions:["Inside Centre", "Outside Centre"],num:2,rating:84,careerRating:84},
-            {name:"Andy McIntyre",positions:["Tighthead Prop", "Blindside Flanker"],num:3,rating:81,careerRating:81},
+            {name:"Andy McIntyre",positions:["Tighthead Prop"],num:3,rating:81,careerRating:81},
             {name:"Anthony Herbert",positions:["Fullback"],num:4,rating:78,careerRating:81},
             {name:"Brett Papworth",positions:["Inside Centre", "Outside Centre"],num:5,rating:83,careerRating:83},
             {name:"Brian Smith",positions:["Scrum-half"],num:6,rating:84,careerRating:84},
@@ -3436,7 +3436,7 @@ const allSquads = {
             {name:"John Kirwan",positions:["Right Wing", "Left Wing"],num:15,rating:88,careerRating:93},
             {name:"Kieran Crowley",positions:["Fullback", "Inside Centre"],num:16,rating:85,careerRating:88},
             {name:"Mark Brooke-Cowden",positions:["Openside Flanker", "Blindside Flanker"],num:17,rating:83,careerRating:83},
-            {name:"Michael Jones",positions:["Number 8", "Openside Flanker"],num:18,rating:95,careerRating:95},
+            {name:"Michael Jones",positions:["Openside Flanker"],num:18,rating:95,careerRating:95},
             {name:"Murray Pierce",positions:["Lock"],num:19,rating:82,careerRating:82},
             {name:"Richard Loe",positions:["Loosehead Prop", "Tighthead Prop"],num:20,rating:81,careerRating:91},
             {name:"Sean Fitzpatrick",positions:["Hooker"],num:21,rating:90,careerRating:96},
@@ -3462,7 +3462,7 @@ const allSquads = {
             {name:"Jon Preston",positions:["Fly-half", "Scrum-half"],num:14,rating:85,careerRating:85},
             {name:"Kieran Crowley",positions:["Fullback", "Inside Centre"],num:15,rating:88,careerRating:88},
             {name:"Mark Carter",positions:["Openside Flanker", "Blindside Flanker"],num:16,rating:85,careerRating:85},
-            {name:"Michael Jones",positions:["Number 8", "Openside Flanker"],num:17,rating:94,careerRating:95},
+            {name:"Michael Jones",positions:["Openside Flanker"],num:17,rating:94,careerRating:95},
             {name:"Paul Henderson",positions:["Openside Flanker", "Blindside Flanker"],num:18,rating:85,careerRating:88},
             {name:"Richard Loe",positions:["Loosehead Prop", "Tighthead Prop"],num:19,rating:88,careerRating:91},
             {name:"Sean Fitzpatrick",positions:["Hooker"],num:20,rating:93,careerRating:96},
@@ -4806,7 +4806,7 @@ const allSquads = {
             {name:"Kobus Wiese",positions:["Lock"],num:20,rating:82,careerRating:82},
             {name:"Krynauw Otto",positions:["Lock"],num:21,rating:82,careerRating:89},
             {name:"Marius Hurter",positions:["Tighthead Prop"],num:22,rating:83,careerRating:83},
-            {name:"Mark Andrews",positions:["Number 8", "Lock"],num:23,rating:87,careerRating:88},
+            {name:"Mark Andrews",positions:["Lock"],num:23,rating:87,careerRating:88},
             {name:"Naka Drotské",positions:["Hooker"],num:24,rating:81,careerRating:86},
             {name:"Os du Randt",positions:["Loosehead Prop", "Tighthead Prop"],num:25,rating:86,careerRating:91},
             {name:"Pieter Hendriks",positions:["Right Wing", "Left Wing"],num:26,rating:82,careerRating:82},
@@ -4832,7 +4832,7 @@ const allSquads = {
             {name:"Joost van der Westhuizen",positions:["Scrum-half"],num:15,rating:94,careerRating:97},
             {name:"Kaya Malotana",positions:["Inside Centre", "Outside Centre"],num:16,rating:84,careerRating:84},
             {name:"Krynauw Otto",positions:["Lock"],num:17,rating:89,careerRating:89},
-            {name:"Mark Andrews",positions:["Number 8", "Lock"],num:18,rating:88,careerRating:88},
+            {name:"Mark Andrews",positions:["Lock"],num:18,rating:88,careerRating:88},
             {name:"Naka Drotské",positions:["Hooker"],num:19,rating:86,careerRating:86},
             {name:"Ollie le Roux",positions:["Tighthead Prop", "Loosehead Prop"],num:20,rating:88,careerRating:88},
             {name:"Os du Randt",positions:["Loosehead Prop", "Tighthead Prop"],num:21,rating:86,careerRating:91},
@@ -5887,7 +5887,7 @@ const allSquads = {
             {name:"John Davies",positions:["Loosehead Prop", "Tighthead Prop"],num:12,rating:83,careerRating:83},
             {name:"Jonathan Humphreys",positions:["Hooker"],num:13,rating:76,careerRating:83},
             {name:"Justin Thomas",positions:["Fullback"],num:14,rating:79,careerRating:79},
-            {name:"Mark Bennett",positions:["Inside Centre", "Blindside Flanker"],num:15,rating:76,careerRating:81},
+            {name:"Mark Bennett",positions:["Blindside Flanker"],num:15,rating:76,careerRating:81},
             {name:"Mike Griffiths",positions:["Loosehead Prop", "Tighthead Prop"],num:16,rating:84,careerRating:84},
             {name:"Mike Hall",positions:["Inside Centre", "Outside Centre"],num:17,rating:82,careerRating:82},
             {name:"Neil Jenkins",positions:["Fly-half", "Outside Centre"],num:18,rating:85,careerRating:91},
@@ -6175,7 +6175,7 @@ const allSquads = {
             {name:"Chris Botha",positions:["Lock"],num:8,rating:59,careerRating:59},
             {name:"Chris Roberts",positions:["Loosehead Prop", "Tighthead Prop"],num:9,rating:61,careerRating:61},
             {name:"Craig Brown",positions:["Fly-half", "Inside Centre"],num:10,rating:60,careerRating:63},
-            {name:"Darren Muirhead",positions:["Hooker", "Blindside Flanker"],num:11,rating:58,careerRating:58},
+            {name:"Darren Muirhead",positions:["Blindside Flanker"],num:11,rating:58,careerRating:58},
             {name:"Dave Walters",positions:["Left Wing", "Right Wing"],num:12,rating:60,careerRating:60},
             {name:"Elimon Chimbima",positions:["Left Wing", "Right Wing"],num:13,rating:60,careerRating:60},
             {name:"Ewan MacMillan",positions:["Scrum-half"],num:14,rating:57,careerRating:57},
@@ -6189,7 +6189,7 @@ const allSquads = {
             {name:"Richard Tsimba",positions:["Inside Centre", "Outside Centre"],num:22,rating:58,careerRating:59},
             {name:"Rob Demblon",positions:["Lock"],num:23,rating:61,careerRating:61},
             {name:"Robin Hunter",positions:["Loosehead Prop", "Tighthead Prop"],num:24,rating:61,careerRating:61},
-            {name:"William Schultz",positions:["Hooker", "Right Wing"],num:25,rating:61,careerRating:61}
+            {name:"William Schultz",positions:["Right Wing"],num:25,rating:61,careerRating:61}
         ]
     }
 };
