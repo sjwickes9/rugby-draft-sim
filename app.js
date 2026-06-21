@@ -477,7 +477,7 @@ function renderRosterList() {
 
             const nameSpan = document.createElement("span"); nameSpan.className = "player-name";      nameSpan.textContent = player.name;
             const posSpan  = document.createElement("span"); posSpan.className  = "player-pos-label"; posSpan.textContent = shortenPos(player.positions[0]);
-            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = "";
+            const rtgSpan  = document.createElement("span"); rtgSpan.className  = "player-rating";    rtgSpan.textContent = isKnowledgeMode ? "" : player.rating;
 
             row.appendChild(nameSpan); row.appendChild(posSpan); row.appendChild(rtgSpan);
             block.appendChild(row);
@@ -582,7 +582,8 @@ pitchCircles.forEach(node => {
         if (!inPos) {
             node.classList.add("occupied-oop");
             node.dataset.oopPenalty = penalty;
-            node.innerHTML = `<div class="circle-num oop-num"><span class="oop-icon" data-penalty="${penalty}">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
+            const ratingHtml = isKnowledgeMode ? "" : finalRating;
+            node.innerHTML = `<div class="circle-num oop-num">${ratingHtml}<span class="oop-icon" data-penalty="${penalty}">⚠</span></div><div class="circle-name">${selectedPlayer.name}</div>`;
             const icon = node.querySelector(".oop-icon");
             if (icon) {
                 icon.addEventListener("mouseenter", () => showOopTooltip(icon, penalty));
@@ -590,7 +591,8 @@ pitchCircles.forEach(node => {
                 icon.addEventListener("click", e => { e.stopPropagation(); toggleOopTooltip(icon, penalty); });
             }
         } else {
-            node.innerHTML = `<div class="circle-num"></div><div class="circle-name">${selectedPlayer.name}</div>`;
+            const ratingHtml = isKnowledgeMode ? "" : finalRating;
+            node.innerHTML = `<div class="circle-num">${ratingHtml}</div><div class="circle-name">${selectedPlayer.name}</div>`;
         }
 
         selectedPlayer = null;
@@ -614,11 +616,27 @@ pitchCircles.forEach(node => {
 // DASHBOARD AVERAGES
 // ============================================================
 function recalculateDashboardAverages() {
-    // Ratings are never shown during the draft — this is a blind draft by design.
-    // The real averages first appear on the pre-kickoff summary screen.
-    document.getElementById("avg-global-ovr").textContent  = "??";
-    document.getElementById("avg-forward-ovr").textContent = "??";
-    document.getElementById("avg-back-ovr").textContent    = "??";
+    const globalEl  = document.getElementById("avg-global-ovr");
+    const forwardEl = document.getElementById("avg-forward-ovr");
+    const backEl    = document.getElementById("avg-back-ovr");
+
+    if (isKnowledgeMode) {
+        // Hide Ratings mode — keep the team strength hidden until kickoff
+        globalEl.textContent  = "??";
+        forwardEl.textContent = "??";
+        backEl.textContent    = "??";
+        return;
+    }
+
+    let tS=0,fS=0,bS=0,tC=0,fC=0,bC=0;
+    for (let pos in userTeam) {
+        const v = userTeam[pos].score; tS+=v; tC++;
+        if (forwardNodes.includes(pos)) { fS+=v; fC++; }
+        if (backNodes.includes(pos))    { bS+=v; bC++; }
+    }
+    globalEl.textContent  = tC>0 ? Math.round(tS/tC) : "--";
+    forwardEl.textContent = fC>0 ? Math.round(fS/fC) : "--";
+    backEl.textContent    = bC>0 ? Math.round(bS/bC) : "--";
 }
 
 // ============================================================
@@ -643,7 +661,7 @@ function populateManifestPreviewWindow() {
         const p = userTeam[pos];
         if (!p) return;
         const oopBadge = p.outOfPosition
-            ? `<span class="manifest-oop">⚠ OOP</span>`
+            ? (isKnowledgeMode ? `<span class="manifest-oop">⚠ OOP</span>` : `<span class="manifest-oop">⚠ -${p.penalty || '?'}pts</span>`)
             : "";
         html += `<div class="manifest-row">
             <span class="manifest-num">${i+1}</span>
