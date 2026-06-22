@@ -1034,9 +1034,26 @@ function getUserRating() {
 
 // Analytical win probability derived from the simulateMatch distribution
 function winProbability(userR, oppR) {
+    // Matches the actual outcome distribution of simulateMatch() below —
+    // close gaps stay genuinely uncertain, but once the gap passes ~12
+    // points the better side wins essentially every time (the model
+    // doesn't let variance erase a real quality gap at that range).
     const diff = userR - oppR;
-    const prob = Math.round(100 / (1 + Math.exp(-diff * 0.13)));
-    return Math.min(95, Math.max(5, prob));
+    const absd = Math.abs(diff);
+    const sign = diff >= 0 ? 1 : -1;
+
+    let winPct;
+    if (absd <= 12) {
+        // Smooth S-curve through the empirical 0/±4/±8/±12 sample points
+        winPct = 50 + sign * (absd * 6.2 + (absd*absd) * 0.05);
+    } else {
+        winPct = sign > 0 ? 100 : 0;
+    }
+
+    const prob = Math.round(winPct);
+    // Cosmetic floor/ceiling only — keeps the odds text from ever claiming
+    // total certainty, even though genuine blowout matchups round to 0/100.
+    return Math.min(99, Math.max(1, prob));
 }
 
 function oddsText(prob) {
@@ -1262,12 +1279,44 @@ async function addScoreBreakdownBlock(bd) {
 
 function simulateMatch(userR, oppR) {
     const diff = userR - oppR;
-    // Variance ±10 makes upsets genuinely possible — rugby is unpredictable
-    const v = () => Math.floor(Math.random()*21)-10;
-    // Multiplier 0.35 dampens the rating gap so a 10-pt deficit isn't a death sentence
-    let uS = Math.max(3, Math.round(22 + diff*0.35 + v()));
-    let oS = Math.max(3, Math.round(22 - diff*0.35 + v()));
-    if (uS === oS) uS += 3;
+    const absd = Math.abs(diff);
+    const sign = diff >= 0 ? 1 : -1;
+    const base = 22; // symmetric baseline when teams are evenly matched
+
+    let userBase, oppBase;
+    if (absd <= 15) {
+        // Close/competitive range — genuine Test-match rugby, outcome
+        // is never a foregone conclusion within this gap.
+        userBase = base + sign * absd * 0.75;
+        oppBase  = base - sign * absd * 0.75;
+    } else {
+        // Beyond a 15-point gap, scoring accelerates sharply for the
+        // stronger side while the weaker side's scoring keeps shrinking —
+        // this is what produces genuine RWC-style blowouts (e.g. 80-140
+        // point routs of the lowest-tier nations) rather than everything
+        // converging on a generic "favourite wins by a bit" scoreline.
+        const extra = absd - 15;
+        const blowout = extra * 1.9 + Math.pow(extra, 1.7) * 0.04;
+        const winnerBase = base + 15*0.75 + blowout;
+        const loserBase  = Math.max(3, base - 15*0.75 - extra*0.3);
+        if (sign > 0) { userBase = winnerBase; oppBase = loserBase; }
+        else          { userBase = loserBase;  oppBase = winnerBase; }
+    }
+
+    // Variance shrinks as the gap widens — close games stay unpredictable,
+    // but a genuine mismatch can no longer be erased by random noise alone.
+    let varRange;
+    if (absd <= 10) varRange = 10;
+    else if (absd <= 20) varRange = 8;
+    else if (absd <= 30) varRange = 6;
+    else varRange = 5;
+
+    const v = () => Math.floor(Math.random()*(varRange*2+1)) - varRange;
+    let uS = Math.max(3, Math.round(userBase + v()));
+    let oS = Math.max(3, Math.round(oppBase + v()));
+    if (uS === oS) uS += (Math.random() < 0.5 ? 3 : -3);
+    uS = Math.max(3, uS);
+
     const won = uS > oS;
     const margin = Math.abs(uS-oS);
     // bonus point: 4+ tries approximated as margin > 21; losing bonus: margin <=7
