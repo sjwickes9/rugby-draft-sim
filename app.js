@@ -42,10 +42,17 @@ function oopPenalty(player, nodePos) {
     const ng = NODE_GROUP[nodePos];
     const pg = playerGroups(player);
 
-    // No penalty if node group matches player's listed groups
-    if (pg.includes(ng)) return 0;
     // No penalty if the exact node position is in player's positions list
     if (player.positions.includes(nodePos)) return 0;
+
+    // Half-backs: Scrum-half and Fly-half share the same "half-back" group,
+    // but playing the OTHER half-back slot without it being a listed
+    // position is still out of position — a flat 3pt penalty applies even
+    // though both positions are in the same family.
+    if (ng === "half-back" && pg.includes("half-back")) return 3;
+
+    // No penalty if node group matches player's listed groups
+    if (pg.includes(ng)) return 0;
     // Props at either side = no penalty (both are "front-row" group)
     if (ng === "front-row" && pg.includes("front-row")) return 5; // prop↔hooker only
 
@@ -63,7 +70,7 @@ function oopPenalty(player, nodePos) {
     }
     if (pg.includes("half-back")) {
         if (ng === "front-row" || ng === "lock" || ng === "back-row") return 15;
-        if (ng === "half-back") return 3;
+        // (half-back↔half-back case is handled earlier, before the group shortcut)
         return 5;
     }
     if (pg.includes("centre")) {
