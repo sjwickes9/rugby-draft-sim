@@ -5959,7 +5959,7 @@ const allSquads = {
             {name:"Sonny Parker",positions:["Inside Centre", "Outside Centre"],num:24,rating:82,careerRating:84},
             {name:"Tom Shanklin",positions:["Inside Centre", "Left Wing"],num:25,rating:83,careerRating:87},
             {name:"Garan Evans",positions:["Fullback"],num:26,rating:77,careerRating:77},
-            {name:"Gareth Thomas",positions:["Fullback", "Right Wing],num:27,rating:90,careerRating:92},
+            {name:"Gareth Thomas",positions:["Fullback", "Right Wing"],num:27,rating:90,careerRating:92},
             {name:"Iestyn Harris",positions:["Fullback", "Outside Centre"],num:28,rating:85,careerRating:85},
             {name:"Kevin Morgan",positions:["Fullback", "Left Wing"],num:29,rating:84,careerRating:88},
             {name:"Rhys Williams",positions:["Fullback"],num:30,rating:85,careerRating:85}
