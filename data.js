@@ -518,7 +518,7 @@ const allSquads = {
             {name:"Stephen Larkham",positions:["Inside Centre", "Fly-half"],num:26,rating:94,careerRating:95},
             {name:"Stirling Mortlock",positions:["Inside Centre", "Outside Centre"],num:27,rating:89,careerRating:91},
             {name:"Chris Latham",positions:["Fullback", "Left Wing"],num:28,rating:89,careerRating:93},
-            {name:"Lote Tuqiri",positions:["Fullback", "Left Wing"],num:29,rating:86,careerRating:92},
+            {name:"Lote Tuqiri",positions:["Left Wing", "Fullback"],num:29,rating:86,careerRating:92},
             {name:"Matt Burke",positions:["Fullback"],num:30,rating:89,careerRating:90}
         ],
         "2007": [
@@ -555,12 +555,12 @@ const allSquads = {
             {name:"Ryan Cross",positions:["Inside Centre", "Left Wing"],num:31,rating:85,careerRating:85},
             {name:"Stirling Mortlock",positions:["Outside Centre", "Inside Centre"],num:32,rating:91,careerRating:91},
             {name:"Adam Ashley-Cooper",positions:["Fullback", "Inside Centre"],num:33,rating:87,careerRating:97},
-            {name:"Cameron Shepherd",positions:["Fullback", "Left Wing"],num:34,rating:87,careerRating:87},
+            {name:"Cameron Shepherd",positions:["Right Wing", "Fullback"],num:34,rating:87,careerRating:87},
             {name:"Chris Latham",positions:["Fullback", "Left Wing"],num:35,rating:93,careerRating:93},
             {name:"Clinton Schifcofske",positions:["Fullback", "Left Wing"],num:36,rating:85,careerRating:85},
-            {name:"Drew Mitchell",positions:["Fullback", "Left Wing"],num:37,rating:86,careerRating:93},
-            {name:"Lote Tuqiri",positions:["Fullback", "Left Wing"],num:38,rating:92,careerRating:92},
-            {name:"Sam Norton-Knight",positions:["Fullback", "Fly-half"],num:39,rating:85,careerRating:85},
+            {name:"Drew Mitchell",positions:["Left Wing", "Left Wing"],num:37,rating:86,careerRating:93},
+            {name:"Lote Tuqiri",positions:["Right Wing", "Left Wing"],num:38,rating:92,careerRating:92},
+            {name:"Sam Norton-Knight",positions:["Fly-half", "Fullback"],num:39,rating:85,careerRating:85},
             {name:"Scott Staniforth",positions:["Fullback", "Left Wing"],num:40,rating:86,careerRating:86}
         ],
         "2011": [
