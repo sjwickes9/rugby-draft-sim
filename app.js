@@ -51,10 +51,24 @@ function oopPenalty(player, nodePos) {
     // though both positions are in the same family.
     if (ng === "half-back" && pg.includes("half-back")) return 3;
 
+    // Hooker and Prop (Loosehead/Tighthead) share the same "front-row"
+    // group, but a pure hooker playing prop (or vice versa) without it
+    // being a listed position is still out of position — a flat 3pt
+    // penalty applies. Genuine prop↔prop swaps (Loosehead↔Tighthead)
+    // remain unaffected, since neither side is "Hooker".
+    if (ng === "front-row" && pg.includes("front-row")) {
+        const wantsHooker = (nodePos === "Hooker");
+        const playerHasHooker = player.positions.includes("Hooker");
+        const playerHasProp = player.positions.some(p => p === "Loosehead Prop" || p === "Tighthead Prop");
+        if (wantsHooker && playerHasProp && !playerHasHooker) return 3;
+        if (!wantsHooker && playerHasHooker && !playerHasProp) return 3;
+    }
+
     // No penalty if node group matches player's listed groups
     if (pg.includes(ng)) return 0;
-    // Props at either side = no penalty (both are "front-row" group)
-    if (ng === "front-row" && pg.includes("front-row")) return 5; // prop↔hooker only
+    // (genuine prop↔prop swaps, e.g. Loosehead at Tighthead, are caught by
+    // the line above and correctly return 0 — both are "front-row" group
+    // and neither side is "Hooker")
 
     if (pg.includes("front-row")) {
         if (ng === "lock" || ng === "back-row") return 10;
