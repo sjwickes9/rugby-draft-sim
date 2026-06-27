@@ -6132,7 +6132,7 @@ const allSquads = {
             {name:"Mason Grady",positions:["Inside Centre", "Left Wing"],num:29,rating:78,careerRating:78},
             {name:"Nick Tompkins",positions:["Inside Centre", "Outside Centre"],num:30,rating:82,careerRating:82},
             {name:"Josh Adams",positions:["Right Wing", "Outside Centre"],num:31,rating:88,careerRating:88},
-            {name:"Gareth Thomas",positions:["Loosehead Prop", "Tighthead Prop"],num:32,rating:84,careerRating:92},
+            {name:"Gareth Thomas",positions:["Loosehead Prop", "Tighthead Prop"],num:32,rating:84,careerRating:84},
             {name:"Leigh Halfpenny",positions:["Fullback", "Left Wing"],num:33,rating:91,careerRating:91},
             {name:"Liam Williams",positions:["Fullback", "Left Wing"],num:34,rating:90,careerRating:90}
         ]
