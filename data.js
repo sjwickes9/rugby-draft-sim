@@ -1541,7 +1541,7 @@ const allSquads = {
             {name:"Manasa Saulo",positions:["Loosehead Prop", "Tighthead Prop"],num:2,rating:80,careerRating:84},
             {name:"Sunia Koto",positions:["Hooker"],num:3,rating:82,careerRating:82},
             {name:"Talemaitoga Tuapati",positions:["Hooker"],num:4,rating:78,careerRating:78},
-            {name:"Taniela Koroi",positions:["Hooker", "Loosehead Prop"],num:5,rating:74,careerRating:74},
+            {name:"Taniela Koroi",positions:["Loosehead Prop", "Hooker"],num:5,rating:74,careerRating:74},
             {name:"Viliame Veikoso",positions:["Hooker"],num:6,rating:81,careerRating:81},
             {name:"Campese Ma'afu",positions:["Tighthead Prop", "Loosehead Prop"],num:7,rating:82,careerRating:84},
             {name:"Lee Roy Atalifo",positions:["Tighthead Prop", "Loosehead Prop"],num:8,rating:72,careerRating:74},
@@ -1568,8 +1568,8 @@ const allSquads = {
             {name:"Waisea Nayacalevu",positions:["Inside Centre", "Left Wing"],num:29,rating:78,careerRating:81},
             {name:"Kini Murimurivalu",positions:["Fullback", "Left Wing"],num:30,rating:78,careerRating:82},
             {name:"Metuisela Talebula",positions:["Fullback", "Inside Centre"],num:31,rating:76,careerRating:76},
-            {name:"Timoci Nagusa",positions:["Fullback", "Inside Centre"],num:32,rating:80,careerRating:80},
-            {name:"Vereniki Goneva",positions:["Fullback", "Inside Centre"],num:33,rating:81,careerRating:83}
+            {name:"Timoci Nagusa",positions:["Left Wing", "Inside Centre"],num:32,rating:80,careerRating:80},
+            {name:"Vereniki Goneva",positions:["Outside Centre", "Inside Centre"],num:33,rating:81,careerRating:83}
         ],
         "2019": [
             {name:"Eroni Mawi",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:74,careerRating:77},
