@@ -19,20 +19,79 @@ function getFlagEmbed(country) {
     return code ? `<img src="https://flagcdn.com/w40/${code}.png" alt="${country}" style="width:32px;vertical-align:middle;border-radius:2px;border:1px solid rgba(255,255,255,0.15);">` : '<span style="font-size:1.8rem;">&#127987;</span>';
 }
 
-const rwc2023PoolStandings = {
-    A: ["France","New Zealand","Italy","Uruguay","Namibia"],
-    B: ["Ireland","South Africa","Scotland","Tonga","Romania"],
-    C: ["Wales","Fiji","Australia","Georgia","Portugal"],
-    D: ["England","Argentina","Japan","Samoa","Chile"]
+// Pool draws and team strengths, keyed by tournament year. Team strengths
+// are derived from each year's actual squad data (average player rating,
+// compressed below a 78 midpoint to reflect that weaker squads' depth
+// drops off faster than their best players suggest) rather than hand-set,
+// so they extend naturally as more tournament years are added.
+const poolStandingsByYear = {
+    "2023": {
+        A: ["France","New Zealand","Italy","Uruguay","Namibia"],
+        B: ["Ireland","South Africa","Scotland","Tonga","Romania"],
+        C: ["Wales","Fiji","Australia","Georgia","Portugal"],
+        D: ["England","Argentina","Japan","Samoa","Chile"]
+    },
+    "2019": {
+        A: ["Ireland","Scotland","Japan","Russia","Samoa"],
+        B: ["New Zealand","South Africa","Italy","Namibia","Canada"],
+        C: ["England","France","Argentina","USA","Tonga"],
+        D: ["Australia","Wales","Georgia","Fiji","Uruguay"]
+    },
+    "2015": {
+        A: ["England","Australia","Wales","Fiji","Uruguay"],
+        B: ["South Africa","Scotland","Japan","Samoa","USA"],
+        C: ["New Zealand","Argentina","Georgia","Tonga","Namibia"],
+        D: ["France","Ireland","Italy","Canada","Romania"]
+    },
+    "2011": {
+        A: ["New Zealand","France","Tonga","Canada","Japan"],
+        B: ["Argentina","England","Scotland","Georgia","Romania"],
+        C: ["Australia","Ireland","Italy","Russia","USA"],
+        D: ["South Africa","Wales","Fiji","Samoa","Namibia"]
+    }
 };
 
-const teamStrengths = {
-    "France":91,"New Zealand":90,"South Africa":93,"Ireland":92,
-    "England":85,"Argentina":84,"Wales":80,"Fiji":82,
-    "Australia":79,"Scotland":81,"Italy":76,"Japan":74,
-    "Samoa":71,"Georgia":68,"Uruguay":66,"Tonga":65,
-    "Portugal":64,"Romania":58,"Namibia":54,"Chile":52
+const teamStrengthsByYear = {
+    "2023": {
+        "France":91,"New Zealand":90,"South Africa":93,"Ireland":92,
+        "England":85,"Argentina":84,"Wales":80,"Fiji":82,
+        "Australia":79,"Scotland":81,"Italy":76,"Japan":74,
+        "Samoa":71,"Georgia":68,"Uruguay":66,"Tonga":65,
+        "Portugal":64,"Romania":58,"Namibia":54,"Chile":52
+    },
+    "2019": {
+        "Ireland":87,"Scotland":86,"Japan":78,"Russia":61,"Samoa":76,
+        "New Zealand":92,"South Africa":90,"Italy":78,"Namibia":60,"Canada":65,
+        "England":90,"France":88,"Argentina":86,"USA":65,"Tonga":63,
+        "Australia":91,"Wales":86,"Georgia":72,"Fiji":80,"Uruguay":62
+    },
+    "2015": {
+        "England":88,"Australia":90,"Wales":85,"Fiji":78,"Uruguay":61,
+        "South Africa":90,"Scotland":84,"Japan":80,"Samoa":77,"USA":63,
+        "New Zealand":93,"Argentina":85,"Georgia":72,"Tonga":65,"Namibia":60,
+        "France":89,"Ireland":86,"Italy":79,"Canada":65,"Romania":67
+    },
+    "2011": {
+        "New Zealand":93,"France":90,"Tonga":63,"Canada":63,"Japan":77,
+        "Argentina":83,"England":89,"Scotland":86,"Georgia":71,"Romania":66,
+        "Australia":89,"Ireland":86,"Italy":80,"Russia":60,"USA":63,
+        "South Africa":90,"Wales":85,"Fiji":76,"Samoa":75,"Namibia":57
+    }
 };
+
+// Tournament metadata: format, points system, host. Used to drive the
+// year-selector UI and to pick the correct simulation/points logic.
+const tournamentMeta = {
+    "2023": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
+    "2019": { teams:20, poolsOf:5, bonusPoints:true,  host:"Japan" },
+    "2015": { teams:20, poolsOf:5, bonusPoints:true,  host:"England" },
+    "2011": { teams:20, poolsOf:5, bonusPoints:true,  host:"New Zealand" }
+};
+
+// Backwards-compatible aliases for any code not yet updated to the
+// multi-year structure (default to 2023, the original baked-in year).
+const rwc2023PoolStandings = poolStandingsByYear["2023"];
+const teamStrengths = teamStrengthsByYear["2023"];
 
 const positionFamilyMap = {
     "Loosehead Prop":"Props","Tighthead Prop":"Props","Hooker":"Hookers",
@@ -251,7 +310,7 @@ const allSquads = {
             {name:"Alfredo Lalanne",positions:["Scrum-half"],num:18,rating:83,careerRating:83},
             {name:"Nicolás Vergallo",positions:["Scrum-half"],num:19,rating:85,careerRating:85},
             {name:"Felipe Contepomi",positions:["Fly-half", "Inside Centre"],num:20,rating:91,careerRating:92},
-            {name:"Marcelo Bosch",positions:["Fly-half", "Inside Centre"],num:21,rating:80,careerRating:84},
+            {name:"Marcelo Bosch",positions:["Inside Centre", "Fullback"],num:21,rating:80,careerRating:84},
             {name:"Nicolás Sánchez",positions:["Fly-half"],num:22,rating:80,careerRating:91},
             {name:"Santiago Fernández",positions:["Fly-half"],num:23,rating:85,careerRating:85},
             {name:"Lucas Borges",positions:["Left Wing", "Right Wing"],num:24,rating:85,careerRating:85},
@@ -1065,7 +1124,8 @@ const allSquads = {
             {name:"Gary Rees",positions:["Openside Flanker", "Blindside Flanker"],num:10,rating:82,careerRating:82},
             {name:"Michael Skinner",positions:["Openside Flanker", "Blindside Flanker"],num:11,rating:85,careerRating:85},
             {name:"Peter Winterbottom",positions:["Openside Flanker", "Blindside Flanker"],num:12,rating:88,careerRating:88},
-            {name:"Richard Hill",positions:["Openside Flanker"],num:13,rating:83,careerRating:94},
+            {name:"Richard Hill",positions:["Scrum-half"],num:13,rating:89,careerRating:89},
+            {name:"Dewi Morris",positions:["Scrum-half"],num:13,rating:88,careerRating:88},
             {name:"Dean Richards",positions:["Number 8"],num:14,rating:87,careerRating:90},
             {name:"Mike Teague",positions:["Number 8", "Openside Flanker"],num:15,rating:82,careerRating:82},
             {name:"Rob Andrew",positions:["Fly-half"],num:16,rating:87,careerRating:92},
@@ -1093,7 +1153,7 @@ const allSquads = {
             {name:"Ben Clarke",positions:["Number 8"],num:12,rating:87,careerRating:87},
             {name:"Dean Richards",positions:["Number 8"],num:13,rating:90,careerRating:90},
             {name:"Tim Rodber",positions:["Number 8", "Openside Flanker"],num:14,rating:85,careerRating:90},
-            {name:"Dewi Morris",positions:["Scrum-half"],num:15,rating:84,careerRating:84},
+            {name:"Dewi Morris",positions:["Scrum-half"],num:15,rating:84,careerRating:88},
             {name:"Kyran Bracken",positions:["Scrum-half"],num:16,rating:78,careerRating:93},
             {name:"Mike Catt",positions:["Fly-half", "Fullback"],num:17,rating:81,careerRating:91},
             {name:"Rob Andrew",positions:["Fly-half"],num:18,rating:92,careerRating:92},
@@ -1309,14 +1369,14 @@ const allSquads = {
         ],
         "2023": [
             {name:"Bevan Rodd",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:85,careerRating:85},
-            {name:"Ellis Genge (vc)",positions:["Loosehead Prop", "Tighthead Prop"],num:2,rating:90,careerRating:90},
+            {name:"Ellis Genge",positions:["Loosehead Prop", "Tighthead Prop"],num:2,rating:90,careerRating:90},
             {name:"Joe Marler",positions:["Loosehead Prop", "Tighthead Prop"],num:3,rating:94,careerRating:94},
             {name:"Jamie George",positions:["Hooker"],num:4,rating:91,careerRating:91},
             {name:"Theo Dan",positions:["Hooker"],num:5,rating:84,careerRating:84},
             {name:"Dan Cole",positions:["Tighthead Prop", "Loosehead Prop"],num:6,rating:94,careerRating:95},
             {name:"Kyle Sinckler",positions:["Tighthead Prop", "Loosehead Prop"],num:7,rating:91,careerRating:91},
             {name:"Will Stuart",positions:["Tighthead Prop", "Loosehead Prop"],num:8,rating:90,careerRating:90},
-            {name:"Courtney Lawes (vc)",positions:["Lock"],num:9,rating:93,careerRating:93},
+            {name:"Courtney Lawes",positions:["Lock"],num:9,rating:93,careerRating:93},
             {name:"David Ribbans",positions:["Lock"],num:10,rating:87,careerRating:87},
             {name:"Maro Itoje",positions:["Lock", "Openside Flanker"],num:11,rating:96,careerRating:96},
             {name:"George Martin",positions:["Openside Flanker", "Lock"],num:12,rating:83,careerRating:83},
@@ -3493,7 +3553,7 @@ const allSquads = {
             {name:"Graeme Bachop",positions:["Scrum-half"],num:17,rating:88,careerRating:88},
             {name:"Andrew Mehrtens",positions:["Fly-half"],num:18,rating:91,careerRating:91},
             {name:"Simon Culhane",positions:["Fly-half"],num:19,rating:83,careerRating:83},
-            {name:"Jonah Lomu",positions:["Left Wing"],num:20,rating:97,careerRating:97},
+            {name:"Jonah Lomu",positions:["Left Wing"],num:20,rating:99,careerRating:99},
             {name:"Marc Ellis",positions:["Left Wing", "Right Wing"],num:21,rating:86,careerRating:86},
             {name:"Alama Ieremia",positions:["Inside Centre", "Outside Centre"],num:22,rating:85,careerRating:90},
             {name:"Frank Bunce",positions:["Inside Centre", "Outside Centre"],num:23,rating:90,careerRating:90},
@@ -3524,7 +3584,7 @@ const allSquads = {
             {name:"Andrew Mehrtens",positions:["Fly-half"],num:20,rating:90,careerRating:91},
             {name:"Carlos Spencer",positions:["Fly-half"],num:21,rating:90,careerRating:91},
             {name:"Tony Brown",positions:["Fly-half", "Inside Centre"],num:22,rating:89,careerRating:89},
-            {name:"Jonah Lomu",positions:["Left Wing"],num:23,rating:96,careerRating:99},
+            {name:"Jonah Lomu",positions:["Left Wing"],num:23,rating:99,careerRating:99},
             {name:"Alama Ieremia",positions:["Inside Centre", "Outside Centre"],num:24,rating:90,careerRating:90},
             {name:"Daryl Gibson",positions:["Inside Centre", "Outside Centre"],num:25,rating:89,careerRating:89},
             {name:"Pita Alatini",positions:["Inside Centre", "Outside Centre"],num:26,rating:84,careerRating:84},
@@ -5541,7 +5601,7 @@ const allSquads = {
             {name:"Takudzwa Ngwenya",positions:["Right Wing", "Left Wing"],num:34,rating:63,careerRating:70},
             {name:"Andrew Osborne",positions:["Fullback", "Left Wing"],num:35,rating:65,careerRating:65},
             {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:36,rating:66,careerRating:75},
-            {name:"Francois Viljoen",positions:["Fullback"],num:37,rating:69,careerRating:69}
+            {name:"Francois Viljoen",positions:["Fullback"],num:37,rating:72,careerRating:81}
         ],
         "2011": [
             {name:"Eric Fry",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:66,careerRating:72},
@@ -5573,7 +5633,7 @@ const allSquads = {
             {name:"Paul Emerick",positions:["Inside Centre", "Left Wing"],num:27,rating:71,careerRating:71},
             {name:"Takudzwa Ngwenya",positions:["Right Wing", "Left Wing"],num:28,rating:68,careerRating:70},
             {name:"Blaine Scully",positions:["Fullback", "Left Wing"],num:29,rating:63,careerRating:71},
-            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:30,rating:71,careerRating:75}
+            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:30,rating:76,careerRating:81}
         ],
         "2015": [
             {name:"Eric Fry",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:70,careerRating:72},
@@ -5606,7 +5666,7 @@ const allSquads = {
             {name:"Thretton Palamo",positions:["Inside Centre", "Outside Centre"],num:28,rating:65,careerRating:67},
             {name:"Takudzwa Ngwenya",positions:["Right Wing", "Left Wing"],num:29,rating:70,careerRating:70},
             {name:"Blaine Scully",positions:["Fullback", "Left Wing"],num:30,rating:69,careerRating:71},
-            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:31,rating:75,careerRating:75}
+            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:31,rating:81,careerRating:81}
         ],
         "2019": [
             {name:"Chance Wenglewski",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:67,careerRating:67},
@@ -5947,8 +6007,8 @@ const allSquads = {
             {name:"Martyn Williams",positions:["Openside Flanker", "Blindside Flanker"],num:12,rating:83,careerRating:91},
             {name:"Alix Popham",positions:["Number 8", "Openside Flanker"],num:13,rating:79,careerRating:85},
             {name:"Colin Charvis",positions:["Number 8", "Blindside Flanker"],num:14,rating:88,careerRating:92},
-            {name:"Dafydd Jones",positions:["Number 8", "Openside Flanker"],num:15,rating:82,careerRating:82},
-            {name:"Jonathan Thomas",positions:["Number 8", "Openside Flanker"],num:16,rating:78,careerRating:84},
+            {name:"Dafydd Jones",positions:["Blindside Flanker", "Openside Flanker"],num:15,rating:82,careerRating:82},
+            {name:"Jonathan Thomas",positions:["Blindside Flanker", "Openside Flanker"],num:16,rating:78,careerRating:84},
             {name:"Dwayne Peel",positions:["Scrum-half"],num:17,rating:81,careerRating:85},
             {name:"Gareth Cooper",positions:["Scrum-half"],num:18,rating:79,careerRating:83},
             {name:"Ceri Sweeney",positions:["Fly-half", "Inside Centre"],num:19,rating:79,careerRating:83},
@@ -5960,9 +6020,9 @@ const allSquads = {
             {name:"Tom Shanklin",positions:["Inside Centre", "Left Wing"],num:25,rating:83,careerRating:87},
             {name:"Garan Evans",positions:["Fullback"],num:26,rating:77,careerRating:77},
             {name:"Gareth Thomas",positions:["Fullback", "Right Wing"],num:27,rating:90,careerRating:92},
-            {name:"Iestyn Harris",positions:["Fullback", "Outside Centre"],num:28,rating:85,careerRating:85},
+            {name:"Iestyn Harris",positions:["Inside Centre", "Fly-half"],num:28,rating:85,careerRating:85},
             {name:"Kevin Morgan",positions:["Fullback", "Left Wing"],num:29,rating:84,careerRating:88},
-            {name:"Rhys Williams",positions:["Fullback"],num:30,rating:85,careerRating:85}
+            {name:"Rhys Williams",positions:["Right Wing","Fullback"],num:30,rating:85,careerRating:85}
         ],
         "2007": [
             {name:"Duncan Jones",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:83,careerRating:83},

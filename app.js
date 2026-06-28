@@ -199,6 +199,14 @@ let respinsLeft        = 0;
 let isKnowledgeMode    = false;
 let isCareerMode       = false;
 let simSpeedMultiplier = 1; // 1 = medium (default); read from the speed radio when Kick Off Tournament is clicked
+
+// Preloaded once at script load so the share card can draw it synchronously
+// without needing to restructure generateShareGraphic() as async.
+const shareCardLogo = new Image();
+shareCardLogo.src = "assets/logo-dark.png";
+let selectedTournamentYear = "2023"; // which World Cup is being simulated this run
+let activePoolStandings = poolStandingsByYear[selectedTournamentYear];
+let activeTeamStrengths = teamStrengthsByYear[selectedTournamentYear];
 let spotsFilledCount   = 0;
 let playerSelectedFromCurrentPool = false;
 let globalDraftedNames = new Set();
@@ -225,18 +233,38 @@ const manifestTeamBox = document.getElementById("manifest-team-box");
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
     const teamSelect = document.getElementById("team-select");
-    if (teamSelect) {
-        Object.keys(allSquads).sort().forEach(t => {
+    const yearSelect = document.getElementById("tournament-year-select");
+
+    // Staging-only dev mode: detected by URL pattern so the same app.js
+    // works correctly on both sites without manual edits. The Cymru
+    // option simply won't exist when this file is served from production.
+    const IS_STAGING_ENV = location.hostname.includes("github.io") &&
+        location.pathname.includes("rugby-draft-sim-staging");
+
+    function populateTeamSelect(year) {
+        if (!teamSelect) return;
+        const pools = poolStandingsByYear[year];
+        if (!pools) return;
+        const nations = Object.values(pools).flat().sort();
+        teamSelect.innerHTML = "";
+        nations.forEach(t => {
             const opt = document.createElement("option");
             opt.value = t; opt.textContent = t;
             teamSelect.appendChild(opt);
         });
-        //  Hidden dev mode — appears at bottom of list
-        // const devOpt = document.createElement("option");
-        // devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
-        // teamSelect.appendChild(devOpt);
-        teamSelect.value = "England";
+        if (IS_STAGING_ENV) {
+            const devOpt = document.createElement("option");
+            devOpt.value = "Cymru"; devOpt.textContent = "Cymru (Dev Mode)";
+            teamSelect.appendChild(devOpt);
+        }
+        // Prefer England if it's competing that year, otherwise just take the first nation
+        teamSelect.value = nations.includes("England") ? "England" : nations[0];
     }
+
+    if (yearSelect) {
+        yearSelect.addEventListener("change", () => populateTeamSelect(yearSelect.value));
+    }
+    populateTeamSelect(yearSelect ? yearSelect.value : "2023");
 
     document.getElementById("start-game-btn").addEventListener("click", e => {
         e.preventDefault();
@@ -244,6 +272,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const setting = diff ? diff.value : "normal";
         respinsLeft = setting === "easy" ? 3 : setting === "normal" ? 1 : 0;
         if (respinCountText) respinCountText.textContent = respinsLeft;
+
+        selectedTournamentYear = yearSelect ? yearSelect.value : "2023";
+        activePoolStandings = poolStandingsByYear[selectedTournamentYear];
+        activeTeamStrengths = teamStrengthsByYear[selectedTournamentYear];
+
         replacedTeam = teamSelect ? teamSelect.value : "England";
 
         if (replacedTeam === "Cymru") {
@@ -259,85 +292,46 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function activateCymruMode() {
-    // Fill userTeam with 99-rated Welsh legends
+    // Fill userTeam with 99-rated Welsh (and Lions) legends — every field
+    // matches the real shape the draft produces, so the rest of the app
+    // (pitch rendering, manifest, score breakdowns, standings) treats this
+    // exactly like a genuinely-drafted squad.
     const cymruSquad = [
-        { pos:"Loosehead Prop",    name:"Gethin Jenkins",    nation:"WAL '11" },
-        { pos:"Hooker",            name:"Ken Owens",          nation:"WAL '19" },
-        { pos:"Tighthead Prop",    name:"Adam Jones",         nation:"WAL '11" },
-        { pos:"Lock 4",            name:"Alun Wyn Jones",     nation:"WAL '19" },
-        { pos:"Lock 5",            name:"Paul O'Connell",     nation:"IRE '11" },
-        { pos:"Blindside Flanker", name:"Sam Warburton",      nation:"WAL '11" },
-        { pos:"Openside Flanker",  name:"Justin Tipuric",     nation:"WAL '19" },
-        { pos:"Number 8",          name:"Taulupe Faletau",    nation:"WAL '19" },
-        { pos:"Scrum-half",        name:"Gareth Edwards",     nation:"Lions"   },
-        { pos:"Fly-half",          name:"Barry John",         nation:"Lions"   },
-        { pos:"Left Wing",         name:"Shane Williams",     nation:"WAL '07" },
-        { pos:"Inside Centre",     name:"Brian O'Driscoll",   nation:"IRE '11" },
-        { pos:"Outside Centre",    name:"Scott Gibbs",        nation:"WAL '99" },
-        { pos:"Right Wing",        name:"Gerald Davies",      nation:"WAL '71" },
-        { pos:"Fullback",          name:"JPR Williams",       nation:"WAL '71" },
+        { pos:"Loosehead Prop",    name:"Gethin Jenkins",   nation:"WAL '11" },
+        { pos:"Hooker",            name:"Bobby Windsor",    nation:"WAL '78" },
+        { pos:"Tighthead Prop",    name:"Graham Price",     nation:"WAL '78" },
+        { pos:"Lock 4",            name:"Alun Wyn Jones",   nation:"WAL '19" },
+        { pos:"Lock 5",            name:"RH Williams",      nation:"WAL '60" },
+        { pos:"Blindside Flanker", name:"Dai Morris",       nation:"WAL '71" },
+        { pos:"Openside Flanker",  name:"Sam Warburton",    nation:"WAL '11" },
+        { pos:"Number 8",          name:"Mervyn Davies",    nation:"WAL '76" },
+        { pos:"Scrum-half",        name:"Gareth Edwards",   nation:"WAL '76" },
+        { pos:"Fly-half",          name:"Barry John",       nation:"WAL '72" },
+        { pos:"Left Wing",         name:"Shane Williams",   nation:"WAL '07" },
+        { pos:"Inside Centre",     name:"Scott Gibbs",      nation:"WAL '99" },
+        { pos:"Outside Centre",    name:"Bleddyn Williams", nation:"WAL '53" },
+        { pos:"Right Wing",        name:"Gerald Davies",    nation:"WAL '71" },
+        { pos:"Fullback",          name:"JPR Williams",     nation:"WAL '71" },
     ];
     cymruSquad.forEach(p => {
-        userTeam[p.pos] = { name: p.name, score: 99, nation: p.nation, outOfPosition: false };
+        userTeam[p.pos] = {
+            name: p.name, score: 99, nation: p.nation,
+            outOfPosition: false, penalty: 0, originalRating: 99
+        };
     });
     replacedTeam = "Wales";  // replaces Wales in the bracket
 
-    // Skip straight to simulation screen and boss stage
+    // Move straight to the simulation screen, exactly as a real draft would
+    // once the 15th player is placed — nothing downstream is faked, this
+    // runs through the same runTournamentSimulation() as a normal game.
     setupCard.classList.add("hidden");
     draftDashboard.classList.add("hidden");
     simDashboard.classList.remove("hidden");
-
-    // Run a fake world cup win then launch boss
-    (async () => {
-        matchHistory = [
-            { stage:"Pool", opponent:"Fiji",         userScore:45, oppScore:0,  won:true },
-            { stage:"Pool", opponent:"Australia",    userScore:38, oppScore:7,  won:true },
-            { stage:"Pool", opponent:"Georgia",       userScore:52, oppScore:3,  won:true },
-            { stage:"Pool", opponent:"Portugal",      userScore:61, oppScore:0,  won:true },
-            { stage:"QF",   opponent:"Argentina",     userScore:33, oppScore:18, won:true },
-            { stage:"SF",   opponent:"Ireland",        userScore:27, oppScore:24, won:true },
-            { stage:"Final",opponent:"South Africa",  userScore:21, oppScore:18, won:true },
-        ];
-        await addLog("*** CYMRU DEV MODE ACTIVATED ***", "var(--brand-gold)");
-        await addLog("Skipping to boss stage with a 99-rated side...", "var(--text-muted)");
-        await addLog("", null);
-        await addLog("=== POOL C — RESULTS ===", "var(--brand-gold)");
-        await addLog("WIN  vs Fiji        45-0", "#4ade80");
-        await addLog("WIN  vs Australia   38-7", "#4ade80");
-        await addLog("WIN  vs Georgia     52-3", "#4ade80");
-        await addLog("WIN  vs Portugal    61-0", "#4ade80");
-        await addLog("QUALIFIED — 1st in Pool C", "#4ade80");
-        await addLog("", null);
-        await addLog("=== QUARTER-FINAL ===", "var(--brand-gold)");
-        await addLog("WIN  vs Argentina   33-18", "#4ade80");
-        await addLog("", null);
-        await addLog("=== SEMI-FINAL ===", "var(--brand-gold)");
-        await addLog("WIN  vs Ireland     27-24", "#4ade80");
-        await addLog("", null);
-        await addLog("=== FINAL ===", "var(--brand-gold)");
-        await addLog("WIN  vs South Africa  21-18", "#4ade80");
-        await addLog("", null);
-        await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
-        await addLog("", null);
-        await addLog("But the challenge doesn't end here...", "var(--text-muted)");
-        await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
-        await addLog("", null);
-
-        const bossBtn = document.createElement("button");
-        bossBtn.textContent = "Accept the Ultimate Challenge";
-        bossBtn.className = "btn-primary btn-full";
-        bossBtn.style.cssText = "margin:12px 0;display:block;width:100%;";
-        document.getElementById("sim-results").appendChild(bossBtn);
-        document.getElementById("sim-results").scrollTop = document.getElementById("sim-results").scrollHeight;
-
-        bossBtn.addEventListener("click", async () => {
-            bossBtn.remove();
-            await runBossStage();
-        }, { once: true });
-
-        restartBtn.classList.remove("hidden");
-    })();
+    populateManifestPreviewWindow();
+    populatePreKickoffSummary();
+    populateTournamentTitle();
 }
+
 
 // ============================================================
 // SLIDERS
@@ -730,6 +724,7 @@ pitchCircles.forEach(node => {
                 simDashboard.classList.remove("hidden");
                 populateManifestPreviewWindow();
                 populatePreKickoffSummary();
+                populateTournamentTitle();
             }, 800);
         }
     });
@@ -793,6 +788,18 @@ function populateManifestPreviewWindow() {
         </div>`;
     });
     manifestTeamBox.innerHTML = html;
+}
+
+// Shows "Rugby World Cup" + "[year] — [host]" above the simulation panels,
+// using the tournament the user actually selected on the setup screen.
+function populateTournamentTitle() {
+    const box = document.getElementById("tournament-title");
+    if (!box) return;
+    const meta = tournamentMeta[selectedTournamentYear];
+    const host = meta ? meta.host : "";
+    box.innerHTML = `
+        <div class="tt-line1">Rugby World Cup ${selectedTournamentYear}${host ? " — " + host : ""}</div>
+    `;
 }
 
 // ============================================================
@@ -878,7 +885,11 @@ function canUseNativeShare() {
 // won, lost, plus the tournament's top points scorer and top try scorer.
 // Called once at every possible run-ending point, right before the
 // share/download button appears.
-async function showResultsSummary() {
+// Computes the played/won/lost record and the tournament's top points
+// scorer and top try scorer from the current run's accumulated stats.
+// Shared by showResultsSummary() (in-app log) and generateShareGraphic()
+// (the downloadable card), so both always agree with each other.
+function computeTournamentSummary() {
     const played = matchHistory.length;
     const won = matchHistory.filter(m => m.won).length;
     const lost = played - won;
@@ -890,6 +901,12 @@ async function showResultsSummary() {
     const topTryScorer = statEntries.length
         ? statEntries.reduce((best, cur) => cur[1].tries > best[1].tries ? cur : best)
         : null;
+
+    return { played, won, lost, topScorer, topTryScorer };
+}
+
+async function showResultsSummary() {
+    const { played, won, lost, topScorer, topTryScorer } = computeTournamentSummary();
 
     let html = '<div class="results-summary">';
     html += '<div class="results-summary-title">Tournament Summary</div>';
@@ -942,7 +959,7 @@ function showShareButton(headline, colour) {
 }
 
 function generateShareGraphic() {
-    const W = 1080, H = 1750; // portrait, social-friendly
+    const W = 1080, H = 2040; // portrait, social-friendly
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
@@ -959,30 +976,45 @@ function generateShareGraphic() {
     const textMuted = "#9ca39c";
     const white = "#f3f4f6";
 
+    // ── Logo ──
+    if (shareCardLogo.complete && shareCardLogo.naturalWidth > 0) {
+        const logoH = 90;
+        const logoW = logoH * (shareCardLogo.naturalWidth / shareCardLogo.naturalHeight);
+        ctx.drawImage(shareCardLogo, W/2 - logoW/2, 20, logoW, logoH);
+    }
+
     // ── Header ──
     ctx.textAlign = "center";
     ctx.fillStyle = gold;
     ctx.font = "bold 52px Georgia, serif";
-    ctx.fillText("RUGBY HYBRID XV", W/2, 80);
+    ctx.fillText("RUGBY HYBRID XV", W/2, 190);
     ctx.font = "26px Georgia, serif";
     ctx.fillStyle = textMuted;
-    ctx.fillText("replacing " + (replacedTeam || "—"), W/2, 118);
+    ctx.fillText("replacing " + (replacedTeam || "—"), W/2, 228);
+
+    const tmeta = tournamentMeta[selectedTournamentYear];
+    ctx.font = "18px Arial";
+    ctx.fillStyle = textMuted;
+    ctx.fillText("Rugby World Cup " + selectedTournamentYear + (tmeta ? " — " + tmeta.host : ""), W/2, 254);
 
     // Divider
     ctx.strokeStyle = goldFaint;
     ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(80, 145); ctx.lineTo(W-80, 145); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(80, 275); ctx.lineTo(W-80, 275); ctx.stroke();
 
     // ── Result headline ──
     ctx.font = "bold 38px Georgia, serif";
     ctx.fillStyle = lastResultColour;
-    wrapCanvasText(ctx, lastResultHeadline || "Campaign complete", W/2, 200, W-160, 44);
+    wrapCanvasText(ctx, lastResultHeadline || "Campaign complete", W/2, 330, W-160, 44);
+
+    // ── Tournament summary: played/won/lost + top scorers ──
+    drawTournamentSummary(ctx, W, 380);
 
     // ── Full-width pitch diagram with ratings + nation/year per player ──
-    drawMiniPitch(ctx, W/2, 720, 920, 900);
+    drawMiniPitch(ctx, W/2, 1010, 920, 900);
 
     // ── Results recap (replaces the old duplicate squad list) ──
-    const recapTop = 1230;
+    const recapTop = 1520;
     ctx.textAlign = "left";
     ctx.font = "bold 24px Georgia, serif";
     ctx.fillStyle = gold;
@@ -1026,6 +1058,58 @@ function generateShareGraphic() {
 }
 
 // Draws a simplified rugby pitch with each position circle and player name
+// Draws the Played/Won/Lost stat row and the top scorer/try scorer lines
+// onto the share card canvas, using exactly the same data the in-app
+// results summary shows (via computeTournamentSummary), so the card never
+// disagrees with what the player already saw during the run.
+function drawTournamentSummary(ctx, W, top) {
+    const { played, won, lost, topScorer, topTryScorer } = computeTournamentSummary();
+    const textMuted = "#9ca39c";
+    const white = "#f3f4f6";
+
+    const cols = [
+        { label: "Played", value: played, colour: white },
+        { label: "Won",    value: won,    colour: "#4ade80" },
+        { label: "Lost",   value: lost,   colour: "#f87171" },
+    ];
+    const colWidth = (W - 160) / 3;
+    cols.forEach((col, i) => {
+        const cx = 80 + colWidth * i + colWidth / 2;
+        ctx.textAlign = "center";
+        ctx.font = "bold 40px Arial";
+        ctx.fillStyle = col.colour;
+        ctx.fillText(String(col.value), cx, top + 40);
+        ctx.font = "13px Arial";
+        ctx.fillStyle = textMuted;
+        ctx.fillText(col.label.toUpperCase(), cx, top + 62);
+    });
+
+    let leaderY = top + 100;
+    ctx.font = "16px Arial";
+    if (topScorer && topScorer[1].points > 0) {
+        ctx.textAlign = "right";
+        ctx.fillStyle = textMuted;
+        ctx.fillText("Top Points Scorer", W/2 - 10, leaderY);
+        ctx.textAlign = "left";
+        ctx.fillStyle = white;
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(topScorer[0] + " — " + topScorer[1].points + " pts", W/2 + 10, leaderY);
+        leaderY += 26;
+    }
+    if (topTryScorer && topTryScorer[1].tries > 0) {
+        ctx.textAlign = "right";
+        ctx.fillStyle = textMuted;
+        ctx.font = "16px Arial";
+        ctx.fillText("Top Try Scorer", W/2 - 10, leaderY);
+        ctx.textAlign = "left";
+        ctx.fillStyle = white;
+        ctx.font = "bold 16px Arial";
+        const tries = topTryScorer[1].tries;
+        ctx.fillText(topTryScorer[0] + " — " + tries + (tries === 1 ? " try" : " tries"), W/2 + 10, leaderY);
+    }
+    ctx.textAlign = "center"; // reset for subsequent drawing
+}
+
 function drawMiniPitch(ctx, cx, cy, w, h) {
     const left = cx - w/2, top = cy - h/2;
     const gold = "#c5a059";
@@ -1223,8 +1307,8 @@ function oddsText(prob) {
 // OPPOSITION LINEUPS — best 2023 player per position, per nation
 // ============================================================
 function getOppositionLineup(nationName) {
-    if (!allSquads[nationName] || !allSquads[nationName]["2023"]) return null;
-    const squad = allSquads[nationName]["2023"];
+    if (!allSquads[nationName] || !allSquads[nationName][selectedTournamentYear]) return null;
+    const squad = allSquads[nationName][selectedTournamentYear];
 
     const lineup = {};
     const usedNames = new Set();
@@ -1541,7 +1625,7 @@ async function addLog(msg, colour) {
 async function runTournamentSimulation() {
     const userR = getUserRating();
     const pool = getPoolFor(replacedTeam);
-    const poolTeams = rwc2023PoolStandings[pool].filter(t => t !== replacedTeam);
+    const poolTeams = activePoolStandings[pool].filter(t => t !== replacedTeam);
 
     await addLog("=== POOL STAGE — Pool " + pool + " ===", "var(--brand-gold)");
     await addLog("Your Hybrid XV (avg: " + userR + ") replaces " + replacedTeam, null);
@@ -1568,7 +1652,7 @@ async function runTournamentSimulation() {
 
     // ── Run user's pool matches ──
     for (const opp of poolTeams) {
-        const res = simulateMatch(userR, teamStrengths[opp] || 72);
+        const res = simulateMatch(userR, activeTeamStrengths[opp] || 72);
         const icon = res.won ? "WIN " : "LOSS";
         const colour = res.won ? "#4ade80" : "#f87171";
         await addLog(icon + "  vs " + opp + "  " + res.userScore + "-" + res.oppScore + "  (" + (res.pts>0?"+":"") + res.pts + " pts)", colour);
@@ -1583,7 +1667,7 @@ async function runTournamentSimulation() {
     for (let i = 0; i < poolTeams.length; i++) {
         for (let j = i+1; j < poolTeams.length; j++) {
             const t1 = poolTeams[i], t2 = poolTeams[j];
-            const res = simulateMatch(teamStrengths[t1]||72, teamStrengths[t2]||72);
+            const res = simulateMatch(activeTeamStrengths[t1]||72, activeTeamStrengths[t2]||72);
             const ptsT1 = res.won ? (res.margin>21?5:4) : (res.margin<=7?1:0);
             const ptsT2 = res.won ? (res.margin<=7?1:0) : (res.margin>21?5:4);
             applyResult(t1, res.userScore, t2, res.oppScore, ptsT1, ptsT2);
@@ -1639,7 +1723,7 @@ async function runTournamentSimulation() {
     // ── Quarter-final ──
     await addLog("", null);
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
-    const qfOppR = teamStrengths[qfOpp]||80;
+    const qfOppR = activeTeamStrengths[qfOpp]||80;
     const qfProb = winProbability(effectiveR, qfOppR);
     await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
@@ -1655,23 +1739,23 @@ async function runTournamentSimulation() {
 
     // Simulate the other QF in the same semi bracket → SF opponent
     const otherQFSameSide = qfPairings.find(qf2 => qf2.sf === userSF && qf2.id !== userQF.id);
-    const oqRes = simulateMatch(teamStrengths[otherQFSameSide.home]||80, teamStrengths[otherQFSameSide.away]||80);
+    const oqRes = simulateMatch(activeTeamStrengths[otherQFSameSide.home]||80, activeTeamStrengths[otherQFSameSide.away]||80);
     const sfOpp = oqRes.won ? otherQFSameSide.home : otherQFSameSide.away;
 
     // Simulate both QFs on the other side → final opponent and 3rd place opponent
     const otherSideQFs = qfPairings.filter(qf2 => qf2.sf !== userSF);
-    const os0Res = simulateMatch(teamStrengths[otherSideQFs[0].home]||80, teamStrengths[otherSideQFs[0].away]||80);
-    const os1Res = simulateMatch(teamStrengths[otherSideQFs[1].home]||80, teamStrengths[otherSideQFs[1].away]||80);
+    const os0Res = simulateMatch(activeTeamStrengths[otherSideQFs[0].home]||80, activeTeamStrengths[otherSideQFs[0].away]||80);
+    const os1Res = simulateMatch(activeTeamStrengths[otherSideQFs[1].home]||80, activeTeamStrengths[otherSideQFs[1].away]||80);
     const otherSF_A = os0Res.won ? otherSideQFs[0].home : otherSideQFs[0].away;
     const otherSF_B = os1Res.won ? otherSideQFs[1].home : otherSideQFs[1].away;
-    const otherSFRes = simulateMatch(teamStrengths[otherSF_A]||86, teamStrengths[otherSF_B]||86);
+    const otherSFRes = simulateMatch(activeTeamStrengths[otherSF_A]||86, activeTeamStrengths[otherSF_B]||86);
     const finOpp  = otherSFRes.won ? otherSF_A : otherSF_B;
     const tpOpp   = otherSFRes.won ? otherSF_B : otherSF_A;
 
     // ── Semi-final ──
     await addLog("", null);
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
-    const sfOppR = teamStrengths[sfOpp]||86;
+    const sfOppR = activeTeamStrengths[sfOpp]||86;
     const sfProb = winProbability(effectiveR, sfOppR);
     await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
@@ -1682,14 +1766,14 @@ async function runTournamentSimulation() {
     if (!sf.won) {
         await addLog("", null);
         await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
-        const tpOppR = teamStrengths[tpOpp]||84;
+        const tpOppR = activeTeamStrengths[tpOpp]||84;
         const tpProb = winProbability(effectiveR, tpOppR);
         await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:tpOpp, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
         await addScoreBreakdownLog(userTeam, tp.userScore, tpOpp, tp.oppScore);
-        await addLog(tp.won ? "BRONZE — 3rd place at the 2023 Rugby World Cup!" : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
+        await addLog(tp.won ? ("BRONZE — 3rd place at the " + selectedTournamentYear + " Rugby World Cup!") : "4th place — agonisingly close.", tp.won?"#4ade80":"#c5a059");
         await showResultsSummary();
         showShareButton(tp.won ? "Bronze Medal — 3rd Place" : "4th Place Finish", tp.won?"#4ade80":"#c5a059");
         restartBtn.classList.remove("hidden"); return;
@@ -1698,7 +1782,7 @@ async function runTournamentSimulation() {
     // ── Final ──
     await addLog("", null);
     await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
-    const finOppR = teamStrengths[finOpp]||90;
+    const finOppR = activeTeamStrengths[finOpp]||90;
     const finProb = winProbability(effectiveR, finOppR);
     await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
@@ -1706,7 +1790,7 @@ async function runTournamentSimulation() {
     matchHistory.push({ stage:"Final", opponent:finOpp, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
     await addScoreBreakdownLog(userTeam, fin.userScore, finOpp, fin.oppScore);
     if (fin.won) {
-        await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the 2023 Rugby World Cup!", "var(--brand-gold)");
+        await addLog("WORLD CHAMPIONS! Your Hybrid XV wins the " + selectedTournamentYear + " Rugby World Cup!", "var(--brand-gold)");
         await addLog("", null);
         await addLog("But the challenge doesn't end here...", "var(--text-muted)");
         await addLog("Three legendary teams await. Do you dare face them?", "var(--text-muted)");
@@ -1717,8 +1801,8 @@ async function runTournamentSimulation() {
         // Show boss challenge button — appended to sim-results (the terminal viewport)
         const bossBtn = document.createElement("button");
         bossBtn.textContent = "Accept the Ultimate Challenge";
-        bossBtn.className = "btn-primary btn-full";
-        bossBtn.style.cssText = "margin:12px 0;display:block;width:100%;";
+        bossBtn.className = "btn-primary";
+        bossBtn.style.cssText = "margin:12px 0;display:block;width:100%;padding:8px 14px;font-size:0.9rem;";
         document.getElementById("sim-results").appendChild(bossBtn);
         document.getElementById("sim-results").scrollTop = document.getElementById("sim-results").scrollHeight;
 
@@ -1740,12 +1824,12 @@ async function runTournamentSimulation() {
 // Simulate all four pool round-robins, return ordered standings {A:[1st,2nd,...], ...}
 function simulateAllPools() {
     const standings = {};
-    for (const [p, teams] of Object.entries(rwc2023PoolStandings)) {
+    for (const [p, teams] of Object.entries(activePoolStandings)) {
         const pts = {};
         teams.forEach(t => { pts[t] = 0; });
         for (let i = 0; i < teams.length; i++) {
             for (let j = i+1; j < teams.length; j++) {
-                const res = simulateMatch(teamStrengths[teams[i]]||65, teamStrengths[teams[j]]||65);
+                const res = simulateMatch(activeTeamStrengths[teams[i]]||65, activeTeamStrengths[teams[j]]||65);
                 pts[teams[i]] += res.won ? (res.margin>21?5:4) : (res.margin<=7?1:0);
                 pts[teams[j]] += res.won ? (res.margin<=7?1:0) : (res.margin>21?5:4);
             }
@@ -1759,7 +1843,7 @@ function simulateAllPools() {
 // BRACKET HELPERS
 // ============================================================
 function getPoolFor(team) {
-    for (const [k,v] of Object.entries(rwc2023PoolStandings)) { if (v.includes(team)) return k; }
+    for (const [k,v] of Object.entries(activePoolStandings)) { if (v.includes(team)) return k; }
     return "A";
 }
 
@@ -1810,6 +1894,11 @@ function hardReload() {
     // location.reload() can sometimes replay a cached version of the page
     // and its scripts rather than fetching fresh ones. Navigating to the
     // base URL with a cache-busting query param forces a genuine reload.
+    // The sessionStorage flag tells the next page load to skip the
+    // full-screen loading logo, since the user has already seen it once
+    // this session and is just restarting a game, not opening the site
+    // fresh.
+    try { sessionStorage.setItem("hasPlayedBefore", "1"); } catch (e) {}
     const base = location.pathname;
     window.location.href = base + "?_=" + Date.now();
 }
@@ -2009,3 +2098,44 @@ async function runBossStage() {
         }
     }
 }
+
+// ============================================================
+// LOADING SCREEN
+// ============================================================
+// Shows the logo full-screen on a genuinely fresh visit, then fades it
+// out after a minimum display time so it registers as intentional rather
+// than a flicker. Skipped entirely on repeat visits within the same
+// session (Play Again / Abandon Campaign trigger a real page reload via
+// hardReload(), which sets the sessionStorage flag below) — the user has
+// already seen it once and is just restarting a game, not opening the
+// site fresh.
+(function () {
+    const screen = document.getElementById("loading-screen");
+    if (!screen) return;
+
+    let hasPlayedBefore = false;
+    try { hasPlayedBefore = sessionStorage.getItem("hasPlayedBefore") === "1"; } catch (e) {}
+
+    if (hasPlayedBefore) {
+        screen.remove();
+        return;
+    }
+
+    const MIN_DISPLAY_MS = 1800;
+    const shownAt = Date.now();
+
+    function dismissLoadingScreen() {
+        const elapsed = Date.now() - shownAt;
+        const wait = Math.max(0, MIN_DISPLAY_MS - elapsed);
+        setTimeout(() => {
+            screen.classList.add("loading-fade-out");
+            setTimeout(() => screen.remove(), 450); // matches CSS transition duration
+        }, wait);
+    }
+
+    if (document.readyState === "complete") {
+        dismissLoadingScreen();
+    } else {
+        window.addEventListener("load", dismissLoadingScreen);
+    }
+})();

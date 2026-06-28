@@ -10,19 +10,46 @@
         <!-- End Google Tag Manager -->
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="description" content="Build your ultimate XV from every Rugby World Cup squad in history. Draft players across 10 tournaments, then simulate the 2023 World Cup.">
+            <meta name="description" content="Build your ultimate XV from every Rugby World Cup squad in history. Draft players across 10 tournaments, then simulate any World Cup you choose.">
             <title>Rugby XV Draft</title>
             <link rel="stylesheet" href="style.css">
- 
-<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 </head>
 <body>
+    <div id="loading-screen">
+        <img src="assets/logo-dark.png" alt="Rugby Draft" class="loading-logo loading-logo-dark">
+        <img src="assets/logo-light.png" alt="Rugby Draft" class="loading-logo loading-logo-light">
+    </div>
+    <script>
+        // Runs immediately as the browser reaches this point in the markup,
+        // before anything else on the page loads — so a repeat visit within
+        // the same session (Play Again / Abandon Campaign) never shows even
+        // a brief flash of the loading screen. The main dismiss-with-fade
+        // logic for genuinely fresh visits lives in app.js.
+        (function () {
+            try {
+                if (sessionStorage.getItem("hasPlayedBefore") === "1") {
+                    document.getElementById("loading-screen").remove();
+                }
+            } catch (e) {}
+        })();
+    </script>
     <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KBVM69FK"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <header>
-        <h1>Rugby XV Draft</h1>
+        <div class="site-logo">
+            <img src="assets/logo-dark.png" alt="Rugby Draft" class="logo-img logo-dark">
+            <img src="assets/logo-light.png" alt="Rugby Draft" class="logo-img logo-light">
+        </div>
+        <div class="header-centre">
+            <h1 class="site-title">RUGBY XV DRAFT</h1>
+                <div id="tournament-title" class="tournament-title-banner"></div>
+        </div>
         <div class="utility-controls">
             <button id="theme-toggle">Light Mode</button>
             <button class="abort-reset-btn">Reset App</button>
@@ -32,12 +59,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- SCREEN 1: SETUP -->
         <div id="setup-card" class="card-container">
 
-
-
             <div class="explainer-box">
                 <div class="explainer-lead">Build the ultimate rugby team from history then take them to the World Cup.</div>
                 <div class="explainer-body">Each turn, a random nation and year is spun — from the 1987 World Cup to 2023. Pick one player from that squad and place them on your pitch. Build a full XV across 15 spins, choosing wisely each time.</div>
-                <div class="explainer-body">Your XV replaces a real team in the 2023 bracket. Once your squad is complete, simulate the tournament and see how far they go.</div>
+                <div class="explainer-body">Your XV replaces a real team in the bracket of whichever World Cup you choose to play. Once your squad is complete, simulate the tournament and see how far they go.</div>
                 <div class="explainer-rules">
                     <div class="explainer-rule">5,700+ players across all 10 World Cups</div>
                     <div class="explainer-rule">Players can be placed out of position, but with a rating penalty</div>
@@ -47,9 +72,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div class="control-group">
+                <label>Which World Cup?</label>
+                <select id="tournament-year-select" class="team-select">
+                    <option value="2023">2023 — France</option>
+                    <option value="2019">2019 — Japan</option>
+                    <option value="2015">2015 — England</option>
+                    <option value="2011">2011 — New Zealand</option>
+                </select>
+                <p class="control-hint">Choose which Rugby World Cup your Hybrid XV will compete in. The pool draw and bracket match what actually happened that year.</p>
+            </div>
+
+            <div class="control-group">
                 <label>Replace Which Team</label>
                 <select id="team-select" class="team-select"></select>
-                <p class="control-hint">Your XV takes this team's place in the 2023 World Cup bracket.</p>
+                <p class="control-hint" id="team-select-hint">Your XV takes this team's place in the World Cup bracket.</p>
             </div>
 
             <div class="control-group">
@@ -100,14 +136,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- SCREEN 2: DRAFT DASHBOARD -->
         <div id="draft-dashboard" class="dashboard-grid hidden">
             <div class="left-panel">
-                <div class="panel-card">
+                <div class="panel-card panel-card-compact">
                     <div class="stats-row">
                         <div class="stat-box"><div id="avg-global-ovr" class="stat-val">--</div><div class="stat-lbl">Global OVR</div></div>
                         <div class="stat-box"><div id="avg-forward-ovr" class="stat-val">--</div><div class="stat-lbl">Forwards</div></div>
                         <div class="stat-box"><div id="avg-back-ovr" class="stat-val">--</div><div class="stat-lbl">Backs</div></div>
                     </div>
                 </div>
-                <div class="panel-card">
+                <div class="panel-card panel-card-compact">
                     <div class="action-cluster">
                         <button id="spin-btn" class="btn-primary">Spin Team</button>
                         <button id="respin-btn" class="disabled" disabled>Respin (<span id="respin-count">1</span>)</button>
@@ -207,6 +243,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         >
     </a>
 </div>
+<div id="version-footer">v1.2606281645</div>
 </body>
  
 </html>
