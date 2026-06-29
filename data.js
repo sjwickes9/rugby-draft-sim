@@ -67,6 +67,18 @@ const poolStandingsByYear = {
         C: ["France","Fiji","Canada","Namibia"],
         D: ["Wales","Argentina","Samoa","Japan"],
         E: ["Australia","Ireland","USA","Romania"]
+    },
+    "1995": {
+        A: ["South Africa","Australia","Romania","Canada"],
+        B: ["England","Samoa","Italy","Argentina"],
+        C: ["New Zealand","Ireland","Wales","Japan"],
+        D: ["France","Scotland","Tonga","Ivory Coast"]
+    },
+    "1991": {
+        A: ["New Zealand","England","Italy","USA"],
+        B: ["Scotland","Ireland","Japan","Zimbabwe"],
+        C: ["Australia","Wales","Samoa","Argentina"],
+        D: ["France","Fiji","Canada","Romania"]
     }
 };
 
@@ -114,6 +126,18 @@ const teamStrengthsByYear = {
         "France":85,"Fiji":75,"Canada":61,"Namibia":51,
         "Wales":83,"Argentina":82,"Samoa":74,"Japan":73,
         "Australia":87,"Ireland":81,"USA":59,"Romania":57
+    },
+    "1995": {
+        "South Africa":84,"Australia":86,"Romania":58,"Canada":57,
+        "England":85,"Samoa":71,"Italy":70,"Argentina":79,
+        "New Zealand":88,"Ireland":80,"Wales":81,"Japan":69,
+        "France":86,"Scotland":81,"Tonga":56,"Ivory Coast":45
+    },
+    "1991": {
+        "New Zealand":87,"England":86,"Italy":68,"USA":55,
+        "Scotland":80,"Ireland":79,"Japan":68,"Zimbabwe":48,
+        "Australia":84,"Wales":78,"Samoa":68,"Argentina":77,
+        "France":84,"Fiji":69,"Canada":55,"Romania":55
     }
 };
 
@@ -125,6 +149,13 @@ const teamStrengthsByYear = {
 // here via poolsOf:4, bonusPoints:false, and hasPlayoffRound:true so the
 // simulation logic can branch correctly rather than relying on a
 // hardcoded year check.
+// 1995 and 1991 both used 4 pools of 4, the same 3/2/1 points system, no
+// play-off round, and a fixed QF cross-pairing rule from the modern
+// format. The actual pairing direction differs between the two (1995:
+// A-B/C-D; 1991: A-D/B-C, mapping the real Pool 1-4 numbering onto our
+// A-D labels) — flagged via hasFixedQfPairing:true with each year
+// routed to its own dedicated simulation function rather than trying to
+// share one generic pairing rule.
 const tournamentMeta = {
     "2023": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
     "2019": { teams:20, poolsOf:5, bonusPoints:true,  host:"Japan" },
@@ -132,7 +163,9 @@ const tournamentMeta = {
     "2011": { teams:20, poolsOf:5, bonusPoints:true,  host:"New Zealand" },
     "2007": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
     "2003": { teams:20, poolsOf:5, bonusPoints:true,  host:"Australia" },
-    "1999": { teams:20, poolsOf:4, bonusPoints:false, host:"Wales", hasPlayoffRound:true }
+    "1999": { teams:20, poolsOf:4, bonusPoints:false, host:"Wales", hasPlayoffRound:true },
+    "1995": { teams:16, poolsOf:4, bonusPoints:false, host:"South Africa", hasFixedQfPairing:true },
+    "1991": { teams:16, poolsOf:4, bonusPoints:false, host:"England, France, Ireland, Scotland, Wales", hasFixedQfPairing:true }
 };
 
 // 1999's knockout bracket was genuinely fixed by pool/slot, not freely
