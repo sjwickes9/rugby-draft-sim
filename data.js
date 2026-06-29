@@ -48,6 +48,25 @@ const poolStandingsByYear = {
         B: ["Argentina","England","Scotland","Georgia","Romania"],
         C: ["Australia","Ireland","Italy","Russia","USA"],
         D: ["South Africa","Wales","Fiji","Samoa","Namibia"]
+    },
+    "2007": {
+        A: ["South Africa","England","Samoa","Tonga","USA"],
+        B: ["Australia","Fiji","Wales","Canada","Japan"],
+        C: ["New Zealand","Scotland","Italy","Portugal","Romania"],
+        D: ["France","Ireland","Argentina","Georgia","Namibia"]
+    },
+    "2003": {
+        A: ["Australia","Argentina","Ireland","Namibia","Romania"],
+        B: ["France","Scotland","Fiji","Japan","USA"],
+        C: ["England","South Africa","Samoa","Georgia","Uruguay"],
+        D: ["New Zealand","Wales","Canada","Italy","Tonga"]
+    },
+    "1999": {
+        A: ["South Africa","Scotland","Spain","Uruguay"],
+        B: ["New Zealand","England","Italy","Tonga"],
+        C: ["France","Fiji","Canada","Namibia"],
+        D: ["Wales","Argentina","Samoa","Japan"],
+        E: ["Australia","Ireland","USA","Romania"]
     }
 };
 
@@ -76,16 +95,68 @@ const teamStrengthsByYear = {
         "Argentina":83,"England":89,"Scotland":86,"Georgia":71,"Romania":66,
         "Australia":89,"Ireland":86,"Italy":80,"Russia":60,"USA":63,
         "South Africa":90,"Wales":85,"Fiji":76,"Samoa":75,"Namibia":57
+    },
+    "2007": {
+        "South Africa":88,"England":88,"Samoa":72,"Tonga":61,"USA":60,
+        "Australia":88,"Fiji":74,"Wales":85,"Canada":62,"Japan":73,
+        "New Zealand":92,"Scotland":83,"Italy":79,"Portugal":59,"Romania":65,
+        "France":89,"Ireland":85,"Argentina":84,"Georgia":68,"Namibia":57
+    },
+    "2003": {
+        "Australia":87,"Argentina":85,"Ireland":84,"Namibia":54,"Romania":60,
+        "France":88,"Scotland":83,"Fiji":78,"Japan":74,"USA":61,
+        "England":89,"South Africa":86,"Samoa":74,"Georgia":64,"Uruguay":59,
+        "New Zealand":88,"Wales":83,"Canada":62,"Italy":75,"Tonga":61
+    },
+    "1999": {
+        "South Africa":86,"Scotland":81,"Spain":52,"Uruguay":55,
+        "New Zealand":89,"England":87,"Italy":72,"Tonga":60,
+        "France":85,"Fiji":75,"Canada":61,"Namibia":51,
+        "Wales":83,"Argentina":82,"Samoa":74,"Japan":73,
+        "Australia":87,"Ireland":81,"USA":59,"Romania":57
     }
 };
 
 // Tournament metadata: format, points system, host. Used to drive the
 // year-selector UI and to pick the correct simulation/points logic.
+// 1999 is structurally unique: 5 pools of 4 (not 4 pools of 5), a 3/2/1
+// points system with no try or losing bonus, and a fixed knockout
+// play-off round between the pool stage and the quarter-finals — flagged
+// here via poolsOf:4, bonusPoints:false, and hasPlayoffRound:true so the
+// simulation logic can branch correctly rather than relying on a
+// hardcoded year check.
 const tournamentMeta = {
     "2023": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
     "2019": { teams:20, poolsOf:5, bonusPoints:true,  host:"Japan" },
     "2015": { teams:20, poolsOf:5, bonusPoints:true,  host:"England" },
-    "2011": { teams:20, poolsOf:5, bonusPoints:true,  host:"New Zealand" }
+    "2011": { teams:20, poolsOf:5, bonusPoints:true,  host:"New Zealand" },
+    "2007": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
+    "2003": { teams:20, poolsOf:5, bonusPoints:true,  host:"Australia" },
+    "1999": { teams:20, poolsOf:4, bonusPoints:false, host:"Wales", hasPlayoffRound:true }
+};
+
+// 1999's knockout bracket was genuinely fixed by pool/slot, not freely
+// reseeded — confirmed directly from the official tournament draw.
+// Playoff round: runner-up vs runner-up (or vs the best 3rd-placed side),
+// losers eliminated outright. QF round: pool winners join playoff winners
+// in pairings fixed by which pool/playoff slot they came from.
+const bracket1999 = {
+    playoffs: [
+        { label: "Match F", slotA: "poolE_2nd", slotB: "best3rd" },
+        { label: "Match G", slotA: "poolA_2nd", slotB: "poolD_2nd" },
+        { label: "Match H", slotA: "poolB_2nd", slotB: "poolC_2nd" }
+    ],
+    quarterFinals: [
+        { label: "Match J", slotA: "poolA_1st", slotB: "playoffH_winner" },
+        { label: "Match K", slotA: "poolB_1st", slotB: "playoffG_winner" },
+        { label: "Match L", slotA: "poolC_1st", slotB: "playoffF_winner" },
+        { label: "Match M", slotA: "poolD_1st", slotB: "poolE_1st" }
+    ],
+    // Semi-final pairings: Match J winner vs Match M winner, Match L winner vs Match K winner
+    semiFinals: [
+        { label: "SF1", slotA: "qfJ_winner", slotB: "qfM_winner" },
+        { label: "SF2", slotA: "qfL_winner", slotB: "qfK_winner" }
+    ]
 };
 
 // Backwards-compatible aliases for any code not yet updated to the
