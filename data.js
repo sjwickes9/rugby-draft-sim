@@ -5840,7 +5840,7 @@ const allSquads = {
             {name:"Vahafolau Esikia",positions:["Inside Centre", "Outside Centre"],num:33,rating:67,careerRating:67},
             {name:"Takudzwa Ngwenya",positions:["Right Wing", "Left Wing"],num:34,rating:63,careerRating:70},
             {name:"Andrew Osborne",positions:["Fullback", "Left Wing"],num:35,rating:65,careerRating:65},
-            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:36,rating:66,careerRating:75},
+            {name:"Chris Wyles",positions:["Fullback", "Inside Centre"],num:36,rating:79,careerRating:85},
             {name:"Francois Viljoen",positions:["Fullback"],num:37,rating:72,careerRating:81}
         ],
         "2011": [
