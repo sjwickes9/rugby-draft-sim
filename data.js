@@ -79,6 +79,12 @@ const poolStandingsByYear = {
         B: ["Scotland","Ireland","Japan","Zimbabwe"],
         C: ["Australia","Wales","Samoa","Argentina"],
         D: ["France","Fiji","Canada","Romania"]
+    },
+    "1987": {
+        A: ["Australia","England","USA","Japan"],
+        B: ["Wales","Ireland","Canada","Tonga"],
+        C: ["New Zealand","Fiji","Argentina","Italy"],
+        D: ["France","Scotland","Romania","Zimbabwe"]
     }
 };
 
@@ -138,6 +144,12 @@ const teamStrengthsByYear = {
         "Scotland":80,"Ireland":79,"Japan":68,"Zimbabwe":48,
         "Australia":84,"Wales":78,"Samoa":68,"Argentina":77,
         "France":84,"Fiji":69,"Canada":55,"Romania":55
+    },
+    "1987": {
+        "Australia":82,"England":81,"USA":51,"Japan":65,
+        "Wales":78,"Ireland":77,"Canada":52,"Tonga":52,
+        "New Zealand":85,"Fiji":65,"Argentina":77,"Italy":68,
+        "France":84,"Scotland":79,"Romania":54,"Zimbabwe":48
     }
 };
 
@@ -156,6 +168,14 @@ const teamStrengthsByYear = {
 // A-D labels) — flagged via hasFixedQfPairing:true with each year
 // routed to its own dedicated simulation function rather than trying to
 // share one generic pairing rule.
+// 1987 (the inaugural tournament) used a genuinely different points
+// system again — 2 for a win, 1 for a draw, 0 for a loss, not the 3/2/1
+// used from 1991 onward — flagged via winPoints:2. It also used a
+// unique tiebreaker: ties on points were broken by tries scored, not
+// points difference, which the official record confirms actually
+// mattered in practice (flagged via triesTiebreak:true). Its QF
+// cross-pairing is Pool1-Pool2 / Pool3-Pool4 (our A-B/C-D), genuinely
+// different again from both 1995 and 1991's pairing directions.
 const tournamentMeta = {
     "2023": { teams:20, poolsOf:5, bonusPoints:true,  host:"France" },
     "2019": { teams:20, poolsOf:5, bonusPoints:true,  host:"Japan" },
@@ -165,7 +185,123 @@ const tournamentMeta = {
     "2003": { teams:20, poolsOf:5, bonusPoints:true,  host:"Australia" },
     "1999": { teams:20, poolsOf:4, bonusPoints:false, host:"Wales", hasPlayoffRound:true },
     "1995": { teams:16, poolsOf:4, bonusPoints:false, host:"South Africa", hasFixedQfPairing:true },
-    "1991": { teams:16, poolsOf:4, bonusPoints:false, host:"England, France, Ireland, Scotland, Wales", hasFixedQfPairing:true }
+    "1991": { teams:16, poolsOf:4, bonusPoints:false, host:"England, France, Ireland, Scotland, Wales", hasFixedQfPairing:true },
+    "1987": { teams:16, poolsOf:4, bonusPoints:false, host:"New Zealand, Australia", hasFixedQfPairing:true, winPoints:2, triesTiebreak:true }
+};
+
+// Per-tournament-year simulation screen theme. Every colour is fully
+// explicit per element and per light/dark theme, rather than derived
+// from a single primary/secondary formula — several nations need
+// genuinely bespoke treatment (e.g. New Zealand's panels flip from
+// solid black in dark mode to solid white in light mode; Wales leads
+// with red rather than green; Australia and South Africa are
+// deliberately reversed gold/green leads so the two don't look like
+// the same scheme). Properties:
+//   teamBg / teamBorder / teamText / teamMuted — the team list card
+//   procBg / procBorder — the outer processor/simulation panel card
+//   terminalBg / terminalText — the inner match-log box
+//   ratingsBg / ratingsText — the rating circles
+//   readyHeader — "Your Hybrid XV is ready" heading
+//   sliderColour — the speed slider handle
+//   buttonBg / buttonText — the Kick Off Tournament button
+// Any property left unset for a given theme falls back to the site's
+// normal default for that element, so partial specs are safe.
+const simTheme = {
+    "2023": { // France
+        dark:  { teamBg:"rgb(19,40,88)", teamBorder:"#c8102e", procBg:"rgb(19,40,88)", procBorder:"#c8102e",
+                  ratingsBg:"#3b5bdb", ratingsText:"#ffffff", readyHeader:"#3b5bdb",
+                  sliderColour:"#3b5bdb", buttonBg:"#3b5bdb", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#1e3a8a", teamText:"#1e3a8a", procBg:"#ffffff", procBorder:"#c8102e",
+                  terminalBg:"#ffffff", terminalText:"#1e3a8a",
+                  ratingsBg:"#1e3a8a", ratingsText:"#ffffff", readyHeader:"#1e3a8a",
+                  sliderColour:"#1e3a8a", buttonBg:"#1e3a8a", buttonText:"#ffffff" }
+    },
+    "2019": { // Japan
+        dark:  { teamBg:"rgb(57,30,53)", teamBorder:"#e6303d", procBg:"rgb(57,30,53)", procBorder:"#e6303d",
+                  ratingsBg:"#e6303d", ratingsText:"#ffffff", readyHeader:"#e6303d",
+                  sliderColour:"#e6303d", buttonBg:"#e6303d", buttonText:"#000000" },
+        light: { teamBg:"#ffffff", teamBorder:"#bc002d", teamText:"#bc002d", procBg:"#ffffff", procBorder:"#bc002d",
+                  terminalBg:"#ffffff", terminalText:"#bc002d",
+                  ratingsBg:"#bc002d", ratingsText:"#ffffff", readyHeader:"#bc002d",
+                  sliderColour:"#bc002d", buttonBg:"#bc002d", buttonText:"#ffffff" }
+    },
+    "2015": { // England
+        dark:  { teamBg:"rgb(43,23,50)", teamBorder:"#c8102e", procBg:"rgb(43,23,50)", procBorder:"#c8102e",
+                  terminalBg:"#3d1020", terminalText:"#f3f4f6",
+                  ratingsBg:"#a8112e", ratingsText:"#ffffff", readyHeader:"#a8112e",
+                  sliderColour:"#a8112e", buttonBg:"#a8112e", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#c8102e", teamText:"#a8112e", procBg:"#ffffff", procBorder:"#c8102e",
+                  terminalBg:"#fbeaea", terminalText:"#a8112e",
+                  ratingsBg:"#a8112e", ratingsText:"#ffffff", readyHeader:"#a8112e",
+                  sliderColour:"#a8112e", buttonBg:"#a8112e", buttonText:"#ffffff" }
+    },
+    "2011": { // New Zealand
+        dark:  { teamBg:"#0d0d0d", teamBorder:"#f3f4f6", procBg:"#0d0d0d", procBorder:"#f3f4f6",
+                  terminalBg:"#000000", terminalText:"#f3f4f6",
+                  ratingsBg:"#0d0d0d", ratingsText:"#ffffff", readyHeader:"#f3f4f6",
+                  sliderColour:"#f3f4f6", buttonBg:"#0d0d0d", buttonText:"#ffffff" },
+        light: { teamBg:"#f7f7f7", teamBorder:"#0d0d0d", teamText:"#0d0d0d", procBg:"#f7f7f7", procBorder:"#0d0d0d",
+                  terminalBg:"#ffffff", terminalText:"#0d0d0d",
+                  ratingsBg:"#f7f7f7", ratingsText:"#0d0d0d", readyHeader:"#0d0d0d",
+                  sliderColour:"#0d0d0d", buttonBg:"#0d0d0d", buttonText:"#ffffff" }
+    },
+    "2007": { // France (repeat host)
+        dark:  { teamBg:"rgb(19,40,88)", teamBorder:"#c8102e", procBg:"rgb(19,40,88)", procBorder:"#c8102e",
+                  ratingsBg:"#3b5bdb", ratingsText:"#ffffff", readyHeader:"#3b5bdb",
+                  sliderColour:"#3b5bdb", buttonBg:"#3b5bdb", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#1e3a8a", teamText:"#1e3a8a", procBg:"#ffffff", procBorder:"#c8102e",
+                  terminalBg:"#ffffff", terminalText:"#1e3a8a",
+                  ratingsBg:"#1e3a8a", ratingsText:"#ffffff", readyHeader:"#1e3a8a",
+                  sliderColour:"#1e3a8a", buttonBg:"#1e3a8a", buttonText:"#ffffff" }
+    },
+    "2003": { // Australia — Australian Gold leads, green secondary (deliberately reversed from South Africa)
+        dark:  { teamBg:"rgb(45,38,9)", teamBorder:"#00843d", procBg:"rgb(45,38,9)", procBorder:"#00843d",
+                  ratingsBg:"#F9CB0F", ratingsText:"#000000", readyHeader:"#F9CB0F",
+                  sliderColour:"#F9CB0F", buttonBg:"#F9CB0F", buttonText:"#000000" },
+        light: { teamBg:"#ffffff", teamBorder:"#00843d", teamText:"#886f08", procBg:"#ffffff", procBorder:"#00843d",
+                  terminalBg:"#fffceb", terminalText:"#886f08",
+                  ratingsBg:"#886f08", ratingsText:"#ffffff", readyHeader:"#886f08",
+                  sliderColour:"#886f08", buttonBg:"#886f08", buttonText:"#ffffff" }
+    },
+    "1999": { // Wales — red leads, green secondary accent only
+        dark:  { teamBg:"#7a0d22", teamBorder:"#00b140", procBg:"#7a0d22", procBorder:"#00b140",
+                  terminalBg:"#5a0918", terminalText:"#f3f4f6",
+                  ratingsBg:"#c8102e", ratingsText:"#ffffff", readyHeader:"#ff6b6b",
+                  sliderColour:"#c8102e", buttonBg:"#c8102e", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#c8102e", teamText:"#c8102e", procBg:"#ffffff", procBorder:"#00843d",
+                  terminalBg:"#fbeaea", terminalText:"#a8112e",
+                  ratingsBg:"#c8102e", ratingsText:"#ffffff", readyHeader:"#c8102e",
+                  sliderColour:"#c8102e", buttonBg:"#c8102e", buttonText:"#ffffff" }
+    },
+    "1995": { // South Africa
+        dark:  { teamBg:"rgb(14,46,40)", teamBorder:"#ffb81c", procBg:"rgb(14,46,40)", procBorder:"#ffb81c",
+                  ratingsBg:"#007749", ratingsText:"#ffffff", readyHeader:"#007749",
+                  sliderColour:"#007749", buttonBg:"#007749", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#007749", teamText:"#007749", procBg:"#ffffff", procBorder:"#b8860b",
+                  terminalBg:"#eafaf1", terminalText:"#007749",
+                  ratingsBg:"#007749", ratingsText:"#ffffff", readyHeader:"#007749",
+                  sliderColour:"#007749", buttonBg:"#007749", buttonText:"#ffffff" }
+    },
+    "1991": { // England, France, Ireland, Scotland, Wales — Five Nations
+        dark:  { teamBg:"#0065bd", teamBorder:"#f3f4f6", teamText:"#ffffff", teamMuted:"#dbe9fb",
+                  procBg:"rgb(8,25,51)", procBorder:"#f3f4f6",
+                  ratingsBg:"#0f7a4d", ratingsText:"#ffffff", readyHeader:"#22c55e",
+                  sliderColour:"#0065bd", buttonBg:"#c8102e", buttonText:"#ffffff" },
+        light: { teamBg:"#ffffff", teamBorder:"#0065bd", teamText:"#0065bd", procBg:"#ffffff", procBorder:"#c8102e",
+                  terminalBg:"#ffffff", terminalText:"#0065bd",
+                  ratingsBg:"#0f7a4d", ratingsText:"#ffffff", readyHeader:"#0f7a4d",
+                  sliderColour:"#0065bd", buttonBg:"#c8102e", buttonText:"#ffffff" }
+    },
+    "1987": { // New Zealand, Australia
+        dark:  { teamBg:"#0d0d0d", teamBorder:"#F9CB0F", teamText:"#f3f4f6", procBg:"#0d0d0d", procBorder:"#F9CB0F",
+                  terminalBg:"#000000", terminalText:"#f3f4f6",
+                  ratingsBg:"#0d0d0d", ratingsText:"#F9CB0F", readyHeader:"#F9CB0F",
+                  sliderColour:"#F9CB0F", buttonBg:"#0d0d0d", buttonText:"#F9CB0F" },
+        light: { teamBg:"#ffffff", teamBorder:"#886f08", teamText:"#00843d", procBg:"#ffffff", procBorder:"#886f08",
+                  terminalBg:"#ffffff", terminalText:"#00843d",
+                  ratingsBg:"#0d0d0d", ratingsText:"#ffffff", readyHeader:"#00843d",
+                  sliderColour:"#886f08", buttonBg:"#0d0d0d", buttonText:"#F9CB0F" }
+    }
 };
 
 // 1999's knockout bracket was genuinely fixed by pool/slot, not freely
@@ -3820,7 +3956,7 @@ const allSquads = {
             {name:"Beauden Barrett",positions:["Fly-half", "Fullback"],num:22,rating:93,careerRating:97},
             {name:"Colin Slade",positions:["Fly-half", "Fullback"],num:23,rating:93,careerRating:93},
             {name:"Dan Carter",positions:["Fly-half", "Inside Centre"],num:24,rating:99,careerRating:99},
-            {name:"TJ Perenara",positions:["Scrum-halff"],num:25,rating:92,careerRating:96},
+            {name:"TJ Perenara",positions:["Scrum-half"],num:25,rating:92,careerRating:96},
             {name:"Waisake Naholo",positions:["Left Wing", "Right Wing"],num:26,rating:85,careerRating:85},
             {name:"Conrad Smith",positions:["Inside Centre", "Outside Centre"],num:27,rating:92,careerRating:92},
             {name:"Julian Savea",positions:["Inside Centre", "Left Wing"],num:28,rating:93,careerRating:93},
