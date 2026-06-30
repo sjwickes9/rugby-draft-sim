@@ -3994,7 +3994,7 @@ const allSquads = {
             {name:"Anton Lienert-Brown",positions:["Inside Centre", "Outside Centre"],num:25,rating:92,careerRating:95},
             {name:"Jack Goodhue",positions:["Inside Centre", "Outside Centre"],num:26,rating:91,careerRating:91},
             {name:"Rieko Ioane",positions:["Inside Centre", "Left Wing"],num:27,rating:92,careerRating:95},
-            {name:"Ryan Crotty",positions:["Inside Centre", "Outside Centre"],num:28,rating:97,careerRating:97},
+            {name:"Ryan Crotty",positions:["Inside Centre", "Outside Centre"],num:28,rating:90,careerRating:90},
             {name:"Sevu Reece",positions:["Inside Centre", "Left Wing"],num:29,rating:87,careerRating:87},
             {name:"Sonny Bill Williams",positions:["Inside Centre", "Left Wing"],num:30,rating:97,careerRating:97},
             {name:"Ben Smith",positions:["Fullback", "Left Wing"],num:31,rating:97,careerRating:97},
