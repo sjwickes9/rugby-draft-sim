@@ -4677,7 +4677,7 @@ const allSquads = {
             {name:"Joe Tekori",positions:["Number 8", "Openside Flanker"],num:15,rating:79,careerRating:79},
             {name:"Kane Thompson",positions:["Number 8", "Lock"],num:16,rating:80,careerRating:80},
             {name:"Sanele Vavae Tuilagi",positions:["Number 8"],num:17,rating:76,careerRating:76},
-            {name:"TJ Ioane",positions:["Number 8", "Openside Flanker"],num:18,rating:78,careerRating:80},
+            {name:"TJ Ioane",positions:["Openside Flanker", "Number 8"],num:18,rating:78,careerRating:80},
             {name:"Kahn Fotuali'i",positions:["Scrum-half"],num:19,rating:78,careerRating:78},
             {name:"Vavao Afemai",positions:["Scrum-half"],num:20,rating:75,careerRating:75},
             {name:"George Pisi",positions:["Fly-half", "Fullback"],num:21,rating:78,careerRating:78},
