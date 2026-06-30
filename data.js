@@ -5599,7 +5599,7 @@ const allSquads = {
             {name:"Kurt Morath",positions:["Fly-half"],num:22,rating:74,careerRating:74},
             {name:"Latiume Fosita",positions:["Fly-half", "Inside Centre"],num:23,rating:71,careerRating:73},
             {name:"Fetuʻu Vainikolo",positions:["Left Wing", "Right Wing"],num:24,rating:71,careerRating:71},
-            {name:"Telusa Veainu",positions:["Left Wing", "Right Wing"],num:25,rating:65,careerRating:67},
+            {name:"Telusa Veainu",positions:["Left Wing", "Right Wing"],num:25,rating:75,careerRating:75},
             {name:"Siale Piutau",positions:["Inside Centre", "Outside Centre"],num:26,rating:70,careerRating:72},
             {name:"Sione Piukala",positions:["Inside Centre", "Outside Centre"],num:27,rating:71,careerRating:71},
             {name:"Viliami Tahituʻa",positions:["Inside Centre", "Outside Centre"],num:28,rating:66,careerRating:66},
@@ -5640,7 +5640,7 @@ const allSquads = {
             {name:"Siale Piutau",positions:["Inside Centre", "Outside Centre"],num:30,rating:72,careerRating:72},
             {name:"Atieli Pakalani",positions:["Fullback", "Left Wing"],num:31,rating:70,careerRating:70},
             {name:"David Halaifonua",positions:["Fullback", "Left Wing"],num:32,rating:72,careerRating:72},
-            {name:"Telusa Veainu",positions:["Fullback"],num:33,rating:67,careerRating:67}
+            {name:"Telusa Veainu",positions:["Fullback"],num:33,rating:77,careerRating:77}
         ],
         "2023": [
             {name:"Feao Fotuaika",positions:["Loosehead Prop", "Tighthead Prop"],num:1,rating:67,careerRating:67},
