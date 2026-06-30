@@ -1544,7 +1544,7 @@ const allSquads = {
             {name:"Mako Vunipola",positions:["Loosehead Prop", "Tighthead Prop"],num:2,rating:86,careerRating:90},
             {name:"Jamie George",positions:["Hooker"],num:3,rating:82,careerRating:91},
             {name:"Rob Webber",positions:["Hooker"],num:4,rating:86,careerRating:86},
-            {name:"Tom Youngs",positions:["Hooker", "Inside Centre"],num:5,rating:90,careerRating:90},
+            {name:"Tom Youngs",positions:["Hooker"],num:5,rating:90,careerRating:90},
             {name:"Dan Cole",positions:["Tighthead Prop", "Loosehead Prop"],num:6,rating:91,careerRating:95},
             {name:"Kieran Brookes",positions:["Tighthead Prop", "Loosehead Prop"],num:7,rating:89,careerRating:89},
             {name:"Geoff Parling",positions:["Lock"],num:8,rating:88,careerRating:88},
