@@ -31,6 +31,51 @@
     --terminal-text: #1f2937;
 }
 
+/* Lions Tours mode. Dark mode keeps the page surround as the regular
+   navy, with the card panel picking up a deeper Welsh red. The accent
+   colour is a brighter royal navy, enough contrast to read clearly
+   against both the red panel and the navy page background, without
+   reading as French rugby blue.
+
+   The setup screen (Game Mode, Rating Mode, Difficulty) keeps the same
+   navy panel RWC mode uses rather than the red, with red taking over
+   the accent role gold normally plays there, scoped locally via a CSS
+   variable override so it doesn't affect the simulation screen's blue.
+   Light mode has no navy to convert, so the card panel stays white and
+   picks up a green border instead, with red as the accent throughout. */
+.lions-theme {
+    --bg-card: #7a1220;
+    --border-color: #00843d;
+    --brand-gold: #5580cc;
+    --brand-gold-hover: #6d92d6;
+}
+
+.lions-theme:not(.light-theme) .roster-panel,
+.lions-theme:not(.light-theme) #manifest-team-box {
+    background: #081933;
+}
+
+.lions-theme:not(.light-theme) #setup-card {
+    background: #081933;
+    --brand-gold: #c8102e;
+    --brand-gold-hover: #a80d26;
+}
+
+.lions-theme.light-theme {
+    --bg-card: #ffffff;
+    --border-color: #00843d;
+    --brand-gold: #c8102e;
+    --brand-gold-hover: #a80d26;
+}
+
+.lions-theme:not(.light-theme) #setup-card .btn-primary,
+.lions-theme:not(.light-theme) #setup-card .slider-opt.active,
+.lions-theme.light-theme .btn-primary,
+.lions-theme.light-theme .slider-opt.active {
+    color: #ffffff;
+    font-weight: 700;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
 
 body {
@@ -188,7 +233,7 @@ body {
     padding: 8px 20px;
     border: 1px solid var(--brand-gold);
     border-radius: 6px;
-    background: rgba(197,160,89,0.08);
+    background: color-mix(in srgb, var(--brand-gold) 8%, transparent);
     transition: all 0.2s ease;
 }
 .kofi-text-link:hover,
@@ -252,7 +297,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
 }
-.page-share-menu button:hover { background: rgba(197,160,89,0.12); color: var(--brand-gold); }
+.page-share-menu button:hover { background: color-mix(in srgb, var(--brand-gold) 12%, transparent); color: var(--brand-gold); }
 @media (max-width: 600px) {
     #page-share-wrap { bottom: 8px; right: 8px; }
     #page-share-btn span.share-label { display: none; }
@@ -340,8 +385,8 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 
 /* ── Explainer box ── */
 .explainer-box {
-    background: rgba(197,160,89,0.08);
-    border: 1px solid rgba(197,160,89,0.3);
+    background: color-mix(in srgb, var(--brand-gold) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent);
     border-radius: 8px;
     padding: 16px 18px;
     margin-bottom: 24px;
@@ -352,6 +397,9 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     color: var(--brand-gold);
     margin-bottom: 10px;
     line-height: 1.4;
+}
+.lions-theme .explainer-lead {
+    color: #00843d;
 }
 .explainer-body {
     font-size: 0.81rem;
@@ -472,7 +520,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .radio-box input:checked + .radio-label {
     border-color: var(--brand-gold);
-    background: rgba(197,160,89,0.1);
+    background: color-mix(in srgb, var(--brand-gold) 10%, transparent);
     color: var(--brand-gold);
 }
 
@@ -853,7 +901,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     border: 1px solid transparent;
 }
 .player-row:hover:not(.claimed-lockout) { background: rgba(255,255,255,0.05); }
-.player-row.selected { background: rgba(197,160,89,0.2) !important; border-color: var(--brand-gold); }
+.player-row.selected { background: color-mix(in srgb, var(--brand-gold) 20%, transparent) !important; border-color: var(--brand-gold); }
 /* player-num removed */
 .player-name { font-size: 0.85rem; font-weight: 600; min-width: 0; overflow-wrap: break-word; }
 .player-pos-label { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
@@ -928,7 +976,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .pitch-circle.highlight-eligible {
     border-color: var(--brand-gold); border-style: solid;
-    background: rgba(197,160,89,0.35);
+    background: color-mix(in srgb, var(--brand-gold) 35%, transparent);
     transform: scale(1.1);
     box-shadow: 0 0 12px var(--brand-gold);
     cursor: pointer;
@@ -1082,6 +1130,30 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     white-space: pre-wrap; word-break: break-word;
 }
 
+/* Aligned lineup row used for the Lions Tours opposition XV. Flex columns
+   line up regardless of name length or accented characters, unlike the
+   old approach of padding strings out with spaces in a monospace font. */
+.lions-lineup-row {
+    display: flex; gap: 10px; margin-bottom: 5px;
+    font-size: 0.85rem; color: var(--text-muted);
+}
+.sim-log-divider {
+    border-top: 1px solid var(--border-color);
+    opacity: 0.6;
+    margin: 4px 0;
+}
+
+.ll-pos { flex: 0 0 64px; }
+.ll-name {
+    flex: 0 1 190px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ll-nation { flex: 0 0 62px; text-align: left; }
+.ll-rating { flex: 0 0 30px; text-align: right; }
+
 /* Two-column scorer breakdown (T/C/P) shown under each match result */
 .score-breakdown {
     display: grid;
@@ -1117,7 +1189,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
     color: var(--brand-gold);
     font-weight: 700;
     padding: 4px 6px;
-    border-bottom: 1px solid rgba(197,160,89,0.3);
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent);
     white-space: nowrap;
 }
 .standings-table td {
@@ -1139,7 +1211,7 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 }
 .standings-table .st-user-row td {
     color: var(--text-main);
-    background: rgba(197,160,89,0.08);
+    background: color-mix(in srgb, var(--brand-gold) 8%, transparent);
 }
 .standings-table .st-user-row .st-team { color: var(--brand-gold); }
 @media (max-width: 600px) {
@@ -1151,9 +1223,9 @@ button:disabled, button.disabled { opacity: 0.4; cursor: not-allowed; pointer-ev
 .results-summary {
     margin: 10px 0 14px 0;
     padding: 14px 16px;
-    border: 1px solid rgba(197,160,89,0.3);
+    border: 1px solid color-mix(in srgb, var(--brand-gold) 30%, transparent);
     border-radius: 10px;
-    background: rgba(197,160,89,0.06);
+    background: color-mix(in srgb, var(--brand-gold) 6%, transparent);
 }
 .results-summary-title {
     font-family: Georgia, serif;

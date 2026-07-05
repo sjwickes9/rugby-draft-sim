@@ -193,6 +193,7 @@ function recognisedFamilies(player) {
 
 // ── Runtime state ──────────────────────────────────────────
 let userTeam           = {};       // nodePos -> { name, score, nation, outOfPosition }
+let appMode             = "rwc"; // "rwc" or "lions"
 let currentSpunSquad   = [];
 let selectedPlayer     = null;
 let respinsLeft        = 0;
@@ -229,6 +230,12 @@ const simResults      = document.getElementById("sim-results");
 const restartBtn      = document.getElementById("restart-btn");
 const manifestTeamBox = document.getElementById("manifest-team-box");
 
+// Staging-only dev mode: detected by URL pattern so the same app.js works
+// correctly on both sites without manual edits. Dev options simply won't
+// exist when this file is served from production.
+const IS_STAGING_ENV = location.hostname.includes("github.io") &&
+    location.pathname.includes("rugby-draft-sim-staging");
+
 // ============================================================
 // SETUP SCREEN
 // ============================================================
@@ -239,8 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Staging-only dev mode: detected by URL pattern so the same app.js
     // works correctly on both sites without manual edits. The Cymru
     // option simply won't exist when this file is served from production.
-    const IS_STAGING_ENV = location.hostname.includes("github.io") &&
-        location.pathname.includes("rugby-draft-sim-staging");
 
     function populateTeamSelect(year) {
         if (!teamSelect) return;
@@ -266,6 +271,14 @@ document.addEventListener("DOMContentLoaded", () => {
         yearSelect.addEventListener("change", () => populateTeamSelect(yearSelect.value));
     }
     populateTeamSelect(yearSelect ? yearSelect.value : "2023");
+
+    const lionsDevBtn = document.getElementById("lions-dev-btn");
+    if (lionsDevBtn) {
+        lionsDevBtn.addEventListener("click", e => {
+            e.preventDefault();
+            activateLionsDevMode();
+        });
+    }
 
     document.getElementById("start-game-btn").addEventListener("click", e => {
         e.preventDefault();
@@ -345,17 +358,72 @@ function activateCymruMode() {
     if (headerResetBtn) headerResetBtn.textContent = "Abandon Campaign";
 }
 
+function activateLionsDevMode() {
+    // Fill userTeam with 99-rated Lions legends, reusing the same roster as
+    // the Lions All Time XV boss fight so there's only one place these
+    // names are maintained. Locks share one "Lock" label in that data, so
+    // split them across Lock 4/Lock 5 the same way bossTeamToLineup does.
+    let lockSlot = 4;
+    BOSS_TEAMS.lions.players.forEach(p => {
+        const pos = p.pos === "Lock" ? "Lock " + (lockSlot++) : p.pos;
+        userTeam[pos] = {
+            name: p.name, score: 99, nation: p.nation,
+            outOfPosition: false, penalty: 0, originalRating: 99,
+            kicker: false
+        };
+    });
+
+    // Move straight to the simulation screen, exactly as a real draft would
+    // once the 15th player is placed.
+    setupCard.classList.add("hidden");
+    draftDashboard.classList.add("hidden");
+    simDashboard.classList.remove("hidden");
+    window.scrollTo(0, 0);
+    populateManifestPreviewWindow();
+    populatePreKickoffSummary();
+    populateTournamentTitle();
+    applyHostTheme();
+    showTip("simIntro");
+
+    const headerResetBtn2 = document.getElementById("header-reset-btn");
+    if (headerResetBtn2) headerResetBtn2.textContent = "Abandon Campaign";
+}
+
 
 // ============================================================
 // SLIDERS
 // ============================================================
 const variantHint = document.getElementById("variant-hint");
+const variantCompLabel = document.getElementById("variant-comp");
 setupSlider("variant-slider-track", "variant-handle", idx => {
     isCareerMode = idx === 1;
     if (variantHint) variantHint.textContent = isCareerMode
         ? "Players are rated at their personal career best, regardless of tournament year."
-        : "Players are rated as they were at the 2023 World Cup.";
+        : (appMode === "lions"
+            ? "Players are rated for their form nearest to each Lions tour they face."
+            : "Players are rated as they were at the 2023 World Cup.");
     if (currentSpunSquad.length > 0) renderRosterList();
+});
+
+// Game Mode toggle: Rugby World Cups (default) or Lions Tours. Swaps the
+// explainer copy, hides the World Cup year and Replace Which Team controls
+// (Lions mode has neither, it's a fixed ladder of home nations squads),
+// relabels the Rating Mode control to Tour Rating, and applies the Lions
+// colour theme on top of whichever light/dark mode is already active.
+setupSlider("mode-slider-track", "mode-handle", idx => {
+    appMode = idx === 1 ? "lions" : "rwc";
+    document.getElementById("explainer-rwc").classList.toggle("hidden", appMode === "lions");
+    document.getElementById("explainer-lions").classList.toggle("hidden", appMode === "rwc");
+    document.getElementById("tournament-year-group").classList.toggle("hidden", appMode === "lions");
+    document.getElementById("team-select-group").classList.toggle("hidden", appMode === "lions");
+    document.body.classList.toggle("lions-theme", appMode === "lions");
+    const lionsDevBtn = document.getElementById("lions-dev-btn");
+    if (lionsDevBtn) lionsDevBtn.classList.toggle("hidden", !(appMode === "lions" && IS_STAGING_ENV));
+    if (runSimBtn) runSimBtn.textContent = appMode === "lions" ? "Kick Off Tour" : "Kick Off Tournament";
+    if (variantCompLabel) variantCompLabel.textContent = appMode === "lions" ? "Tour Rating" : "Tournament Rating";
+    if (variantHint && !isCareerMode) variantHint.textContent = appMode === "lions"
+        ? "Players are rated for their form nearest to each Lions tour they face."
+        : "Players are rated as they were at the 2023 World Cup.";
 });
 setupSlider("rating-slider-track", "rating-handle", idx => {
     isKnowledgeMode = idx === 1;
@@ -539,10 +607,17 @@ function triggerRosterSpinEngine() {
     // The team you're replacing is still correctly excluded from your
     // own pool's match simulation elsewhere (you can't play yourself),
     // but that's a separate, bracket-level concern from this draft pool.
-    const allNations = Object.keys(allSquads);
+    const allNations = appMode === "lions"
+        ? ["England", "Ireland", "Scotland", "Wales"]
+        : Object.keys(allSquads);
 
-    // Weighted draw — tier 1 nations appear ~3x more often than tier 3
-    const weights = {
+    // Weighted draw — tier 1 nations appear ~3x more often than tier 3.
+    // In Lions mode the pool is already just the four home unions, so
+    // there's no need for the wider tiering, an even weight keeps the
+    // draw fair across all four.
+    const weights = appMode === "lions" ? {
+        "England":1,"Ireland":1,"Scotland":1,"Wales":1
+    } : {
         "New Zealand":3,"South Africa":3,"Australia":3,"England":3,"France":3,
         "Ireland":3,"Wales":3,"Scotland":3,"Argentina":3,
         "Fiji":2,"Samoa":2,"Japan":2,"Italy":2,"Tonga":2,"Georgia":2,
@@ -820,7 +895,7 @@ function populateManifestPreviewWindow() {
         "Inside Centre":"Centre", "Outside Centre":"Centre",
         "Left Wing":"Wing", "Right Wing":"Wing", "Fullback":"Fullback"
     };
-    let html = `<div class="manifest-header">Your Hybrid XV — replacing ${replacedTeam}</div>`;
+    let html = `<div class="manifest-header">Your Hybrid XV${appMode === "lions" ? "" : " replacing " + replacedTeam}</div>`;
     order.forEach((pos, i) => {
         const p = userTeam[pos];
         if (!p) return;
@@ -845,10 +920,14 @@ function populateManifestPreviewWindow() {
 function populateTournamentTitle() {
     const box = document.getElementById("tournament-title");
     if (!box) return;
+    if (appMode === "lions") {
+        box.innerHTML = `<div class="tt-line1">Lions Tour, Ultimate Edition</div>`;
+        return;
+    }
     const meta = tournamentMeta[selectedTournamentYear];
     const host = meta ? meta.host : "";
     box.innerHTML = `
-        <div class="tt-line1">Rugby World Cup ${selectedTournamentYear}${host ? " — " + host : ""}</div>
+        <div class="tt-line1">Rugby World Cup ${selectedTournamentYear}${host ? ", " + host : ""}</div>
     `;
 }
 
@@ -870,7 +949,7 @@ function applyHostTheme() {
         "--host-ratings-bg","--host-ratings-text","--host-ready-header",
         "--host-slider-colour","--host-button-bg","--host-button-text"];
 
-    const yearTheme = (typeof simTheme !== "undefined") ? simTheme[selectedTournamentYear] : null;
+    const yearTheme = (typeof simTheme !== "undefined") ? simTheme[appMode === "lions" ? "1999" : selectedTournamentYear] : null;
     if (!yearTheme) {
         dashboard.classList.remove("host-themed");
         allVars.forEach(v => dashboard.style.removeProperty(v));
@@ -1073,6 +1152,10 @@ if (runSimBtn) {
         simResults.innerHTML = "";
         disableSpeedSlider();
         disableStrategySlider();
+        if (appMode === "lions") {
+            runLionsGauntlet();
+            return;
+        }
         const meta = tournamentMeta[selectedTournamentYear];
         if (meta && meta.hasPlayoffRound) {
             runTournamentSimulation1999();
@@ -1294,7 +1377,7 @@ function generateShareGraphic() {
     ctx.fillText("RUGBY HYBRID XV", W/2, 110);
     ctx.font = "26px Georgia, serif";
     ctx.fillStyle = textMuted;
-    ctx.fillText("replacing " + (replacedTeam || "—"), W/2, 148);
+    ctx.fillText(appMode === "lions" ? "Lions Tours" : "replacing " + (replacedTeam || "—"), W/2, 148);
 
     // Divider
     ctx.strokeStyle = goldFaint;
@@ -1376,7 +1459,7 @@ function drawTournamentSummary(ctx, W, top) {
     const boxBottom = boxTop + 260;
     const radius = 14;
 
-    const yearTheme = (typeof simTheme !== "undefined") ? simTheme[selectedTournamentYear] : null;
+    const yearTheme = (typeof simTheme !== "undefined") ? simTheme[appMode === "lions" ? "1999" : selectedTournamentYear] : null;
     const isLight = document.body.classList.contains("light-theme");
     const spec = yearTheme ? yearTheme[isLight ? "light" : "dark"] : null;
     const boxFill = (spec && spec.teamBg) || "rgba(255,255,255,0.04)";
@@ -1674,7 +1757,7 @@ function oddsText(prob) {
     if (prob >= 47) return "This is too close to call.";
     if (prob >= 35) return "Your team are slight underdogs.";
     if (prob >= 22) return "Your team are significant underdogs.";
-    return "Your team are heavy underdogs — an upset would be historic.";
+    return "Your team are heavy underdogs.";
 }
 
 // ============================================================
@@ -2136,7 +2219,8 @@ async function runTournamentSimulation() {
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
     const qfOppR = activeTeamStrengths[qfOpp]||80;
     const qfProb = winProbability(effectiveR, qfOppR);
-    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(qfProb), "var(--text-muted)");
+    await addLog(qfProb + "% chance of winning", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"QF", opponent:qfOpp, userScore:qf.userScore, oppScore:qf.oppScore, won:qf.won });
@@ -2168,7 +2252,8 @@ async function runTournamentSimulation() {
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sfOppR = activeTeamStrengths[sfOpp]||86;
     const sfProb = winProbability(effectiveR, sfOppR);
-    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(sfProb), "var(--text-muted)");
+    await addLog(sfProb + "% chance of winning", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"SF", opponent:sfOpp, userScore:sf.userScore, oppScore:sf.oppScore, won:sf.won });
@@ -2179,7 +2264,8 @@ async function runTournamentSimulation() {
         await addLog("=== THIRD-PLACE PLAY-OFF vs " + tpOpp + " ===", "var(--brand-gold)");
         const tpOppR = activeTeamStrengths[tpOpp]||84;
         const tpProb = winProbability(effectiveR, tpOppR);
-        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(tpProb), "var(--text-muted)");
+        await addLog(tpProb + "% chance of winning", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:tpOpp, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
@@ -2195,7 +2281,8 @@ async function runTournamentSimulation() {
     await addLog("=== FINAL vs " + finOpp + " ===", "var(--brand-gold)");
     const finOppR = activeTeamStrengths[finOpp]||90;
     const finProb = winProbability(effectiveR, finOppR);
-    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(finProb), "var(--text-muted)");
+    await addLog(finProb + "% chance of winning", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"Final", opponent:finOpp, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
@@ -2406,7 +2493,8 @@ async function runTournamentSimulation1999() {
         await addLog("Lose this and the tournament is over.", "var(--text-muted)");
         const poOppR = activeTeamStrengths[poOpp] || 75;
         const poProb = winProbability(userR, poOppR);
-        await addLog(oddsText(poProb) + " (" + poProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(poProb), "var(--text-muted)");
+        await addLog(poProb + "% chance of winning", "var(--text-muted)");
         const po = simulateMatch(userR, poOppR);
         await addLog((po.won?"WIN ":"LOSS") + "  " + po.userScore + "-" + po.oppScore, po.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"Play-off", opponent:poOpp, userScore:po.userScore, oppScore:po.oppScore, won:po.won });
@@ -2448,7 +2536,8 @@ async function runTournamentSimulation1999() {
     await addLog("=== QUARTER-FINAL (" + userQF.label + ") vs " + qfOpp + " ===", "var(--brand-gold)");
     const qfOppR = activeTeamStrengths[qfOpp] || 80;
     const qfProb = winProbability(effectiveR, qfOppR);
-    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(qfProb), "var(--text-muted)");
+    await addLog(qfProb + "% chance of winning", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"QF", opponent:qfOpp, userScore:qf.userScore, oppScore:qf.oppScore, won:qf.won });
@@ -2486,7 +2575,8 @@ async function runTournamentSimulation1999() {
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sfOppR = activeTeamStrengths[sfOpp] || 82;
     const sfProb = winProbability(effectiveR, sfOppR);
-    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(sfProb), "var(--text-muted)");
+    await addLog(sfProb + "% chance of winning", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"SF", opponent:sfOpp, userScore:sf.userScore, oppScore:sf.oppScore, won:sf.won });
@@ -2506,7 +2596,8 @@ async function runTournamentSimulation1999() {
         await addLog("=== 3RD PLACE PLAY-OFF vs " + otherSFLoser + " ===", "var(--brand-gold)");
         const tpOppR = activeTeamStrengths[otherSFLoser] || 80;
         const tpProb = winProbability(effectiveR, tpOppR);
-        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(tpProb), "var(--text-muted)");
+        await addLog(tpProb + "% chance of winning", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:otherSFLoser, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
@@ -2522,7 +2613,8 @@ async function runTournamentSimulation1999() {
     await addLog("=== FINAL vs " + otherSFWinner + " ===", "var(--brand-gold)");
     const finOppR = activeTeamStrengths[otherSFWinner] || 85;
     const finProb = winProbability(effectiveR, finOppR);
-    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(finProb), "var(--text-muted)");
+    await addLog(finProb + "% chance of winning", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"Final", opponent:otherSFWinner, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
@@ -2694,7 +2786,8 @@ async function runTournamentSimulation1995() {
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
     const qfOppR = activeTeamStrengths[qfOpp] || 80;
     const qfProb = winProbability(effectiveR, qfOppR);
-    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(qfProb), "var(--text-muted)");
+    await addLog(qfProb + "% chance of winning", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"QF", opponent:qfOpp, userScore:qf.userScore, oppScore:qf.oppScore, won:qf.won });
@@ -2731,7 +2824,8 @@ async function runTournamentSimulation1995() {
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sfOppR = activeTeamStrengths[sfOpp] || 82;
     const sfProb = winProbability(effectiveR, sfOppR);
-    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(sfProb), "var(--text-muted)");
+    await addLog(sfProb + "% chance of winning", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"SF", opponent:sfOpp, userScore:sf.userScore, oppScore:sf.oppScore, won:sf.won });
@@ -2755,7 +2849,8 @@ async function runTournamentSimulation1995() {
         await addLog("=== 3RD PLACE PLAY-OFF vs " + otherSFLoser + " ===", "var(--brand-gold)");
         const tpOppR = activeTeamStrengths[otherSFLoser] || 80;
         const tpProb = winProbability(effectiveR, tpOppR);
-        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(tpProb), "var(--text-muted)");
+        await addLog(tpProb + "% chance of winning", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:otherSFLoser, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
@@ -2771,7 +2866,8 @@ async function runTournamentSimulation1995() {
     await addLog("=== FINAL vs " + otherSFWinner + " ===", "var(--brand-gold)");
     const finOppR = activeTeamStrengths[otherSFWinner] || 85;
     const finProb = winProbability(effectiveR, finOppR);
-    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(finProb), "var(--text-muted)");
+    await addLog(finProb + "% chance of winning", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"Final", opponent:otherSFWinner, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
@@ -2950,7 +3046,8 @@ async function runTournamentSimulation1991() {
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
     const qfOppR = activeTeamStrengths[qfOpp] || 80;
     const qfProb = winProbability(effectiveR, qfOppR);
-    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(qfProb), "var(--text-muted)");
+    await addLog(qfProb + "% chance of winning", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"QF", opponent:qfOpp, userScore:qf.userScore, oppScore:qf.oppScore, won:qf.won });
@@ -2986,7 +3083,8 @@ async function runTournamentSimulation1991() {
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sfOppR = activeTeamStrengths[sfOpp] || 82;
     const sfProb = winProbability(effectiveR, sfOppR);
-    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(sfProb), "var(--text-muted)");
+    await addLog(sfProb + "% chance of winning", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"SF", opponent:sfOpp, userScore:sf.userScore, oppScore:sf.oppScore, won:sf.won });
@@ -3010,7 +3108,8 @@ async function runTournamentSimulation1991() {
         await addLog("=== 3RD PLACE PLAY-OFF vs " + otherSFLoser + " ===", "var(--brand-gold)");
         const tpOppR = activeTeamStrengths[otherSFLoser] || 80;
         const tpProb = winProbability(effectiveR, tpOppR);
-        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(tpProb), "var(--text-muted)");
+        await addLog(tpProb + "% chance of winning", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:otherSFLoser, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
@@ -3026,7 +3125,8 @@ async function runTournamentSimulation1991() {
     await addLog("=== FINAL vs " + otherSFWinner + " ===", "var(--brand-gold)");
     const finOppR = activeTeamStrengths[otherSFWinner] || 85;
     const finProb = winProbability(effectiveR, finOppR);
-    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(finProb), "var(--text-muted)");
+    await addLog(finProb + "% chance of winning", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"Final", opponent:otherSFWinner, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
@@ -3233,7 +3333,8 @@ async function runTournamentSimulation1987() {
     await addLog("=== QUARTER-FINAL vs " + qfOpp + " ===", "var(--brand-gold)");
     const qfOppR = activeTeamStrengths[qfOpp] || 80;
     const qfProb = winProbability(effectiveR, qfOppR);
-    await addLog(oddsText(qfProb) + " (" + qfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(qfProb), "var(--text-muted)");
+    await addLog(qfProb + "% chance of winning", "var(--text-muted)");
     const qf = simulateMatch(effectiveR, qfOppR);
     await addLog((qf.won?"WIN ":"LOSS") + "  " + qf.userScore + "-" + qf.oppScore, qf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"QF", opponent:qfOpp, userScore:qf.userScore, oppScore:qf.oppScore, won:qf.won });
@@ -3272,7 +3373,8 @@ async function runTournamentSimulation1987() {
     await addLog("=== SEMI-FINAL vs " + sfOpp + " ===", "var(--brand-gold)");
     const sfOppR = activeTeamStrengths[sfOpp] || 82;
     const sfProb = winProbability(effectiveR, sfOppR);
-    await addLog(oddsText(sfProb) + " (" + sfProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(sfProb), "var(--text-muted)");
+    await addLog(sfProb + "% chance of winning", "var(--text-muted)");
     const sf = simulateMatch(effectiveR, sfOppR);
     await addLog((sf.won?"WIN ":"LOSS") + "  " + sf.userScore + "-" + sf.oppScore, sf.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"SF", opponent:sfOpp, userScore:sf.userScore, oppScore:sf.oppScore, won:sf.won });
@@ -3296,7 +3398,8 @@ async function runTournamentSimulation1987() {
         await addLog("=== 3RD PLACE PLAY-OFF vs " + otherSFLoser + " ===", "var(--brand-gold)");
         const tpOppR = activeTeamStrengths[otherSFLoser] || 80;
         const tpProb = winProbability(effectiveR, tpOppR);
-        await addLog(oddsText(tpProb) + " (" + tpProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(tpProb), "var(--text-muted)");
+        await addLog(tpProb + "% chance of winning", "var(--text-muted)");
         const tp = simulateMatch(effectiveR, tpOppR);
         await addLog((tp.won?"WIN ":"LOSS") + "  " + tp.userScore + "-" + tp.oppScore, tp.won?"#4ade80":"#f87171");
         matchHistory.push({ stage:"3rd Place", opponent:otherSFLoser, userScore:tp.userScore, oppScore:tp.oppScore, won:tp.won });
@@ -3312,7 +3415,8 @@ async function runTournamentSimulation1987() {
     await addLog("=== FINAL vs " + otherSFWinner + " ===", "var(--brand-gold)");
     const finOppR = activeTeamStrengths[otherSFWinner] || 85;
     const finProb = winProbability(effectiveR, finOppR);
-    await addLog(oddsText(finProb) + " (" + finProb + "% chance of winning)", "var(--text-muted)");
+    await addLog(oddsText(finProb), "var(--text-muted)");
+    await addLog(finProb + "% chance of winning", "var(--text-muted)");
     const fin = simulateMatch(effectiveR, finOppR);
     await addLog((fin.won?"WIN ":"LOSS") + "  " + fin.userScore + "-" + fin.oppScore, fin.won?"#4ade80":"#f87171");
     matchHistory.push({ stage:"Final", opponent:otherSFWinner, userScore:fin.userScore, oppScore:fin.oppScore, won:fin.won });
@@ -3519,6 +3623,33 @@ const BOSS_TEAMS = {
     ]
   },
 
+  // ── Six Nations All Time ──────────────────────────────────────
+  // The finest specialist from each of the six nations at career peak.
+  // Sella takes outside centre rather than O'Driscoll, who's already the
+  // All Time World XV's number 13, to avoid repeating a player across
+  // the two boss teams.
+  sixnations: {
+    name: "Six Nations All Time",
+    flavour: "The finest specialist in every position from England, France, Ireland, Italy, Scotland and Wales, at their career peak.",
+    players: [
+      { pos:"Loosehead Prop",    name:"Jason Leonard",                nation:"ENG",  r:97 },
+      { pos:"Hooker",            name:"Keith Wood",                   nation:"IRE",  r:93 },
+      { pos:"Tighthead Prop",    name:"Martin Castrogiovanni",        nation:"ITA",  r:89 },
+      { pos:"Lock",              name:"Martin Johnson",               nation:"ENG",  r:98 },
+      { pos:"Lock",              name:"Alun Wyn Jones",               nation:"WAL",  r:96 },
+      { pos:"Blindside Flanker", name:"Richard Hill",                 nation:"ENG",  r:97 },
+      { pos:"Openside Flanker",  name:"Thierry Dusautoir",            nation:"FRA",  r:96 },
+      { pos:"Number 8",          name:"Sergio Parisse",               nation:"ITA",  r:93 },
+      { pos:"Scrum-half",        name:"Antoine Dupont",               nation:"FRA",  r:99 },
+      { pos:"Fly-half",          name:"Jonny Wilkinson",              nation:"ENG",  r:99 },
+      { pos:"Left Wing",         name:"Shane Williams",               nation:"WAL",  r:95 },
+      { pos:"Inside Centre",     name:"Yannick Jauzion",              nation:"FRA",  r:91 },
+      { pos:"Outside Centre",    name:"Philippe Sella",               nation:"FRA",  r:94 },
+      { pos:"Right Wing",        name:"Jason Robinson",               nation:"ENG",  r:96 },
+      { pos:"Fullback",          name:"Stuart Hogg",                  nation:"SCO",  r:93 },
+    ]
+  },
+
   // ── All Time World XV ───────────────────────────────────────
   // The single greatest specialist at every position in rugby history
   // Spans pre-RWC greats through to the modern era
@@ -3569,11 +3700,11 @@ function bossTeamToLineup(team) {
 
 async function runBossStage() {
     const userR = getUserRating();
-    const bossOrder = ["sanzaar","lions","alltimexv"];
+    const bossOrder = ["sanzaar","sixnations","alltimexv"];
     const bossLabels = {
-        sanzaar:    "⚫ BONUS MATCH — SANZAAR BARBARIANS",
-        lions:      "🔴 BONUS MATCH — BRITISH & IRISH LIONS ALL TIME",
-        alltimexv:  "🏆 BONUS MATCH — ALL TIME WORLD XV"
+        sanzaar:     "⚫ BONUS MATCH, SANZAAR BARBARIANS",
+        sixnations:  "🔴 BONUS MATCH, SIX NATIONS ALL TIME",
+        alltimexv:   "🏆 BONUS MATCH, ALL TIME WORLD XV"
     };
 
     for (const [bossIndex, bossKey] of bossOrder.entries()) {
@@ -3581,7 +3712,7 @@ async function runBossStage() {
         const bossR = getBossRating(boss);
 
         await addLog("", null);
-        await addLog("─────────────────────────────────────", "var(--text-muted)");
+        await addLogBlock('<div class="sim-log-divider"></div>');
         await addLog(bossLabels[bossKey], "var(--brand-gold)");
         await addLog(boss.flavour, "var(--text-muted)");
         await addLog("", null);
@@ -3589,16 +3720,12 @@ async function runBossStage() {
         // Show their lineup
         await addLog("Their XV:", "var(--brand-gold)");
         for (const p of boss.players) {
-            const shortPos = {
-                "Loosehead Prop":"Prop","Tighthead Prop":"Prop","Hooker":"Hooker",
-                "Lock":"Lock","Blindside Flanker":"Flanker","Openside Flanker":"Flanker",
-                "Number 8":"No.8","Scrum-half":"SH","Fly-half":"FH",
-                "Inside Centre":"Centre","Outside Centre":"Centre",
-                "Left Wing":"Wing","Right Wing":"Wing","Fullback":"FB"
-            }[p.pos] || p.pos;
-            await addLog(
-                shortPos.padEnd(8) + "  " + p.name.padEnd(28) + "  " + p.nation + "  (" + p.r + ")",
-                "var(--text-muted)"
+            const shortPos = LIONS_SHORT_POS[p.pos] || p.pos;
+            await addLogBlock(
+                '<div class="lions-lineup-row"><span class="ll-pos">' + shortPos +
+                '</span><span class="ll-name">' + p.name +
+                '</span><span class="ll-nation">' + p.nation +
+                '</span><span class="ll-rating">' + p.r + '</span></div>'
             );
         }
 
@@ -3606,7 +3733,8 @@ async function runBossStage() {
         await addLog("Their average rating: " + bossR + "  |  Your rating: " + userR, null);
         await addLog("", null);
         const bossProb = winProbability(userR, bossR);
-        await addLog(oddsText(bossProb) + " (" + bossProb + "% chance of winning)", "var(--text-muted)");
+        await addLog(oddsText(bossProb), "var(--text-muted)");
+        await addLog(bossProb + "% chance of winning", "var(--text-muted)");
         await addLog("", null);
         await addLog("=== KICK OFF ===", "var(--brand-gold)");
 
@@ -3623,34 +3751,364 @@ async function runBossStage() {
             if (bossKey === "sanzaar") {
                 await addLog("The SANZAAR Barbarians were too strong. A valiant effort against the best of the Southern Hemisphere.", "#c5a059");
                 await showResultsSummary();
-                showShareButton("World Champions — Fell to SANZAAR Barbarians", "#c5a059");
-            } else if (bossKey === "lions") {
-                await addLog("The Lions held firm. You pushed the greatest British & Irish players in history to the limit.", "#c5a059");
+                showShareButton("World Champions, fell to SANZAAR Barbarians", "#c5a059");
+            } else if (bossKey === "sixnations") {
+                await addLog("The Six Nations All Time XV held firm. You pushed the greatest players in the competition's history to the limit.", "#c5a059");
                 await showResultsSummary();
-                showShareButton("World Champions — Fell to the Lions", "#c5a059");
+                showShareButton("World Champions, fell to Six Nations All Time", "#c5a059");
             } else {
-                await addLog("The All Time XV prevail. No team in history has beaten this side — and yours came closer than most.", "#c5a059");
+                await addLog("The All Time XV prevail. No team in history has beaten this side, and yours came closer than most.", "#c5a059");
                 await showResultsSummary();
-                showShareButton("World Champions — Fell to the All Time XV", "#c5a059");
+                showShareButton("World Champions, fell to the All Time XV", "#c5a059");
             }
             restartBtn.classList.remove("hidden");
             return;
         }
 
         if (bossKey === "sanzaar") {
-            await addLog("The SANZAAR Barbarians are beaten! Extraordinary. Now face the Lions...", "#4ade80");
-        } else if (bossKey === "lions") {
-            await addLog("The Lions fall! Your Hybrid XV has conquered British & Irish rugby royalty. One final challenge awaits...", "#4ade80");
+            await addLog("The SANZAAR Barbarians are beaten! Extraordinary. Now face the Six Nations All Time XV...", "#4ade80");
+        } else if (bossKey === "sixnations") {
+            await addLog("The Six Nations All Time XV fall! Your Hybrid XV has conquered the finest players the competition has ever produced. One final challenge awaits...", "#4ade80");
         } else {
             await addLog("", null);
             await addLog("THE ALL TIME XV ARE BEATEN.", "var(--brand-gold)");
             await addLog("Your Hybrid XV has done the impossible. World Champions, and conquerors of the greatest teams ever assembled. Legendary.", "var(--brand-gold)");
             await showResultsSummary();
-            showShareButton("LEGENDARY — Beat the All Time XV", "#c5a059");
+            showShareButton("LEGENDARY, beat the All Time XV", "#c5a059");
             restartBtn.classList.remove("hidden");
             return;
         }
     }
+}
+
+const LIONS_TOUR_ORDER = [1989, 1993, 1997, 2001, 2005, 2009, 2013, 2017, 2021, 2025];
+
+// Each entry is the real starting XV from that tour, shown to the user for
+// context and flavour, but not used to compute the match rating any more.
+// Individual player ratings were dropped since they were never actually shown
+// in play, a single hand set teamRating drives the match instead. The numbers
+// broadly rise tour on tour, with deliberate dips for the 2001 series loss and
+// the 2005 whitewash, a small rise for the 2009 loss reflecting the era rather
+// than the result, and clear bumps for the 2013 and 2025 series wins.
+const LIONS_TOURS = {
+    1989: {
+        opponent: "Australia", result: "Won 2-1", teamRating: 83,
+        players: [
+            { pos:"Loosehead Prop", name:"David Sole", nation:"SCO '89" },
+            { pos:"Hooker", name:"Brian Moore", nation:"ENG '89" },
+            { pos:"Tighthead Prop", name:"Dai Young", nation:"WAL '89" },
+            { pos:"Lock", name:"Paul Ackford", nation:"ENG '89" },
+            { pos:"Lock", name:"Wade Dooley", nation:"ENG '89" },
+            { pos:"Blindside Flanker", name:"Mike Teague", nation:"ENG '89" },
+            { pos:"Openside Flanker", name:"Finlay Calder", nation:"SCO '89" },
+            { pos:"Number 8", name:"Dean Richards", nation:"ENG '89" },
+            { pos:"Scrum-half", name:"Robert Jones", nation:"WAL '89" },
+            { pos:"Fly-half", name:"Rob Andrew", nation:"ENG '89" },
+            { pos:"Left Wing", name:"Rory Underwood", nation:"ENG '89" },
+            { pos:"Inside Centre", name:"Jeremy Guscott", nation:"ENG '89" },
+            { pos:"Outside Centre", name:"Scott Hastings", nation:"SCO '89" },
+            { pos:"Right Wing", name:"Ieuan Evans", nation:"WAL '89" },
+            { pos:"Fullback", name:"Gavin Hastings", nation:"SCO '89" },
+        ]
+    },
+    1993: {
+        opponent: "New Zealand", result: "Lost 2-1", teamRating: 85,
+        players: [
+            { pos:"Loosehead Prop", name:"Jason Leonard", nation:"ENG '93" },
+            { pos:"Hooker", name:"Brian Moore", nation:"ENG '93" },
+            { pos:"Tighthead Prop", name:"Graham Rowntree", nation:"ENG '93" },
+            { pos:"Lock", name:"Martin Bayfield", nation:"ENG '93" },
+            { pos:"Lock", name:"Wade Dooley", nation:"ENG '93" },
+            { pos:"Blindside Flanker", name:"Peter Winterbottom", nation:"ENG '93" },
+            { pos:"Openside Flanker", name:"Ben Clarke", nation:"ENG '93" },
+            { pos:"Number 8", name:"Dean Richards", nation:"ENG '93" },
+            { pos:"Scrum-half", name:"Dewi Morris", nation:"ENG '93" },
+            { pos:"Fly-half", name:"Rob Andrew", nation:"ENG '93" },
+            { pos:"Left Wing", name:"Rory Underwood", nation:"ENG '93" },
+            { pos:"Inside Centre", name:"Scott Gibbs", nation:"WAL '93" },
+            { pos:"Outside Centre", name:"Jeremy Guscott", nation:"ENG '93" },
+            { pos:"Right Wing", name:"Ieuan Evans", nation:"WAL '93" },
+            { pos:"Fullback", name:"Gavin Hastings", nation:"SCO '93" },
+        ]
+    },
+    1997: {
+        opponent: "South Africa", result: "Won 2-1", teamRating: 89,
+        players: [
+            { pos:"Loosehead Prop", name:"Tom Smith", nation:"SCO '97" },
+            { pos:"Hooker", name:"Keith Wood", nation:"IRE '97" },
+            { pos:"Tighthead Prop", name:"Paul Wallace", nation:"IRE '97" },
+            { pos:"Lock", name:"Martin Johnson", nation:"ENG '97" },
+            { pos:"Lock", name:"Jeremy Davidson", nation:"IRE '97" },
+            { pos:"Blindside Flanker", name:"Lawrence Dallaglio", nation:"ENG '97" },
+            { pos:"Openside Flanker", name:"Richard Hill", nation:"ENG '97" },
+            { pos:"Number 8", name:"Tim Rodber", nation:"ENG '97" },
+            { pos:"Scrum-half", name:"Matt Dawson", nation:"ENG '97" },
+            { pos:"Fly-half", name:"Gregor Townsend", nation:"SCO '97" },
+            { pos:"Left Wing", name:"Alan Tait", nation:"SCO '97" },
+            { pos:"Inside Centre", name:"Scott Gibbs", nation:"WAL '97" },
+            { pos:"Outside Centre", name:"Jeremy Guscott", nation:"ENG '97" },
+            { pos:"Right Wing", name:"Ieuan Evans", nation:"WAL '97" },
+            { pos:"Fullback", name:"Neil Jenkins", nation:"WAL '97" },
+        ]
+    },
+    2001: {
+        opponent: "Australia", result: "Lost 2-1", teamRating: 87,
+        players: [
+            { pos:"Loosehead Prop", name:"Tom Smith", nation:"SCO '01" },
+            { pos:"Hooker", name:"Keith Wood", nation:"IRE '01" },
+            { pos:"Tighthead Prop", name:"Phil Vickery", nation:"ENG '01" },
+            { pos:"Lock", name:"Martin Johnson", nation:"ENG '01" },
+            { pos:"Lock", name:"Danny Grewcock", nation:"ENG '01" },
+            { pos:"Blindside Flanker", name:"Martin Corry", nation:"ENG '01" },
+            { pos:"Openside Flanker", name:"Neil Back", nation:"ENG '01" },
+            { pos:"Number 8", name:"Scott Quinnell", nation:"WAL '01" },
+            { pos:"Scrum-half", name:"Matt Dawson", nation:"ENG '01" },
+            { pos:"Fly-half", name:"Jonny Wilkinson", nation:"ENG '01" },
+            { pos:"Left Wing", name:"Jason Robinson", nation:"ENG '01" },
+            { pos:"Inside Centre", name:"Rob Henderson", nation:"IRE '01" },
+            { pos:"Outside Centre", name:"Brian O'Driscoll", nation:"IRE '01" },
+            { pos:"Right Wing", name:"Dafydd James", nation:"WAL '01" },
+            { pos:"Fullback", name:"Matt Perry", nation:"ENG '01" },
+        ]
+    },
+    2005: {
+        opponent: "New Zealand", result: "Lost 3-0", teamRating: 83,
+        players: [
+            { pos:"Loosehead Prop", name:"Gethin Jenkins", nation:"WAL '05" },
+            { pos:"Hooker", name:"Steve Thompson", nation:"ENG '05" },
+            { pos:"Tighthead Prop", name:"Julian White", nation:"ENG '05" },
+            { pos:"Lock", name:"Donncha O'Callaghan", nation:"IRE '05" },
+            { pos:"Lock", name:"Paul O'Connell", nation:"IRE '05" },
+            { pos:"Blindside Flanker", name:"Simon Easterby", nation:"IRE '05" },
+            { pos:"Openside Flanker", name:"Lewis Moody", nation:"ENG '05" },
+            { pos:"Number 8", name:"Ryan Jones", nation:"WAL '05" },
+            { pos:"Scrum-half", name:"Dwayne Peel", nation:"WAL '05" },
+            { pos:"Fly-half", name:"Stephen Jones", nation:"WAL '05" },
+            { pos:"Left Wing", name:"Josh Lewsey", nation:"ENG '05" },
+            { pos:"Inside Centre", name:"Gareth Thomas", nation:"WAL '05" },
+            { pos:"Outside Centre", name:"Will Greenwood", nation:"ENG '05" },
+            { pos:"Right Wing", name:"Mark Cueto", nation:"ENG '05" },
+            { pos:"Fullback", name:"Geordan Murphy", nation:"IRE '05" },
+        ]
+    },
+    2009: {
+        opponent: "South Africa", result: "Lost 2-1", teamRating: 89,
+        players: [
+            { pos:"Loosehead Prop", name:"Gethin Jenkins", nation:"WAL '09" },
+            { pos:"Hooker", name:"Lee Mears", nation:"ENG '09" },
+            { pos:"Tighthead Prop", name:"Phil Vickery", nation:"ENG '09" },
+            { pos:"Lock", name:"Alun Wyn Jones", nation:"WAL '09" },
+            { pos:"Lock", name:"Paul O'Connell", nation:"IRE '09" },
+            { pos:"Blindside Flanker", name:"Tom Croft", nation:"ENG '09" },
+            { pos:"Openside Flanker", name:"David Wallace", nation:"IRE '09" },
+            { pos:"Number 8", name:"Jamie Heaslip", nation:"IRE '09" },
+            { pos:"Scrum-half", name:"Mike Phillips", nation:"WAL '09" },
+            { pos:"Fly-half", name:"Stephen Jones", nation:"WAL '09" },
+            { pos:"Left Wing", name:"Ugo Monye", nation:"ENG '09" },
+            { pos:"Inside Centre", name:"Jamie Roberts", nation:"WAL '09" },
+            { pos:"Outside Centre", name:"Brian O'Driscoll", nation:"IRE '09" },
+            { pos:"Right Wing", name:"Tommy Bowe", nation:"IRE '09" },
+            { pos:"Fullback", name:"Lee Byrne", nation:"WAL '09" },
+        ]
+    },
+    2013: {
+        opponent: "Australia", result: "Won 2-1", teamRating: 90,
+        players: [
+            { pos:"Loosehead Prop", name:"Alex Corbisiero", nation:"ENG '13" },
+            { pos:"Hooker", name:"Richard Hibbard", nation:"WAL '13" },
+            { pos:"Tighthead Prop", name:"Adam Jones", nation:"WAL '13" },
+            { pos:"Lock", name:"Alun Wyn Jones", nation:"WAL '13" },
+            { pos:"Lock", name:"Geoff Parling", nation:"ENG '13" },
+            { pos:"Blindside Flanker", name:"Dan Lydiate", nation:"WAL '13" },
+            { pos:"Openside Flanker", name:"Seán O'Brien", nation:"IRE '13" },
+            { pos:"Number 8", name:"Taulupe Faletau", nation:"WAL '13" },
+            { pos:"Scrum-half", name:"Mike Phillips", nation:"WAL '13" },
+            { pos:"Fly-half", name:"Johnny Sexton", nation:"IRE '13" },
+            { pos:"Left Wing", name:"George North", nation:"WAL '13" },
+            { pos:"Inside Centre", name:"Jamie Roberts", nation:"WAL '13" },
+            { pos:"Outside Centre", name:"Jonathan Davies", nation:"WAL '13" },
+            { pos:"Right Wing", name:"Tommy Bowe", nation:"IRE '13" },
+            { pos:"Fullback", name:"Leigh Halfpenny", nation:"WAL '13" },
+        ]
+    },
+    2017: {
+        opponent: "New Zealand", result: "Drawn 1-1", teamRating: 91,
+        players: [
+            { pos:"Loosehead Prop", name:"Mako Vunipola", nation:"ENG '17" },
+            { pos:"Hooker", name:"Jamie George", nation:"ENG '17" },
+            { pos:"Tighthead Prop", name:"Tadhg Furlong", nation:"IRE '17" },
+            { pos:"Lock", name:"Maro Itoje", nation:"ENG '17" },
+            { pos:"Lock", name:"Alun Wyn Jones", nation:"WAL '17" },
+            { pos:"Blindside Flanker", name:"Sam Warburton", nation:"WAL '17" },
+            { pos:"Openside Flanker", name:"Seán O'Brien", nation:"IRE '17" },
+            { pos:"Number 8", name:"Taulupe Faletau", nation:"WAL '17" },
+            { pos:"Scrum-half", name:"Conor Murray", nation:"IRE '17" },
+            { pos:"Fly-half", name:"Johnny Sexton", nation:"IRE '17" },
+            { pos:"Left Wing", name:"Elliot Daly", nation:"ENG '17" },
+            { pos:"Inside Centre", name:"Owen Farrell", nation:"ENG '17" },
+            { pos:"Outside Centre", name:"Jonathan Davies", nation:"WAL '17" },
+            { pos:"Right Wing", name:"Anthony Watson", nation:"ENG '17" },
+            { pos:"Fullback", name:"Liam Williams", nation:"WAL '17" },
+        ]
+    },
+    2021: {
+        opponent: "South Africa", result: "Lost 2-1", teamRating: 92,
+        players: [
+            { pos:"Loosehead Prop", name:"Wyn Jones", nation:"WAL '21" },
+            { pos:"Hooker", name:"Ken Owens", nation:"WAL '21" },
+            { pos:"Tighthead Prop", name:"Tadhg Furlong", nation:"IRE '21" },
+            { pos:"Lock", name:"Maro Itoje", nation:"ENG '21" },
+            { pos:"Lock", name:"Alun Wyn Jones", nation:"WAL '21" },
+            { pos:"Blindside Flanker", name:"Courtney Lawes", nation:"ENG '21" },
+            { pos:"Openside Flanker", name:"Tom Curry", nation:"ENG '21" },
+            { pos:"Number 8", name:"Jack Conan", nation:"IRE '21" },
+            { pos:"Scrum-half", name:"Ali Price", nation:"SCO '21" },
+            { pos:"Fly-half", name:"Dan Biggar", nation:"WAL '21" },
+            { pos:"Left Wing", name:"Duhan van der Merwe", nation:"SCO '21" },
+            { pos:"Inside Centre", name:"Bundee Aki", nation:"IRE '21" },
+            { pos:"Outside Centre", name:"Robbie Henshaw", nation:"IRE '21" },
+            { pos:"Right Wing", name:"Josh Adams", nation:"WAL '21" },
+            { pos:"Fullback", name:"Liam Williams", nation:"WAL '21" },
+        ]
+    },
+    2025: {
+        opponent: "Australia", result: "Won 2-1", teamRating: 94,
+        players: [
+            { pos:"Loosehead Prop", name:"Andrew Porter", nation:"IRE '25" },
+            { pos:"Hooker", name:"Dan Sheehan", nation:"IRE '25" },
+            { pos:"Tighthead Prop", name:"Tadhg Furlong", nation:"IRE '25" },
+            { pos:"Lock", name:"Maro Itoje", nation:"ENG '25" },
+            { pos:"Lock", name:"Ollie Chessum", nation:"ENG '25" },
+            { pos:"Blindside Flanker", name:"Tadhg Beirne", nation:"IRE '25" },
+            { pos:"Openside Flanker", name:"Tom Curry", nation:"ENG '25" },
+            { pos:"Number 8", name:"Jack Conan", nation:"IRE '25" },
+            { pos:"Scrum-half", name:"Jamison Gibson-Park", nation:"IRE '25" },
+            { pos:"Fly-half", name:"Finn Russell", nation:"SCO '25" },
+            { pos:"Left Wing", name:"James Lowe", nation:"IRE '25" },
+            { pos:"Inside Centre", name:"Bundee Aki", nation:"IRE '25" },
+            { pos:"Outside Centre", name:"Huw Jones", nation:"SCO '25" },
+            { pos:"Right Wing", name:"Tommy Freeman", nation:"ENG '25" },
+            { pos:"Fullback", name:"Hugo Keenan", nation:"IRE '25" },
+        ]
+    },
+};
+const LIONS_SHORT_POS = {
+    "Loosehead Prop":"Prop","Tighthead Prop":"Prop","Hooker":"Hooker",
+    "Lock":"Lock","Blindside Flanker":"Flanker","Openside Flanker":"Flanker",
+    "Number 8":"No.8","Scrum-half":"SH","Fly-half":"FH",
+    "Inside Centre":"Centre","Outside Centre":"Centre",
+    "Left Wing":"Wing","Right Wing":"Wing","Fullback":"FB"
+};
+
+function getLionsTourRating(tour) {
+    return tour.teamRating;
+}
+
+async function runLionsGauntlet() {
+    const userR = getUserRating();
+    let rung = 0;
+
+    for (const year of LIONS_TOUR_ORDER) {
+        const tour = LIONS_TOURS[year];
+        const oppR = getLionsTourRating(tour);
+
+        await addLog("", null);
+        await addLogBlock('<div class="sim-log-divider"></div>');
+        await addLog("MATCH " + (rung + 1) + " OF " + LIONS_TOUR_ORDER.length + ", " + year + " v " + tour.opponent, "var(--brand-gold)");
+        await addLog("The series decider, " + tour.result + " on tour.", "var(--text-muted)");
+        await addLog("", null);
+
+        await addLog("Their XV:", "var(--brand-gold)");
+        for (const p of tour.players) {
+            const shortPos = LIONS_SHORT_POS[p.pos] || p.pos;
+            const nation = p.nation.replace(/\s*'\d\d$/, "");
+            await addLogBlock(
+                '<div class="lions-lineup-row"><span class="ll-pos">' + shortPos +
+                '</span><span class="ll-name">' + p.name +
+                '</span><span class="ll-nation">' + nation + '</span></div>'
+            );
+        }
+
+        await addLog("", null);
+        await addLog("Their average rating: " + oppR + "  |  Your rating: " + userR, null);
+        const prob = winProbability(userR, oppR);
+        await addLog(oddsText(prob), "var(--text-muted)");
+        await addLog(prob + "% chance of winning", "var(--text-muted)");
+        await addLog("", null);
+        await addLog("=== KICK OFF ===", "var(--brand-gold)");
+
+        const res = simulateMatch(userR, oppR);
+        await addLog(
+            (res.won ? "WIN " : "LOSS") + "  " + res.userScore + "-" + res.oppScore,
+            res.won ? "#4ade80" : "#f87171"
+        );
+        matchHistory.push({ stage:"Lions " + year, opponent:"Lions " + year + " v " + tour.opponent, userScore:res.userScore, oppScore:res.oppScore, won:res.won });
+        await addScoreBreakdownLogForBoss(userTeam, res.userScore, bossTeamToLineup(tour), res.oppScore);
+
+        if (!res.won) {
+            await addLog("", null);
+            await addLog("The tour ends there. You reached match " + (rung + 1) + " of " + LIONS_TOUR_ORDER.length + ", beating every Lions team up to " + (rung > 0 ? LIONS_TOUR_ORDER[rung - 1] : "none") + ".", "#f87171");
+            await showResultsSummary();
+            showShareButton("Lions Tours, reached match " + (rung + 1) + " of " + LIONS_TOUR_ORDER.length, "#c5a059");
+            restartBtn.classList.remove("hidden");
+            return;
+        }
+
+        rung++;
+        if (rung < LIONS_TOUR_ORDER.length) {
+            await addLog("Onward to the next tour...", "#4ade80");
+        }
+    }
+
+    await addLog("", null);
+    await addLog("EVERY LIONS TOUR SINCE 1989, BEATEN.", "var(--brand-gold)");
+    await addLog("One challenge remains: the British & Irish Lions All Time XV.", "var(--brand-gold)");
+
+    const boss = BOSS_TEAMS.lions;
+    const bossR = getBossRating(boss);
+
+    await addLog("", null);
+    await addLogBlock('<div class="sim-log-divider"></div>');
+    await addLog("🔴 BOSS, BRITISH & IRISH LIONS ALL TIME", "var(--brand-gold)");
+    await addLog(boss.flavour, "var(--text-muted)");
+    await addLog("", null);
+    await addLog("Their XV:", "var(--brand-gold)");
+    for (const p of boss.players) {
+        const shortPos = LIONS_SHORT_POS[p.pos] || p.pos;
+        const nation = p.nation.replace(/\s*'\d\d$/, "");
+        await addLogBlock(
+            '<div class="lions-lineup-row"><span class="ll-pos">' + shortPos +
+            '</span><span class="ll-name">' + p.name +
+            '</span><span class="ll-nation">' + nation + '</span></div>'
+        );
+    }
+    await addLog("", null);
+    await addLog("Their average rating: " + bossR + "  |  Your rating: " + userR, null);
+    const bossProb = winProbability(userR, bossR);
+    await addLog(oddsText(bossProb), "var(--text-muted)");
+    await addLog(bossProb + "% chance of winning", "var(--text-muted)");
+    await addLog("", null);
+    await addLog("=== KICK OFF ===", "var(--brand-gold)");
+
+    const bres = simulateMatch(userR, bossR);
+    await addLog(
+        (bres.won ? "WIN " : "LOSS") + "  " + bres.userScore + "-" + bres.oppScore,
+        bres.won ? "#4ade80" : "#f87171"
+    );
+    matchHistory.push({ stage:"Lions Boss", opponent:boss.name, userScore:bres.userScore, oppScore:bres.oppScore, won:bres.won });
+    await addScoreBreakdownLogForBoss(userTeam, bres.userScore, bossTeamToLineup(boss), bres.oppScore);
+
+    if (!bres.won) {
+        await addLog("", null);
+        await addLog("The Lions All Time XV hold firm. Ten tours beaten, but the greatest Lions XV ever assembled was a step too far.", "#c5a059");
+        showShareButton("Lions Tours, fell to the Lions All Time XV", "#c5a059");
+    } else {
+        await addLog("", null);
+        await addLog("THE LIONS ALL TIME XV ARE BEATEN. Every Lions tour since 1989, and the greatest Lions side ever picked. Legendary.", "var(--brand-gold)");
+        showShareButton("LEGENDARY, Beat the Lions All Time XV", "#c5a059");
+    }
+    await showResultsSummary();
+    restartBtn.classList.remove("hidden");
 }
 
 // ============================================================
@@ -3660,7 +4118,7 @@ async function runBossStage() {
 // out after a minimum display time so it registers as intentional rather
 // than a flicker. Skipped entirely on repeat visits within the same
 // session (Play Again / Abandon Campaign trigger a real page reload via
-// hardReload(), which sets the sessionStorage flag below) — the user has
+// hardReload(), which sets the sessionStorage flag below), the user has
 // already seen it once and is just restarting a game, not opening the
 // site fresh.
 (function () {
@@ -3687,10 +4145,15 @@ async function runBossStage() {
         }, wait);
     }
 
-    if (document.readyState === "complete") {
+    // DOMContentLoaded fires once data.js and app.js have downloaded and
+    // run, which is what the app actually needs to be ready. The previous
+    // window "load" event also waits on every image and favicon finishing
+    // their own download, which added unrelated delay on slower
+    // connections for no real benefit here.
+    if (document.readyState === "interactive" || document.readyState === "complete") {
         dismissLoadingScreen();
     } else {
-        window.addEventListener("load", dismissLoadingScreen);
+        document.addEventListener("DOMContentLoaded", dismissLoadingScreen);
     }
 })();
 
@@ -3711,12 +4174,14 @@ const TIPS = {
     draftIntro: {
         icon: "🎲",
         title: "Building Your Squad",
-        body: "Click <strong>Spin Team</strong> to draw a random historical squad. Pick any player from it, then click an open position on the pitch to slot them in. Gold positions are their natural fit; amber positions carry a rating penalty. Once you've placed them, the button changes back to <strong>Spin Team</strong> again ready for the next pick. Repeat until all 15 spots are filled."
+        body: () => `Click <strong>Spin Team</strong> to draw a random historical squad. Pick any player from it, then click an open position on the pitch to slot them in. ${appMode === "lions" ? "Blue" : "Gold"} positions are their natural fit; amber positions carry a rating penalty. Once you've placed them, the button changes back to <strong>Spin Team</strong> again ready for the next pick. Repeat until all 15 spots are filled.`
     },
     simIntro: {
         icon: "🏉",
         title: "Ready to Simulate",
-        body: "Choose a <strong>Simulation Speed</strong>, then click <strong>Kick Off Tournament</strong>. The whole World Cup — pool stage through to the Final — plays out automatically. Just sit back and watch the results roll in."
+        body: () => appMode === "lions"
+            ? `Choose a <strong>Simulation Speed</strong>, then click <strong>Kick Off Tour</strong>. You'll face every Lions series decider since 1989, one tour at a time, until you either lose or clear the lot. Just sit back and watch the results roll in.`
+            : `Choose a <strong>Simulation Speed</strong>, then click <strong>Kick Off Tournament</strong>. The whole World Cup, pool stage through to the Final, plays out automatically. Just sit back and watch the results roll in.`
     }
 };
 
@@ -3737,7 +4202,7 @@ function showTip(key) {
 
     document.getElementById("tip-icon").textContent = tip.icon;
     document.getElementById("tip-title").textContent = tip.title;
-    document.getElementById("tip-body").innerHTML = tip.body;
+    document.getElementById("tip-body").innerHTML = typeof tip.body === "function" ? tip.body() : tip.body;
     document.getElementById("tip-dontshow-checkbox").checked = false;
     overlay.classList.remove("hidden");
 

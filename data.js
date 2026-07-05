@@ -1553,7 +1553,7 @@ const allSquads = {
             {name:"Chris Robshaw",positions:["Openside Flanker", "Blindside Flanker"],num:11,rating:89,careerRating:89},
             {name:"Courtney Lawes",positions:["Lock", "Openside Flanker"],num:12,rating:91,careerRating:93},
             {name:"David Wilson",positions:["Openside Flanker", "Tighthead Prop"],num:13,rating:90,careerRating:90},
-            {name:"Ben Morgan",positions:["Number 8"],num:14,rating:92,careerRating:92},
+            {name:"Ben Morgan",positions:["Number 8"],num:14,rating:88,careerRating:88},
             {name:"Billy Vunipola",positions:["Number 8"],num:15,rating:89,careerRating:94},
             {name:"James Haskell",positions:["Number 8", "Openside Flanker"],num:16,rating:88,careerRating:89},
             {name:"Nick Easter",positions:["Number 8"],num:17,rating:90,careerRating:90},
@@ -6492,4 +6492,18 @@ const allSquads = {
             {name:"Brian Currin",positions:["Fullback"],num:25,rating:61,careerRating:61}
         ]
     }
+};
+
+// ============================================================
+// LIONS ONLY PLAYERS, capped on a Lions tour but never at a World Cup,
+// so they have no natural home in allSquads. Used by the Lions Tours
+// opposition lineups only.
+// ============================================================
+const lionsOnlyPlayers = {
+    "Ireland": [
+        {name:"Rob Henderson", positions:["Inside Centre", "Outside Centre"], rating:93, careerRating:93}
+    ],
+    "Wales": [
+        {name:"Richard Hibbard", positions:["Hooker"], rating:94, careerRating:94}
+    ]
 };
