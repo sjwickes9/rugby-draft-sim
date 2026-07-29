@@ -1,1 +1,604 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rugby XV Draft: Multiplayer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lobby.css">
+</head>
+<body>
+<main>
 
+    <div class="topbar">
+        <div class="bug">
+            <h1>Rugby XV Draft</h1>
+            <span class="sub">Multiplayer</span>
+        </div>
+        <button class="help-toggle" id="helpOpen" aria-label="How to play">How to play</button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">Light</button>
+    </div>
+    <div class="rule-line"></div>
+
+    <!-- ══ LOBBY VIEW ══ -->
+    <div id="lobbyView">
+
+        <p class="version" id="version">v1.2607291437</p>
+
+        <div id="notice" class="notice hidden">
+            <span id="noticeText"></span>
+            <button id="noticeClose" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <section class="block">
+            <p class="eyebrow">You</p>
+            <div class="you-row">
+                <div class="name">
+                    <label class="field" for="name">Display name</label>
+                    <input type="text" id="name" maxlength="20" value="" placeholder="Your name" autocomplete="off">
+                </div>
+                <div>
+                    <label class="field" for="kit1">Kit<button class="info-i" data-help="kit" aria-label="What is this?">i</button></label>
+                    <div class="kits">
+                        <input type="color" id="kit1" value="#16E0CD" aria-label="Primary kit colour">
+                        <input type="color" id="kit2" value="#FFC24D" aria-label="Second kit colour">
+                    </div>
+                </div>
+            </div>
+            <div class="flash" id="youFlash">
+                <span class="num">XV</span>
+                <span class="who" id="youName">Your name</span>
+            </div>
+        </section>
+
+        <section class="block">
+            <div class="seg" role="group" aria-label="Create or join">
+                <button id="pathCreate" aria-pressed="true">Create draft
+                    <span class="hint">Set the options and start a room</span></button>
+                <button id="pathJoin" aria-pressed="false">Join draft
+                    <span class="hint">Enter a room code</span></button>
+            </div>
+        </section>
+
+        <div id="joinPane" class="hidden">
+            <section class="block">
+                <p class="eyebrow">Room code<button class="info-i" data-help="rooms" aria-label="What is this?">i</button></p>
+                <div class="join-row">
+                    <input type="text" id="join" maxlength="4" placeholder="CODE" autocomplete="off" aria-label="Room code">
+                    <button class="cta" id="joinBtn"><span>Join</span></button>
+                </div>
+            </section>
+        </div>
+
+        <div id="createPane">
+
+        <section class="block" id="gameTypeBlock">
+            <div class="seg" role="group" aria-label="What to play">
+                <button id="typeCustom" aria-pressed="true">Configure a tournament
+                    <span class="hint">Your own competition, your own rules</span></button>
+                <button id="typeWorldCup" aria-pressed="false">Play a whole World Cup
+                    <span class="hint">Replace a nation and win the thing</span></button>
+            </div>
+        </section>
+
+        <!-- World Cup options, shown only for that type -->
+        <section class="block hidden" id="rwcBlock">
+            <p class="eyebrow">How nations are assigned</p>
+            <div class="seg small" role="group" aria-label="How nations are assigned">
+                <button id="rwcAssignApp" aria-pressed="true">Randomly assigned
+                    <span class="hint">Spread across the pools</span></button>
+                <button id="rwcAssignDraft" aria-pressed="false">Users draft nations
+                    <span class="hint">Pick in a random order</span></button>
+            </div>
+
+            <div id="rwcPoolControl">
+                <p class="eyebrow">Where you draft players from</p>
+                <div class="seg small" role="group" aria-label="Where players are drafted from">
+                    <button id="rwcPoolWhole" aria-pressed="true">The whole pool
+                        <span class="hint">Compete for every player</span></button>
+                    <button id="rwcPoolNation" aria-pressed="false">Only your nation
+                        <span class="hint">Your nation, all years</span></button>
+                </div>
+            </div>
+
+            <p class="eyebrow">Tournament<button class="info-i" data-help="rwcMode" aria-label="What is this?">i</button></p>
+            <div class="rwc-slider" id="rwcSlider">
+                <div class="rwc-value-row"><span class="rwc-value" id="rwcValue"></span></div>
+                <div class="rwc-track">
+                    <div class="rwc-dots" id="rwcDots"></div>
+                    <input type="range" id="rwcRange" min="0" max="10" step="1" value="9"
+                        aria-label="Which tournament to play">
+                </div>
+                <div class="rwc-ends"><span id="rwcEndA"></span><span id="rwcEndB"></span></div>
+            </div>
+
+            <p class="list-hint" id="rwcSummary"></p>
+        </section>
+
+        <div id="optionsBlock">
+
+
+        <section class="block" id="seatsBlock">
+            <p class="eyebrow">Users <small>how many people are drafting</small><button class="info-i" data-help="ai" aria-label="What is this?">i</button></p>
+            <div class="stepper-row">
+                <div class="stepper">
+                    <label class="field">Human users</label>
+                    <div class="cap">
+                        <button id="sizeDown" aria-label="Fewer users">&minus;</button>
+                        <span class="num" id="sizeNum">2</span>
+                        <button id="sizeUp" aria-label="More users">+</button>
+                    </div>
+                </div>
+                <div class="stepper" id="aiStepper">
+                    <label class="field">AI sides</label>
+                    <div class="cap">
+                        <button id="aiDown" aria-label="Fewer AI sides">&minus;</button>
+                        <span class="num" id="aiNum">0</span>
+                        <button id="aiUp" aria-label="More AI sides">+</button>
+                    </div>
+                </div>
+                <div class="stepper" id="seasonStepper">
+                    <label class="field">Competitions</label>
+                    <div class="cap">
+                        <button id="seasonDown" aria-label="Shorter season">&minus;</button>
+                        <span class="num" id="seasonNum">3</span>
+                        <button id="seasonUp" aria-label="Longer season">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="format-line" id="formatLine"></p>
+        </section>
+
+        <section class="block" id="turnBlock">
+            <p class="eyebrow section-toggle">Timers<button class="info-i" data-help="timers" aria-label="What is this?">i</button>
+                <button class="acc-btn" id="turnAcc" aria-expanded="false" aria-label="Show timer settings">
+                    <span class="acc-caret">&#9662;</span>
+                </button>
+            </p>
+            <p class="acc-now" id="turnNow"></p>
+            <div class="acc-body hidden" id="turnBody">
+                <p class="sub-label">Pick timer <small>how long each turn may take</small></p>
+                <label class="switch-row">
+                    <input type="checkbox" id="turnOn" checked>
+                    <span>Limit each turn</span>
+                </label>
+                <div id="turnFields" class="turn-fields">
+                    <div class="turn-field">
+                        <label for="turnHours">Hours</label>
+                        <input type="number" id="turnHours" min="0" max="168" step="1" value="0" inputmode="numeric">
+                    </div>
+                    <div class="turn-field">
+                        <label for="turnMins">Minutes</label>
+                        <input type="number" id="turnMins" min="0" max="59" step="1" value="10" inputmode="numeric">
+                    </div>
+                </div>
+                <p class="list-hint" id="turnHint"></p>
+
+                <p class="sub-label">Host inactivity <small>so a silent host cannot freeze the room</small></p>
+                <div class="turn-fields">
+                    <div class="turn-field">
+                        <label for="idleHours">Hours</label>
+                        <input type="number" id="idleHours" min="1" max="168" step="1" value="24" inputmode="numeric">
+                    </div>
+                </div>
+                <p class="list-hint">If the host does nothing for this long, anyone else in the room can take over.</p>
+            </div>
+        </section>
+
+        <!-- Whole-draft timer, shown instead of the per-pick timer when
+             everyone drafts their own nation at once. -->
+        <section class="block hidden" id="wholeDraftBlock">
+            <p class="eyebrow">Draft time<button class="info-i" data-help="timers" aria-label="What is this?">i</button></p>
+            <p class="acc-now" id="wholeDraftNow"></p>
+            <div class="turn-fields">
+                <div class="turn-field">
+                    <label for="wholeHours">Hours</label>
+                    <input type="number" id="wholeHours" min="0" max="168" step="1" value="0" inputmode="numeric">
+                </div>
+                <div class="turn-field">
+                    <label for="wholeMins">Minutes</label>
+                    <input type="number" id="wholeMins" min="0" max="59" step="1" value="30" inputmode="numeric">
+                </div>
+            </div>
+            <p class="list-hint">Everyone drafts their own nation at the same time. When this runs out, any team not submitted is entered as it stands.</p>
+        </section>
+
+        <section class="block">
+            <p class="eyebrow">Mode<button class="info-i" data-help="mode" aria-label="What is this?">i</button></p>
+            <button class="chip-btn" id="randomise">Randomise the setup</button>
+            <div class="seg" role="group" aria-label="Game mode">
+                <button id="modeCareer" aria-pressed="true">Career peak
+                    <span class="hint">One card per player, best rating</span></button>
+                <button id="modeTournament" aria-pressed="false">Tournament
+                    <span class="hint">Every World Cup version is a pick</span></button>
+            </div>
+            <label class="switch-row" id="chemRow">
+                <input type="checkbox" id="chemOn" checked>
+                <span>Chemistry <small>bonus for players who played together</small></span>
+            </label>
+        </section>
+
+        <section class="block" id="yearsBlock">
+            <p class="eyebrow">Years<button class="info-i" data-help="pool" aria-label="What is this?">i</button></p>
+            <div class="years-wrap">
+                <div class="year-ticks" id="yearTicks"></div>
+                <div class="slider">
+                    <div class="track"></div>
+                    <div class="fill" id="yearFill"></div>
+                    <input type="range" id="yMin" min="0" max="9" step="1" value="0" aria-label="Earliest tournament">
+                    <input type="range" id="yMax" min="0" max="9" step="1" value="9" aria-label="Latest tournament">
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="nationsBlock">
+            <p class="eyebrow section-toggle">Nations pool
+                <button class="acc-btn" id="nationsAcc" aria-expanded="false" aria-label="Show the nations pool">
+                    <span class="acc-caret">&#9662;</span>
+                </button>
+            </p>
+            <p class="acc-now" id="nationsNow"></p>
+            <div class="acc-body hidden" id="nationsBody">
+                <p class="sub-label">Which countries players can be drafted from</p>
+                <div class="chips" id="geoChips"></div>
+            </div>
+        </section>
+
+        <section class="block" id="rulesBlock">
+            <p class="eyebrow">Rules<button class="info-i" data-help="rules" aria-label="What is this?">i</button></p>
+            <div class="rules" id="ruleList"></div>
+        </section>
+
+        <p class="eyebrow">Pool check</p>
+        <div class="strap" id="strap">
+            <span class="live-dot"></span>
+            <span id="strapText">Reading the pool...</span>
+        </div>
+
+        </div><!-- /optionsBlock -->
+
+        <button class="cta" id="create"><span>Create room</span></button>
+
+        </div>
+
+        <p class="status" id="lobbyStatus"></p>
+
+    </div>
+
+    <!-- ══ DRAFT VIEW ══ -->
+    <div id="nationView" class="hidden">
+        <header class="app-head">
+            <h1>Rugby XV Draft <span class="sub">Nation draft</span></h1>
+        </header>
+        <div id="nationTurn" class="turn-bar"></div>
+        <div id="nationClock" class="turn-clock"></div>
+        <p class="list-hint" id="nationHint"></p>
+        <div id="nationOrder" class="nation-order"></div>
+        <div id="nationPicked" class="nation-picked"></div>
+        <div id="nationPool" class="nation-pool"></div>
+        <button id="nationStart" class="cta hidden"><span>Start player draft</span></button>
+        <p id="nationStartHint" class="list-hint"></p>
+    </div>
+
+    <div id="draftView" class="hidden">
+
+        <div class="turn-bar-row">
+            <div id="turnBar" class="turn-bar hidden"></div>
+            <button class="info-i" data-help="clock" aria-label="The turn clock">i</button>
+        </div>
+        <div id="turnClock" class="turn-clock"></div>
+        <div id="rwcDraftLine" class="rwc-line hidden"></div>
+        <div id="draftCover" class="draft-cover hidden"></div>
+
+        <div class="draft-help">
+            <button class="info-i" data-help="draft" aria-label="How the draft works">i</button>
+            <button class="info-i" data-help="positions" aria-label="Positions">i</button>
+        </div>
+        <div class="draft-tabs" role="group" aria-label="Draft sections">
+            <button id="tabXV" aria-pressed="true">Your XV</button>
+            <button id="tabBoard" aria-pressed="false">Big Board</button>
+            <button id="tabAll" aria-pressed="false">Full Draft</button>
+            <button id="tabPicks" aria-pressed="false">Picks</button>
+        </div>
+
+        <div id="stuckNote" class="stuck-note hidden"></div>
+
+        <div id="pickBanner" class="pick-banner hidden">
+            <span>Picking <strong id="bannerSlot"></strong></span>
+            <button id="bannerCancel">Cancel</button>
+        </div>
+
+        <!-- Your XV -->
+        <div id="paneXV">
+            <div id="chemPanel" class="chem-panel hidden"></div>
+        <div id="rulePanel" class="rule-panel hidden"></div>
+            <p class="eyebrow">Your XV <small id="squadProgress"></small></p>
+            <div class="teamsheet" id="teamsheet"></div>
+            <div id="parallelSubmit" class="hidden"></div>
+        </div>
+
+        <!-- Big Board / Full Draft share the list body -->
+        <div id="paneList" class="hidden">
+            <input type="text" id="panelSearch" placeholder="Search name, nation or year" autocomplete="off" aria-label="Search players">
+            <div class="axis-row">
+                <span class="axis-label">Group by<button class="info-i" data-help="board" aria-label="What is the Big Board?">i</button></span>
+                <div class="axis" role="group" aria-label="Group list by">
+                    <button id="axisNation" aria-pressed="true">Nation</button>
+                    <button id="axisPosition" aria-pressed="false">Position</button>
+                </div>
+            </div>
+            <p class="list-hint" id="listHint"></p>
+            <div class="panel-body" id="panelBody"></div>
+        </div>
+
+        <div id="panePicks" class="hidden">
+            <p class="list-hint">Every pick, latest first.</p>
+            <div class="picks-body" id="picksBody"></div>
+        </div>
+
+        <div id="devBar" class="dev-bar hidden">
+            <span class="dev-tag">Dev</span>
+            <button id="autoPickBtn">Auto-pick my XV</button>
+            <span class="dev-note" id="devNote"></span>
+        </div>
+
+        <p class="status" id="draftStatus"></p>
+        <button class="cta ghost" id="backToRoom"><span>Back to room</span></button>
+    </div>
+
+    <!-- ══ COMMIT VIEW ══ -->
+    <div id="commitView" class="hidden">
+        <p class="eyebrow">Before kickoff <small>two choices, both final</small></p>
+
+        <section class="block">
+            <div class="step-head" id="kickerStep">
+                <span class="step-num">1</span>
+                <span class="step-text">
+                    <strong>Choose your goal kicker<button class="info-i" data-help="kicker" aria-label="What is this?">i</button></strong>
+                    <small>Tap one player from your XV below. Pick the wrong man and you will lose the close games.</small>
+                </span>
+                <span class="step-state" id="kickerState">Required</span>
+            </div>
+            <div id="commitChem" class="commit-chem"></div>
+        <div id="kickerList" class="kicker-list"></div>
+        </section>
+
+        <section class="block">
+            <div class="step-head done">
+                <span class="step-num">2</span>
+                <span class="step-text">
+                    <strong>Set your team strategy<button class="info-i" data-help="strategy" aria-label="What is this?">i</button></strong>
+                    <small>How much of your rating comes from the forwards.</small>
+                </span>
+            </div>
+            <div class="strategy-wrap">
+                <div class="commit-ratings">
+                    <div class="cstat"><div class="cval" id="cOverall">0</div><div class="clbl">Overall</div></div>
+                    <div class="cstat"><div class="cval" id="cFwd">0</div><div class="clbl">Forwards</div></div>
+                    <div class="cstat"><div class="cval" id="cBck">0</div><div class="clbl">Backs</div></div>
+                </div>
+                <div id="penaltyNote" class="penalty-note hidden"></div>
+                <div class="strategy-ends"><span>Forwards</span><span>Balanced</span><span>Backs</span></div>
+                <input type="range" id="strategy" min="0" max="100" step="1" value="50" aria-label="Forwards to backs weighting">
+                <p class="list-hint" id="strategyHint"></p>
+            </div>
+        </section>
+
+        <p class="list-hint" id="commitWhy">Choose your goal kicker above to continue.</p>
+        <button class="cta" id="commitBtn" disabled><span>Lock in and kick off</span></button>
+        <p class="status" id="commitStatus"></p>
+        <button class="cta ghost hidden" id="forceCommit"><span>Choose for the ones still waiting</span></button>
+
+        <div id="commitWaiting" class="hidden">
+            <p class="eyebrow">Waiting for</p>
+            <ul class="members" id="commitMembers"></ul>
+            <button class="cta hidden" id="startComp"><span>Start the tournament</span></button>
+            <p class="status" id="startCompHint"></p>
+        </div>
+    </div>
+
+    <!-- ══ SETUP VIEW (between competitions) ══ -->
+    <div id="setupView" class="hidden">
+        <p class="eyebrow">Set up the next competition <small id="setupSub"></small></p>
+        <p class="list-hint">Change the pool and the rules if you want to. The squads are retired and everyone drafts again from a fresh pool.</p>
+        <div id="setupHost"></div>
+        <div id="setupReady" class="ready-list"></div>
+        <button class="cta" id="setupConfirm"><span>Confirm and start the draft</span></button>
+        <p class="status" id="setupStatus"></p>
+        <button class="cta ghost" id="setupBack"><span>Back to room</span></button>
+    </div>
+
+    <!-- ══ HOW TO PLAY ══ -->
+    <div id="helpView" class="hidden">
+        <p class="eyebrow">How to play <small>everything, in one place</small></p>
+        <div id="guideBody" class="guide"></div>
+        <button class="cta ghost" id="helpTour"><span>Run the walkthrough again</span></button>
+        <button class="cta ghost" id="helpBack"><span>Back</span></button>
+    </div>
+
+    <!-- ══ SEASON OUTCOME VIEW ══ -->
+    <div id="seasonView" class="hidden">
+        <p class="eyebrow">Season outcome <small id="seasonSub"></small></p>
+        <div id="seasonWinner"></div>
+        <div id="seasonStats" class="stats-panel"></div>
+        <div id="seasonSummary"></div>
+        <button class="cta" id="newTournament"><span>Create a new tournament</span></button>
+        <button class="cta ghost" id="goHome"><span>Return to the home page</span></button>
+        <button class="cta ghost" id="seasonBack"><span>Back to the results</span></button>
+    </div>
+
+    <!-- ══ TEAMS VIEW ══ -->
+    <div id="teamsView" class="hidden">
+        <p class="eyebrow">Every squad <small id="teamsSub"></small></p>
+        <p class="list-hint">The XVs everyone drafted, with their goal kicker and strategy.</p>
+        <div id="teamsBody"></div>
+        <button class="cta ghost" id="teamsBack"><span>Back to the results</span></button>
+    </div>
+
+    <!-- ══ WAITING VIEW (between competitions) ══ -->
+    <div id="waitView" class="hidden">
+        <p class="eyebrow" id="waitTitle"><span id="waitTitleText">Next competition</span> <small id="waitSub"></small></p>
+        <p class="list-hint" id="waitHint"></p>
+        <div id="waitBrief" class="brief hidden"></div>
+        <div id="waitList" class="ready-list"></div>
+        <p class="status" id="forceHint"></p>
+        <button class="cta hidden" id="enterDraft"><span>Enter the draft</span></button>
+        <button class="cta hidden" id="forceStart"><span>Start without them</span></button>
+        <button class="cta ghost hidden" id="waitBoard"><span>Build your Big Board</span></button>
+    </div>
+
+    <!-- ══ FIXTURES VIEW ══ -->
+    <div id="compView" class="hidden">
+        <p class="eyebrow">Fixtures <small id="compName"></small></p>
+        <p class="list-hint" id="compDecided"></p>
+        <div id="rwcComp" class="hidden"></div>
+        <div id="fixtureList" class="fixtures"></div>
+        <div id="speedRow" class="speed-row hidden">
+            <span class="axis-label">Speed</span>
+            <div class="axis" role="group" aria-label="Simulation speed">
+                <button id="spSlow" aria-pressed="false">Slow</button>
+                <button id="spMed" aria-pressed="true">Medium</button>
+                <button id="spFast" aria-pressed="false">Fast</button>
+            </div>
+        </div>
+        <div id="poolPause" class="pool-pause hidden">
+            <div id="poolTables"></div>
+            <button class="cta" id="watchFinals"><span>Watch the final games</span></button>
+        </div>
+        <button class="cta hidden" id="playBtn"><span>Play the fixtures</span></button>
+        <p class="status" id="compStatus"></p>
+        <div id="seriesWrap" class="hidden">
+            <p class="eyebrow">Series result</p>
+            <div id="seriesBox"></div>
+        </div>
+        <div id="tableWrap" class="hidden">
+            <p class="eyebrow">Standings</p>
+            <div id="leagueTable"></div>
+        </div>
+        <div id="winnerBox" class="hidden"></div>
+
+
+        <div id="compStats" class="stats-panel hidden"></div>
+        <div id="tallyWrap" class="hidden">
+            <p class="eyebrow">Room tally <small id="tallySub"></small></p>
+            <div id="tallyTable"></div>
+        </div>
+
+        <button class="cta ghost" id="showTeams"><span>See every squad</span></button>
+        <button class="cta hidden" id="readyBtn"><span>Ready for the next competition</span></button>
+        <button class="cta hidden" id="gotoNext"><span>Show me the next competition</span></button>
+        <button class="cta hidden" id="nextComp"><span>Setup the next competition</span></button>
+        <p class="status" id="nextHint"></p>
+        <div id="readyList" class="ready-list hidden"></div>
+
+        <button class="cta hidden" id="viewSeason"><span>View season outcome</span></button>
+        <button class="cta ghost" id="compBack"><span>Back to room</span></button>
+    </div>
+
+    <!-- ══ ROOM VIEW ══ -->
+    <div id="roomView" class="hidden">
+        <p class="eyebrow">Room</p>
+        <div class="room-code" id="roomCode">----<small>share this code</small></div>
+        <div class="share-row" id="shareRow">
+            <button class="share-btn" id="shareLink">Share link</button>
+            <button class="share-btn" id="shareCode">Share code</button>
+        </div>
+        <div class="strap ready" id="roomStrap"><span id="roomStrapText"></span></div>
+        <div id="rwcRoomLine" class="rwc-line hidden"></div>
+        <p class="season-line" id="seasonLine"></p>
+
+        <div id="roomBrief" class="brief"></div>
+
+        <section class="block" id="quietBlock">
+            <p class="eyebrow">Your quiet hours <small id="quietNow"></small></p>
+            <p class="list-hint">Your pick clock pauses during these hours, so a turn never runs
+                out while you are asleep. This is yours alone, and you can change it before
+                each competition.</p>
+            <label class="switch-row">
+                <input type="checkbox" id="quietOn">
+                <span>Pause my clock overnight</span>
+            </label>
+            <div class="quiet-row">
+                <div class="turn-field">
+                    <label for="quietStart">From</label>
+                    <input type="time" id="quietStart" value="23:00">
+                </div>
+                <div class="turn-field">
+                    <label for="quietEnd">Until</label>
+                    <input type="time" id="quietEnd" value="08:00">
+                </div>
+            </div>
+            <p class="list-hint" id="quietHint"></p>
+        </section>
+        <ul class="members" id="members"></ul>
+        <div id="lotteryPanel" class="lottery hidden">
+            <p class="eyebrow">Draft order</p>
+            <ol class="lottery-list" id="lotteryList"></ol>
+        </div>
+        <div id="hostIdle" class="stuck-note hidden"></div>
+        <button class="cta ghost" id="preBoard"><span>Build your Big Board</span></button>
+        <button class="cta hidden" id="startDraft"><span>Start draft</span></button>
+        <button class="cta ghost hidden" id="fillAi"><span>Fill the empty seat with an AI</span></button>
+        <button class="cta hidden" id="resumeDraft"><span>Return to draft</span></button>
+        <p class="status" id="startHint"></p>
+        <button class="cta ghost" id="leave"><span>Leave room</span></button>
+        <button class="cta danger hidden" id="closeRoom"><span>Close room</span></button>
+        <p class="status" id="roomStatus"></p>
+    </div>
+
+    <div id="tipOverlay" class="tip-overlay hidden">
+        <div class="tip-card" role="dialog" aria-modal="true" aria-labelledby="tipTitle">
+            <button class="tip-close" id="tipClose" aria-label="Close">&times;</button>
+            <div class="tip-icon" id="tipIcon"></div>
+            <h3 id="tipTitle"></h3>
+            <div class="tip-body" id="tipBody"></div>
+            <p class="tip-step" id="tipStep"></p>
+            <label class="tip-optout" id="tipOptOutRow"><input type="checkbox" id="tipDontShow"> Do not show these again</label>
+            <div class="tip-actions">
+                <button class="cta ghost" id="tipSkip"><span>Skip the tour</span></button>
+                <button class="cta" id="tipNext"><span>Next</span></button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ══ MODAL ══ -->
+<div id="modalScrim" class="modal-scrim hidden"></div>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <p class="modal-title" id="modalTitle"></p>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+        <button class="modal-btn ghost" id="modalCancel">Cancel</button>
+        <button class="modal-btn primary" id="modalOk">Confirm</button>
+    </div>
+</div>
+
+<!-- Firebase compat SDK (CDN, no build step) -->
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-database-compat.js"></script>
+
+<!-- Data and logic. Order matters: data and engines before net and lobby. -->
+<script>window.MP_DATA_VERSION = "v1-mp-lobby";</script>
+<script src="../data.js"></script>
+<script src="engine.js"></script>
+<script src="rules.js"></script>
+<script src="draft.js"></script>
+<script src="picks.js"></script>
+<script src="firebase-config.js"></script>
+<script src="net.js"></script>
+<script src="lobby.js"></script>
+<script src="draftui.js"></script>
+<script src="fixtures.js"></script>
+<script src="chem.js"></script>
+<script src="ai.js"></script>
+<script src="help.js"></script>
+<script src="rwc.js"></script>
+<script src="sim.js"></script>
+<script src="commit.js"></script>
+</body>
+</html>
