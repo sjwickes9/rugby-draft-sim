@@ -625,7 +625,18 @@ window.MPDraftUI = (function () {
         const parts = String(name).trim().split(/\s+/);
         return parts.length > 1 ? parts[parts.length - 1] : parts[0];
     }
-    function nameKey(p) { return p.country + "|" + p.name; }
+    // Group a player's tournament versions by identity. Country and name are
+    // not always unique: some countries have had two players of the same name,
+    // one a forward and one a back (England's two Richard Hills, a flanker and
+    // a scrum-half; Wales's two Gareth Thomas, a prop and a fullback). They are
+    // different men, so the forward/back split keeps their versions apart, the
+    // same rule used by personKey.
+    function nameKey(p) {
+        const forwards = ["front-row", "lock", "back-row"];
+        const groups = MPPicks.playerGroups(p);
+        const isForward = groups.some(function (g) { return forwards.indexOf(g) !== -1; });
+        return p.country + "|" + p.name + "|" + (isForward ? "fwd" : "back");
+    }
 
     // Position group order for the sub-headings inside a nation.
     const GROUP_ORDER = ["front-row", "lock", "back-row", "half-back", "centre", "wing", "fullback"];
@@ -969,29 +980,12 @@ window.MPDraftUI = (function () {
         const slot = MPPicks.slotById(slotId);
         $("bannerSlot").textContent = slot.num + ". " + slot.label;
         $("pickBanner").classList.remove("hidden");
-        // Open the nations that hold natural players for this slot, so the
-        // relevant ones are presented first. The user is free to open any
-        // other nation and take someone listed elsewhere.
+        // Every pick starts with all accordions minimised, so the board is a
+        // clean, scannable list of nations (or positions) and the user opens
+        // only what they want. The counts on each heading guide them.
         state.openNations = {};
         state.openGroups = {};
-        // Position axis: open the group that naturally covers this slot.
         state.openSub = {};
-        const ng = MPPicks.NODE_GROUP[slot.node];
-        if (ng) {
-            state.openGroups[ng] = true;
-            // Position axis: open every nation sub-accordion is too much, so
-            // leave them shut; the counts guide the user.
-        }
-        byNation.forEach(function (g) {
-            const fits = g.players.some(function (e) {
-                return MPPicks.naturalSlots(e.versions[0]).indexOf(slotId) !== -1;
-            });
-            if (fits && Object.keys(state.openNations).length < 3) {
-                state.openNations[g.nation] = true;
-                // Nation axis: open the matching position sub-accordion too.
-                if (ng) state.openSub[g.nation + "|" + ng] = true;
-            }
-        });
         setTab("all");
     }
 

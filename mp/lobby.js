@@ -5,7 +5,7 @@
 
 (function () {
     // Bumped on every change. Format v1.YYMMDDHHMM in GMT.
-    const VERSION = "v1.2607291437";
+    const VERSION = "v1.2608181610";
 
     const $ = function (id) { return document.getElementById(id); };
 
@@ -804,6 +804,19 @@ on("typeCustom", "click", function () { setGameType("custom"); });
         on("leave", "click", onLeave);
         on("closeRoom", "click", onCloseRoom);
         on("noticeClose", "click", function () { showNotice(""); });
+        on("notifyEnable", "click", function () {
+            if (!window.MPNotify) return;
+            $("notifyEnable").disabled = true;
+            MPNotify.enable().then(function () {
+                const uid = MPNet.currentUid && MPNet.currentUid();
+                if (uid) MPNotify.saveTokenFor(uid, currentCode || "_pending");
+                renderNotifyCard();
+            }).catch(function (err) {
+                $("notifyEnable").disabled = false;
+                if (err && err.message === "needs-install") { renderNotifyCard(); return; }
+                showNotice((err && err.message) || "Could not turn on notifications.");
+            });
+        });
         on("startDraft", "click", onStartDraft);
         on("backToRoom", "click", function () { showOnly("roomView"); });
         on("resumeDraft", "click", showDraft);
@@ -982,6 +995,12 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
             });
         });
         on("waitBoard", "click", function () {
+            const room = latestRoom || {};
+            if (!(room.pool || []).length) {
+                showNotice("The pool is not ready yet.");
+                return;
+            }
+            ensureDraftInit(room);
             showOnly("draftView");
             MPDraftUI.setLive(false);
         });
@@ -1017,19 +1036,37 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         on("seasonBack", "click", function () { showOnly("compView"); });
         on("compBack", "click", function () { showOnly("roomView"); });
         on("newTournament", "click", function () {
+            const isHost = ((latestRoom || {}).meta || {}).hostUid === MPNet.currentUid();
+            if (!isHost) {
+                modal({
+                    title: "Leave the room?",
+                    body: "The season is finished. You can wait here for the host to start "
+                        + "another tournament, or leave the room."
+                        + "<span class='warn'>If you leave, you will need a new code to rejoin.</span>",
+                    ok: "Leave room", cancel: "Stay in the room"
+                }).then(function (yes) {
+                    if (!yes) return;
+                    MPNet.leaveRoom(currentCode).then(function () { backToLobby(); })
+                        .catch(function () { backToLobby(); });
+                });
+                return;
+            }
             modal({
-                title: "Create a new tournament?",
-                body: "This season is finished. <strong>This room will be closed</strong> "
-                    + "and you will go back to the start, where you can set up a new tournament "
-                    + "or join someone else's."
-                    + "<span class='warn'>The results above will no longer be available.</span>",
-                ok: "Create new tournament", cancel: "Stay here"
+                title: "New tournament, same room?",
+                body: "Everyone here stays in the room, so nobody re-enters a code. "
+                    + "You will set up a fresh tournament next, changing the pool, rules or "
+                    + "even the game type if you like, and the current users are carried "
+                    + "straight into it."
+                    + "<span class='warn'>This tournament's results will be cleared.</span>",
+                ok: "Set up new tournament", cancel: "Stay here"
             }).then(function (yes) {
                 if (!yes) return;
-                const isHost = ((latestRoom || {}).meta || {}).hostUid === MPNet.currentUid();
-                const done = function () { backToLobby(); };
-                if (isHost) MPNet.closeRoom(currentCode).then(done).catch(done);
-                else MPNet.leaveRoom(currentCode).then(done).catch(done);
+                MPNet.newTournamentInRoom(currentCode)
+                    .then(function () {
+                        setupShown = true;
+                        showReconfigure(latestRoom || {});
+                    })
+                    .catch(function (err) { showNotice(err.message); });
             });
         });
     }
@@ -1374,6 +1411,12 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
     // ── Room view ───────────────────────────────────────────
     function enterRoom(code) {
         currentCode = code;
+        // If notifications are already on for this device, attach the token to
+        // this room so turns in it can notify the user.
+        if (window.MPNotify && MPNotify.hasToken && MPNotify.hasToken()) {
+            const uid = MPNet.currentUid && MPNet.currentUid();
+            if (uid) MPNotify.saveTokenFor(uid, code);
+        }
         commitShown = false;
         compShown = false;
         seenDrafting = false;
@@ -1893,7 +1936,10 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                     showNotice(err.message); setStatus("forceHint", err.message, true);
                 });
             }
-            showOnly("waitView");
+            // Leave the user on the Big Board if they have deliberately opened
+            // it during this wait, rather than snapping them back on every
+            // snapshot. Otherwise show the wait view.
+            if (shownView !== "draftView") showOnly("waitView");
             return;
         }
         setupShown = false;
@@ -2046,7 +2092,9 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
             onExpire: function (slotId, poolIndex, forUid, done) {
                 const d = latestRoom && latestRoom.draft;
                 if (!d) { done(); return; }
-                MPNet.makePick(currentCode, slotId, poolIndex, d.order, d.pickIndex, forUid)
+                const pl = (latestRoom.pool || [])[poolIndex];
+                const key = pl ? MPPicks.playerKey(pl) : null;
+                MPNet.makePick(currentCode, slotId, poolIndex, d.order, d.pickIndex, forUid, key)
                     .then(function () { done(); })
                     .catch(function () { done(); });
             },
@@ -2060,7 +2108,9 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                         .catch(done);
                     return;
                 }
-                MPNet.makePick(currentCode, slotId, poolIndex, d.order, d.pickIndex)
+                const pl = (latestRoom.pool || [])[poolIndex];
+                const key = pl ? MPPicks.playerKey(pl) : null;
+                MPNet.makePick(currentCode, slotId, poolIndex, d.order, d.pickIndex, undefined, key)
                     .then(function () { done(null); })
                     .catch(done);
             }
@@ -2211,7 +2261,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         const picks = draft.picks || {};
         Object.keys(picks).forEach(function (k) {
             const pk = picks[k];
-            const p = pool[pk.i];
+            const p = MPPicks.playerFromPick(pool, pk);
             if (p && squads[pk.by]) squads[pk.by][pk.slot] = p;
         });
 
@@ -2545,6 +2595,51 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                 : "Everyone has finished with the results.") + "</p>";
     }
 
+    // The full setup screen for a NEW in-room tournament. Unlike showSetup
+    // (which reconfigures the pool between competitions of one season), this
+    // brings the whole create control set into the setup view, so the host can
+    // change the game type, season length, AI seats, pool, rules and timers.
+    // Only the human seat count is locked, since those people are already here.
+    let reconfiguring = false;
+    function showReconfigure(room) {
+        reconfiguring = true;
+        const host = $("setupHost");
+        // Move the full create control set into the setup host slot, in order.
+        ["gameTypeBlock", "rwcBlock", "optionsBlock"].forEach(function (id) {
+            const el = $(id);
+            if (el && host && el.parentNode !== host) host.appendChild(el);
+        });
+        // Human seats are fixed; hide only that one stepper, keep AI and season.
+        const humanStepper = $("sizeNum") ? $("sizeNum").closest(".stepper") : null;
+        if (humanStepper) humanStepper.classList.add("hidden");
+        $("seatsBlock").classList.remove("hidden");
+
+        const st = room.settings || {};
+        $("setupSub").textContent = "New tournament, same players";
+        renderSetupStatus(room);
+
+        // Load current settings into the controls.
+        state.gameType = st.gameType === "worldcup" ? "worldcup" : "custom";
+        state.mode = st.mode === "career" ? "career" : "tournament";
+        if (st.yearMin) state.yMin = Math.max(0, YEARS.indexOf(st.yearMin));
+        if (st.yearMax) state.yMax = Math.max(0, YEARS.indexOf(st.yearMax));
+        state.geo = (st.geoLabel && GEO[st.geoLabel]) ? st.geoLabel : "";
+        state.rules = Object.assign({}, st.rules || {});
+        if (st.turnMs === 0 || st.turnMs) state.turnMs = st.turnMs;
+        if (st.hostIdleMs) state.hostIdleMs = st.hostIdleMs;
+        state.chemistry = st.chemistry !== false;
+        state.season = st.seasonLength || 1;
+        state.aiCount = st.aiCount || 0;
+        // Human seat count is the number of human members, fixed.
+        const mem = room.members || {};
+        state.size = Object.keys(mem).filter(function (u) { return !mem[u].ai; }).length || 2;
+        if ($("chemOn")) $("chemOn").checked = state.chemistry;
+        setGameType(state.gameType);
+        refresh();
+
+        showOnly("setupView");
+    }
+
     function showSetup(room) {
         const block = $("optionsBlock");
         const host = $("setupHost");
@@ -2575,11 +2670,17 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
 
     // Put the controls back where they belong when leaving the setup view.
     function restoreOptions() {
-        const block = $("optionsBlock");
         const pane = $("createPane");
         const btn = $("create");
-        if (block && pane && block.parentNode !== pane) pane.insertBefore(block, btn);
+        // Return the blocks to the create pane in their original order.
+        ["gameTypeBlock", "rwcBlock", "optionsBlock"].forEach(function (id) {
+            const el = $(id);
+            if (el && pane && el.parentNode !== pane) pane.insertBefore(el, btn);
+        });
         $("seatsBlock").classList.remove("hidden");
+        const humanStepper = $("sizeNum") ? $("sizeNum").closest(".stepper") : null;
+        if (humanStepper) humanStepper.classList.remove("hidden");
+        reconfiguring = false;
     }
 
     function confirmSetup() {
@@ -2589,8 +2690,18 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         // could narrow the pool below what the room needs, and the draft
         // would run out of players part way through.
         const room = latestRoom || {};
-        const seats = (room.settings || {}).tableSize
-            || Object.keys(room.members || {}).length || 2;
+        const mem = room.members || {};
+        // For a new-tournament reconfigure the seat count is the fixed humans
+        // plus the newly chosen AI seats (World Cup has no AI). Otherwise it is
+        // the room's existing table size.
+        let seats;
+        if (reconfiguring) {
+            const humans = Object.keys(mem).filter(function (u) { return !mem[u].ai; }).length || 2;
+            seats = state.gameType === "worldcup" ? humans : (humans + (state.aiCount || 0));
+        } else {
+            seats = (room.settings || {}).tableSize
+                || Object.keys(mem).length || 2;
+        }
         const check = filters();
         const analysis = MPEngine.feasibility(allSquads, check, positionFamilyMap);
         const status = MPEngine.poolStatus(analysis, seats);
@@ -2605,10 +2716,46 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         }
 
         $("setupConfirm").disabled = true;
+        setStatus("setupStatus", "Saving settings...", false);
+        const f = filters();
+
+        if (reconfiguring) {
+            // A brand new in-room tournament: write the full settings block,
+            // then drop the host into the room lobby to start the draft with
+            // the normal first-draft flow. Human seats stay fixed.
+            const extra = {
+                gameType: state.gameType,
+                seasonLength: state.gameType === "worldcup" ? 1 : state.season,
+                aiCount: state.gameType === "worldcup" ? 0 : state.aiCount,
+                turnMs: state.turnMs,
+                hostIdleMs: state.hostIdleMs,
+                chemistry: state.chemistry,
+                wholeDraftMs: state.wholeDraftMs || null
+            };
+            if (state.gameType === "worldcup") {
+                extra.rwcTournament = state.rwcTournament;
+                extra.rwcAssign = state.rwcAssign || "app";
+                extra.rwcPool = state.rwcPool || "whole";
+            }
+            MPNet.reconfigureRoom(currentCode, f, rulesForCreate(), extra)
+                .then(function () {
+                    restoreOptions();
+                    setStatus("setupStatus", "", false);
+                    $("setupConfirm").disabled = false;
+                    setupShown = false;
+                    showOnly("roomView");
+                })
+                .catch(function (err) {
+                    showNotice("Could not save the new settings: " + err.message);
+                    setStatus("setupStatus", err.message, true);
+                    $("setupConfirm").disabled = false;
+                });
+            return;
+        }
+
         setStatus("setupStatus", "Rebuilding the pool...", false);
         // Use the same helpers the create path uses, so the settings written
         // here are identical in shape to those written at room creation.
-        const f = filters();
         const patch = {
             mode: f.mode,
             geoLabel: f.geoLabel,
@@ -3040,7 +3187,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                 const taken = {};
                 Object.keys(draft.picks || {}).forEach(function (k) {
                     const pk = draft.picks[k];
-                    const p = pool[pk.i];
+                    const p = MPPicks.playerFromPick(pool, pk);
                     if (!p) return;
                     taken[MPPicks.personKey(p)] = true;
                     if (pk.by === picker) squad[pk.slot] = p;
@@ -3074,7 +3221,8 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                 for (let i = 0; i < pool.length; i++) if (pool[i] === res.player) { idx = i; break; }
                 if (idx === -1) { aiBusy = false; return; }
 
-                MPNet.makePick(currentCode, res.slotId, idx, draft.order, draft.pickIndex, picker)
+                const aiKey = MPPicks.playerKey(res.player);
+                MPNet.makePick(currentCode, res.slotId, idx, draft.order, draft.pickIndex, picker, aiKey)
                     .catch(function (err) { showNotice("AI pick failed: " + err.message); })
                     .then(function () {
                         aiBusy = false;
@@ -4404,7 +4552,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         Object.keys(picks).forEach(function (k) {
             const pk = picks[k];
             if (pk.by !== uid) return;
-            const p = pool[pk.i];
+            const p = MPPicks.playerFromPick(pool, pk);
             if (p) sq[pk.slot] = p;
         });
         return sq;
@@ -4607,6 +4755,81 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         });
     }
 
+    // The turn-notifications card on the lobby. What it shows depends entirely
+    // on the device, because the steps differ: iOS must install to the home
+    // screen first, Android and desktop can turn them on in one tap. The copy
+    // is deliberately plain and step-by-step.
+    function renderNotifyCard() {
+        const card = $("notifyCard");
+        if (!card || !window.MPNotify) return;
+        if (!MPNotify.supported()) { card.classList.add("hidden"); return; }
+        card.classList.remove("hidden");
+
+        const steps = $("notifySteps");
+        const lead = $("notifyLead");
+        const btn = $("notifyEnable");
+        const done = $("notifyDone");
+        const st = MPNotify.state();
+
+        const setSteps = function (items) {
+            if (!items || !items.length) { steps.classList.add("hidden"); steps.innerHTML = ""; return; }
+            steps.innerHTML = items.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+            steps.classList.remove("hidden");
+        };
+
+        if (st === "on") {
+            lead.textContent = "You will get a notification here when it is your turn to pick.";
+            setSteps(null);
+            btn.classList.add("hidden");
+            done.classList.remove("hidden");
+            return;
+        }
+        done.classList.add("hidden");
+        btn.classList.remove("hidden");
+        btn.disabled = false;
+
+        if (st === "denied") {
+            lead.textContent = "Notifications are currently blocked for this app.";
+            setSteps([
+                "Open your browser or phone settings for this site.",
+                "Allow notifications, then come back and tap the button below."
+            ]);
+            btn.querySelector("span").textContent = "Try again";
+            return;
+        }
+
+        if (st === "needs-install") {
+            // iOS in a normal Safari tab: must add to the home screen first.
+            lead.textContent = "To get turn notifications on iPhone or iPad, add this app to your home screen first. It only takes a moment.";
+            setSteps([
+                "Tap the <strong>Share</strong> button in Safari (the square with an arrow).",
+                "Scroll down and tap <strong>Add to Home Screen</strong>.",
+                "Tap <strong>Add</strong>, then open Rugby Draft from your new home-screen icon.",
+                "Come back to this card and tap <strong>Turn on notifications</strong>."
+            ]);
+            // The button can't do anything useful until they've installed, so
+            // hide it and let the steps lead.
+            btn.classList.add("hidden");
+            return;
+        }
+
+        // Ready: Android, desktop, or an installed iOS app.
+        if (MPNotify.isIos()) {
+            lead.textContent = "Turn on notifications to be told when it is your turn to pick.";
+            setSteps([
+                "Tap <strong>Turn on notifications</strong> below.",
+                "Tap <strong>Allow</strong> when your phone asks."
+            ]);
+        } else {
+            lead.textContent = "Get a notification when it is your turn to pick, so you do not have to keep the tab open.";
+            setSteps([
+                "Tap <strong>Turn on notifications</strong> below.",
+                "Choose <strong>Allow</strong> when your browser asks."
+            ]);
+        }
+        btn.querySelector("span").textContent = "Turn on notifications";
+    }
+
     function showNotice(msg) {
         if (!msg) { $("notice").classList.add("hidden"); return; }
         $("noticeText").textContent = msg;
@@ -4671,8 +4894,21 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         }
         refresh();
         setStatus("lobbyStatus", "Connecting...", false);
-        MPNet.init().then(function () { setStatus("lobbyStatus", "", false); })
-            .catch(function (err) { setStatus("lobbyStatus", err.message, true); });
+        MPNet.init().then(function () {
+            setStatus("lobbyStatus", "", false);
+            // Show the turn-notifications card, and if the user already enabled
+            // notifications before, quietly refresh the token so it stays valid.
+            renderNotifyCard();
+            if (window.MPNotify) {
+                MPNotify.refreshQuietly().then(function (token) {
+                    if (token) {
+                        const uid = MPNet.currentUid && MPNet.currentUid();
+                        if (uid) MPNotify.saveTokenFor(uid, currentCode || "_pending");
+                        renderNotifyCard();
+                    }
+                });
+            }
+        }).catch(function (err) { setStatus("lobbyStatus", err.message, true); });
     }
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

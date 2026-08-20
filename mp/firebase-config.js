@@ -23,6 +23,13 @@ window.MP_FIREBASE_CONFIG = {
     measurementId: "G-LQR6YMMP80"
 };
 
+window.MP_VAPID_KEY = "BJkjErcqg_GtRhljqD8CRi1le7ZgK8favjXoYhT_T9u53qINg5WDE_8suKC3pp5hhlApDk31HhX_Q_6ksMYxqIg";
+
+// The service worker runs outside the page and reads from `self`, so mirror
+// both the config and the key onto it.
+self.MP_FIREBASE_CONFIG = window.MP_FIREBASE_CONFIG;
+self.MP_VAPID_KEY = window.MP_VAPID_KEY;
+
 // A stamp recorded on each room so we can tell which data.js a room's
 // pool snapshot came from. Bump this when you change player data.
 window.MP_DATA_VERSION = window.MP_DATA_VERSION || "unset";

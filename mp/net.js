@@ -1152,6 +1152,102 @@ window.MPNet = (function () {
     // Archives the finished competition, clears the draft and commitments,
     // and starts a fresh draft in reverse standings order so the bottom of
     // the room tally picks first.
+    // Start a brand new tournament in the same room, keeping every member
+    // seated so nobody re-enters a code. The game state is wiped (draft,
+    // results, history, running tally, World Cup assignment) but members, their
+    // kits and their quiet hours are kept. The host is dropped back to a fresh
+    // lobby to configure the next tournament; the settings are rewritten when
+    // they confirm the setup. Human seats are fixed at this point, since the
+    // people are already here; the host can still adjust AI seats for a custom
+    // game during setup.
+    function newTournamentInRoom(code) {
+        return whenReady().then(function () {
+            return db.ref("rooms/" + code).get().then(function (snap) {
+                const room = snap.val();
+                if (!room) throw new Error("That room no longer exists.");
+                if ((room.meta || {}).hostUid !== uid) {
+                    throw new Error("Only the host can start a new tournament.");
+                }
+                const updates = {};
+                updates["rooms/" + code + "/draft"] = null;
+                updates["rooms/" + code + "/nationDraft"] = null;
+                updates["rooms/" + code + "/commit"] = null;
+                updates["rooms/" + code + "/comp"] = null;
+                updates["rooms/" + code + "/history"] = null;
+                updates["rooms/" + code + "/tally"] = null;
+                updates["rooms/" + code + "/rwc"] = null;
+                updates["rooms/" + code + "/ready"] = null;
+                updates["rooms/" + code + "/entered"] = null;
+                updates["rooms/" + code + "/pool"] = null;
+                updates["rooms/" + code + "/meta/announcedAt"] = null;
+                updates["rooms/" + code + "/settings/competition"] = 1;
+                updates["rooms/" + code + "/meta/status"] = "lobby";
+                return db.ref().update(updates).catch(function (err) {
+                    throw new Error("Could not start a new tournament ("
+                        + (err.code || err.message) + "). Re-publish database.rules.json if this says permission denied.");
+                });
+            });
+        });
+    }
+
+    // Rewrite the room settings for a new in-room tournament. The human seats
+    // are fixed (those people are already here), but the host may change the
+    // game type, pool, rules, timers, season length and, for a custom game, the
+    // number of AI seats. Called after newTournamentInRoom has reset the room
+    // to a fresh lobby. Leaves the room at lobby so the host then starts the
+    // draft with the normal first-draft flow.
+    function reconfigureRoom(code, filters, rules, extra) {
+        return whenReady().then(function () {
+            return db.ref("rooms/" + code).get().then(function (snap) {
+                const room = snap.val();
+                if (!room) throw new Error("That room no longer exists.");
+                if ((room.meta || {}).hostUid !== uid) {
+                    throw new Error("Only the host can change the tournament settings.");
+                }
+                const members = room.members || {};
+                const humans = Object.keys(members).filter(function (u) { return !members[u].ai; });
+                const gameType = extra.gameType || "custom";
+                // Human seats are fixed. AI seats only exist in a custom game.
+                const ai = gameType === "worldcup" ? 0 : (extra.aiCount || 0);
+                const tableSize = humans.length + ai;
+
+                const s = {
+                    mode: filters.mode || "tournament",
+                    yearMin: filters.yearMin || "",
+                    yearMax: filters.yearMax || "",
+                    geoLabel: filters.geoLabel || "All nations",
+                    countries: filters.countries || "",
+                    tableSize: tableSize,
+                    hostIdleMs: extra.hostIdleMs || 86400000,
+                    chemistry: extra.chemistry !== false,
+                    gameType: gameType,
+                    rwcTournament: extra.rwcTournament || null,
+                    rwcAssign: extra.rwcAssign || null,
+                    rwcPool: extra.rwcPool || null,
+                    turnMs: (extra.turnMs === 0 || extra.turnMs) ? extra.turnMs : 600000,
+                    wholeDraftMs: extra.wholeDraftMs || null,
+                    seasonLength: gameType === "worldcup" ? 1 : (extra.seasonLength || 1),
+                    competition: 1,
+                    aiCount: ai,
+                    rules: rules || { maxPerTournament: false, maxPerCountry: false, onePerTournament: false }
+                };
+
+                const updates = {};
+                updates["rooms/" + code + "/settings"] = s;
+                // Remove any AI members from the previous game; the host re-adds
+                // AI seats for the new custom game if wanted. Human members stay.
+                Object.keys(members).forEach(function (u) {
+                    if (members[u].ai) updates["rooms/" + code + "/members/" + u] = null;
+                });
+                updates["rooms/" + code + "/meta/status"] = "lobby";
+                return db.ref().update(updates).catch(function (err) {
+                    throw new Error("Could not save the new settings ("
+                        + (err.code || err.message) + "). Re-publish database.rules.json if this says permission denied.");
+                });
+            });
+        });
+    }
+
     function nextCompetition(code) {
         return whenReady().then(function () {
             return db.ref("rooms/" + code).get().then(function (snap) {
@@ -1347,6 +1443,8 @@ window.MPNet = (function () {
         roomExists: roomExists,
         leaveRoom: leaveRoom,
         closeRoom: closeRoom,
+        newTournamentInRoom: newTournamentInRoom,
+        reconfigureRoom: reconfigureRoom,
         MAX_MEMBERS: MAX_MEMBERS
     };
 })();
