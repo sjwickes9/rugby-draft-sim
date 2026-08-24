@@ -309,8 +309,40 @@
     // Stable identity for a pool entry. Tournament mode distinguishes
     // versions of the same player by year; career mode has no year.
     // Used for starring and for referring to a specific version.
+    // Resolve a stored pick to the player it refers to. The identity key is
+    // authoritative: it is matched against this client's pool so the pick means
+    // the same player everywhere, regardless of pool ordering or load timing.
+    // The stored index is only a fallback for a pick written before keys
+    // existed. This is what makes the draft immune to pool desync.
+    function playerFromPick(pool, pick) {
+        if (!pick || !pool) return null;
+        if (pick.key) {
+            for (let i = 0; i < pool.length; i++) {
+                if (playerKey(pool[i]) === pick.key) return pool[i];
+            }
+        }
+        return pool[pick.i];
+    }
+
+    // A stable identity for a specific player entry, used both to match a
+    // stored pick back to a pool entry and to keep picks meaning the same
+    // player across clients.
+    //
+    // It must be UNIQUE per distinct entry. The obvious key country|name|year
+    // is not enough: career-mode entries have no single `year` (they carry a
+    // `years` array instead), so two genuinely different men with the same
+    // name and country, for example England's scrum-half Richard Hill and
+    // England's flanker Richard Hill, both collapsed to "England|Richard Hill|"
+    // and became indistinguishable. That let the same slot be filled by "him"
+    // repeatedly and made the pick resolver return the wrong man. Including the
+    // forward/back split (which separates those two men) and the years array
+    // when present makes the key unique again.
     function playerKey(p) {
-        return p.country + "|" + p.name + "|" + (p.year || "");
+        const yr = p.year || (Array.isArray(p.years) ? p.years.join("-") : "");
+        const groups = playerGroups(p);
+        const forwards = ["front-row", "lock", "back-row"];
+        const fb = groups.some(function (g) { return forwards.indexOf(g) !== -1; }) ? "F" : "B";
+        return p.country + "|" + p.name + "|" + yr + "|" + fb;
     }
 
     // Identity of the person, ignoring which tournament version this is.
@@ -550,7 +582,7 @@
         slotById, nodeToSlotId, playerGroups,
         isForbidden, oopPenalty, effectiveRating, placementNote, naturalSlots,
         emptySquad, filledSlots, emptySlots, squadPlayers, isComplete, frontRowStillNeeded,
-        playerKey, personKey, evaluate, candidatesForSlot, autoPick,
+        playerKey, playerFromPick, personKey, evaluate, candidatesForSlot, autoPick,
         anyLegalPick, relaxFor, coverageContext, wouldStrand, nationsStillForced
     };
 });

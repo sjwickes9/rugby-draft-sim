@@ -500,25 +500,40 @@ window.MPNet = (function () {
     // random free nation so the draft never stalls.
     function sweepNationDeadline(code) {
         return whenReady().then(function () {
-            return db.ref("rooms/" + code + "/nationDraft").transaction(function (nd) {
-                if (!nd || !nd.deadline) return nd;
-                if (serverNow() <= nd.deadline) return nd;
-                const order = nd.order || [];
-                if ((nd.pickIndex || 0) >= order.length) return nd;
-                const taken = nd.picks || {};
-                const used = {};
-                Object.keys(taken).forEach(function (u) { used[taken[u]] = true; });
-                const free = (nd.nations || []).filter(function (n) { return !used[n]; });
-                if (!free.length) return nd;
-                const picker = order[nd.pickIndex || 0];
-                // A stable pseudo-random choice from the seed and index.
-                const rng = MPDraft.makeRng((nd.seed || 1) + (nd.pickIndex || 0) * 101);
-                taken[picker] = free[Math.floor(rng() * free.length)];
-                nd.picks = taken;
-                nd.pickIndex = (nd.pickIndex || 0) + 1;
-                const perPick = nd.perPick || 0;
-                nd.deadline = perPick ? (serverNow() + perPick) : 0;
-                return nd;
+            // Only touch the nationDraft node when the room is actually in the
+            // nation-draft phase. Without this, a stray call (for example a
+            // render or timer left over from an earlier nation draft) would run
+            // a transaction on nationDraft in a plain tournament game, which the
+            // security rules reject with permission_denied. Even a no-op
+            // transaction that returns the data unchanged still counts as a
+            // write attempt and is denied, so we must check status FIRST and
+            // avoid the transaction entirely.
+            return db.ref("rooms/" + code + "/meta/status").get().then(function (snap) {
+                if (window.MP_DEBUG_AI) console.log("[nation-sweep] called, status =", snap.val());
+                if (snap.val() !== "nationdraft") {
+                    if (window.MP_DEBUG_AI) console.log("[nation-sweep] not a nation draft, skipping write");
+                    return null;
+                }
+                return db.ref("rooms/" + code + "/nationDraft").transaction(function (nd) {
+                    if (!nd || !nd.deadline) return nd;
+                    if (serverNow() <= nd.deadline) return nd;
+                    const order = nd.order || [];
+                    if ((nd.pickIndex || 0) >= order.length) return nd;
+                    const taken = nd.picks || {};
+                    const used = {};
+                    Object.keys(taken).forEach(function (u) { used[taken[u]] = true; });
+                    const free = (nd.nations || []).filter(function (n) { return !used[n]; });
+                    if (!free.length) return nd;
+                    const picker = order[nd.pickIndex || 0];
+                    // A stable pseudo-random choice from the seed and index.
+                    const rng = MPDraft.makeRng((nd.seed || 1) + (nd.pickIndex || 0) * 101);
+                    taken[picker] = free[Math.floor(rng() * free.length)];
+                    nd.picks = taken;
+                    nd.pickIndex = (nd.pickIndex || 0) + 1;
+                    const perPick = nd.perPick || 0;
+                    nd.deadline = perPick ? (serverNow() + perPick) : 0;
+                    return nd;
+                });
             });
         });
     }
@@ -990,7 +1005,7 @@ window.MPNet = (function () {
     // onBehalfOf lets a watching client take an expired turn for an absent
     // user. The rules only permit it once the clock has actually run out,
     // and the pick is always recorded against whoever's turn it was.
-    function makePick(code, slotId, poolIndex, order, pickIndex, onBehalfOf) {
+    function makePick(code, slotId, poolIndex, order, pickIndex, onBehalfOf, playerKey) {
         return whenReady().then(function () {
             // Read the live draft state rather than trusting the client's
             // cached copy. A snapshot that is one pick behind targets the
@@ -1017,8 +1032,13 @@ window.MPNet = (function () {
 
                 const base = "rooms/" + code + "/draft/";
                 const updates = {};
+                // The identity key is the source of truth for which player was
+                // picked. The pool index is kept only as a fallback. Each client
+                // resolves the key against its own pool, so a pick always means
+                // the same player regardless of pool ordering or load timing.
                 updates[base + "picks/" + liveIndex] = {
                     by: livePicker, slot: slotId, i: poolIndex,
+                    key: playerKey || null,
                     auto: onBehalfOf ? true : null
                 };
                 updates[base + "turnStartedAt"] = firebase.database.ServerValue.TIMESTAMP;

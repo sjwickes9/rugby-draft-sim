@@ -16,20 +16,27 @@ if (self.MP_FIREBASE_CONFIG) {
     firebase.initializeApp(self.MP_FIREBASE_CONFIG);
     const messaging = firebase.messaging();
 
-    // A background message arrives while the app is closed or in another tab.
-    // The server sends a data-only message so we control exactly how it looks.
+    // The server sends a DATA-ONLY message (no `notification` payload) and we
+    // show the notification here. This is deliberate: if the message also
+    // carried a `notification` payload, the browser would auto-display it AND
+    // this handler would show another, giving two notifications per event on
+    // iOS, and on Chrome a data+notification message produces either a
+    // duplicate or a generic "site updated" notice. Data-only + one
+    // showNotification here yields exactly one notification on both iOS and
+    // desktop Chrome.
     messaging.onBackgroundMessage(function (payload) {
         const data = payload.data || {};
         const title = data.title || "Rugby XV Draft";
         const options = {
             body: data.body || "",
-            icon: "icons/icon-192.png",
-            badge: "icons/icon-192.png",
+            icon: "assets/icons/icon-192.png",
+            badge: "assets/icons/icon-192.png",
             tag: data.tag || "rugby-draft",
             renotify: true,
             data: { url: data.url || "./index.html" }
         };
-        return self.registration.showNotification(title, options);
+        return self.registration.showNotification(title, options)
+            .catch(function (e) { console.log("[sw] showNotification failed", e && e.message); });
     });
 }
 

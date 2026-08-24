@@ -4,8 +4,8 @@
 // ============================================================
 
 (function () {
-    // Bumped on every change. Format v1.YYMMDDHHMM in GMT.
-    const VERSION = "v1.2608181610";
+    // Bumped on every change. Format v1.2608241213YYMMDDHHMM in GMT.
+    const VERSION = "v1.2608241213";
 
     const $ = function (id) { return document.getElementById(id); };
 
@@ -694,8 +694,15 @@ on("typeCustom", "click", function () { setGameType("custom"); });
                 showNotice(err.message);
             });
         });
-        // Picking a nation in the nation draft.
+        // Picking a nation in the nation draft. This must only act during the
+        // nation-draft phase: the player-draft board also uses [data-nation] on
+        // its per-nation accordions, so without this status guard, clicking a
+        // nation group while drafting players wrongly fired pickNation and hit
+        // the nationDraft node, which the rules reject once the game has moved
+        // on to the player draft (the permission_denied seen on every human
+        // player pick).
         document.addEventListener("click", function (e) {
+            if (((latestRoom || {}).meta || {}).status !== "nationdraft") return;
             const b = (e.target && e.target.closest) ? e.target.closest("[data-nation]") : null;
             if (!b) return;
             const nation = b.getAttribute("data-nation");
@@ -809,7 +816,11 @@ on("typeCustom", "click", function () { setGameType("custom"); });
             $("notifyEnable").disabled = true;
             MPNotify.enable().then(function () {
                 const uid = MPNet.currentUid && MPNet.currentUid();
-                if (uid) MPNotify.saveTokenFor(uid, currentCode || "_pending");
+                // Only store the token against a real room. If the user turned
+                // notifications on from the lobby, the token is held in memory
+                // and saved when they enter a room (see enterRoom). Writing to a
+                // placeholder room is denied by the rules and pointless anyway.
+                if (uid && currentCode) MPNotify.saveTokenFor(uid, currentCode);
                 renderNotifyCard();
             }).catch(function (err) {
                 $("notifyEnable").disabled = false;
@@ -1643,6 +1654,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         const hostUid = room.meta ? room.meta.hostUid : null;
         const isHost = (hostUid === MPNet.currentUid());
         const status = room.meta ? room.meta.status : "lobby";
+        if (window.MP_DEBUG_AI) console.log("[AI] render status =", status, "currentPicker =", (room.draft || {}).currentPicker);
         const count = Object.keys(members).length;
         const seats = s.tableSize || count;
 
@@ -1958,6 +1970,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         }
 
         if (status === "drafting") {
+            if (window.MP_DEBUG_AI) console.log("[AI] render reached drafting branch, calling driveAi");
             driveAi(room);
             sweepParallelIfHost(room);
             renderDraftCover(room);
@@ -2880,6 +2893,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
     // An AI has no client, so the host writes its picks. A short pause
     // keeps the draft watchable rather than turning it into a loading bar.
     let aiBusy = false;
+    let aiRerunQueued = false;
     // An AI picks its kicker by scoring data and its strategy from its pack
     // lean, so a forwards side plays like one. Done by the host, once.
     let aiCommitBusy = false;
@@ -2950,6 +2964,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         if ((room.meta || {}).hostUid !== MPNet.currentUid()) return;
         if (MPNet.serverNow() <= nd.deadline) return;
         if (sweepNationBusy) return;
+        if (window.MP_DEBUG_AI) console.log("[nation-sweep] sweepNationIfHost firing, room status =", (room.meta || {}).status, "nd.deadline =", nd.deadline);
         sweepNationBusy = true;
         MPNet.sweepNationDeadline(currentCode).then(function () {
             sweepNationBusy = false;
@@ -3129,18 +3144,38 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
     }
 
     function driveAi(room) {
-        if (aiBusy) return;
+        if (aiBusy) {
+            if (window.MP_DEBUG_AI) console.log("[AI] driveAi called but aiBusy is true, queueing a re-run");
+            aiRerunQueued = true;
+            return;
+        }
         if ((room.meta || {}).hostUid !== MPNet.currentUid()) return;
         const draft = room.draft || {};
         const picker = draft.currentPicker;
         const seat = (room.members || {})[picker];
         // Drive both AI seats and human seats an AI is covering.
         const brain = seat && (seat.ai || (seat.cover && seat.cover.by === "ai" ? seat.cover : null));
-        if (!seat || !brain) return;
+        if (!seat || !brain) {
+            if (window.MP_DEBUG_AI) console.log("[AI] current picker is not an AI seat, nothing to do. picker=", picker, "seat=", seat);
+            return;
+        }
+        if (window.MP_DEBUG_AI) console.log("[AI] driving pick for", picker, "pickIndex=", draft.pickIndex);
 
         aiBusy = true;
+        // Safety net: if a pick cycle ever fails to reset the flag (an
+        // unexpected path or a dropped promise), clear it after a few seconds
+        // so it cannot permanently block every later AI turn. The normal reset
+        // happens well before this fires.
+        const aiBusyGuard = setTimeout(function () {
+            if (aiBusy) {
+                if (window.MP_DEBUG_AI) console.log("[AI] safety net cleared a stuck aiBusy flag");
+                aiBusy = false;
+                if (latestRoom && (latestRoom.meta || {}).status === "drafting") driveAi(latestRoom);
+            }
+        }, 8000);
         setTimeout(function () {
             try {
+                if (window.MP_DEBUG_AI) console.log("[AI] pick timer fired, computing pick for", picker);
                 // Always take settings from the freshest snapshot. The driver
                 // can be invoked from the startDraft write callback, whose
                 // room object may carry the new draft node but not yet the
@@ -3183,13 +3218,19 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                 }
 
                 // Rebuild this seat's squad and everything already taken.
+                if (window.MP_DEBUG_AI) console.log("[AI] rebuilding squad/taken from", Object.keys(draft.picks || {}).length, "existing picks");
                 const squad = MPPicks.emptySquad();
                 const taken = {};
                 Object.keys(draft.picks || {}).forEach(function (k) {
                     const pk = draft.picks[k];
                     const p = MPPicks.playerFromPick(pool, pk);
-                    if (!p) return;
-                    taken[MPPicks.personKey(p)] = true;
+                    if (!p) {
+                        if (window.MP_DEBUG_AI) console.log("[AI] taken-rebuild: pick", k, "key=", pk.key, "i=", pk.i, "RESOLVED TO NOTHING");
+                        return;
+                    }
+                    const pkey = MPPicks.personKey(p);
+                    if (window.MP_DEBUG_AI) console.log("[AI] taken-rebuild: pick", k, "-> ", p.name, p.country, (p.positions||[])[0], "| personKey=", pkey, "| storedKey=", pk.key);
+                    taken[pkey] = true;
                     if (pk.by === picker) squad[pk.slot] = p;
                 });
 
@@ -3201,31 +3242,58 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                     years: Object.keys(years).sort()
                 };
 
+                if (window.MP_DEBUG_AI) console.log("[AI] calling MPAI.pick, pool size", pool.length, "taken", Object.keys(taken).length);
                 let res = MPAI.pick(MPPicks, MPRules, pool, squad, taken, active, ctx,
                     { traits: brain.traits, seed: brain.seed }, opts);
+                if (window.MP_DEBUG_AI) console.log("[AI] MPAI.pick returned", res && res.player ? res.player.name : res);
                 // Fall back to the ordinary engine rather than stalling the room.
                 if (!res) {
+                    if (window.MP_DEBUG_AI) console.log("[AI] brain returned nothing, using autoPick");
                     res = MPPicks.autoPick(pool, squad, taken, [], active, ctx, MPRules.isPickLegal);
                 }
-                if (!res || res.stuck) { aiBusy = false; return; }
+                if (!res || res.stuck) {
+                    if (window.MP_DEBUG_AI) console.log("[AI] no pick / stuck", res);
+                    aiBusy = false; return;
+                }
 
-                // Backstop. Whatever the AI or the auto pick chose, if taking
-                // it would leave a forced-nations rule unsatisfiable from what
-                // remains, override with a pick that keeps the squad legal.
-                // This cannot depend on how the choice was reached, so it
-                // holds even if the state it reasoned about was a little stale.
                 res = ensureNationLegal(res, pool, squad, taken, active, ctx);
-                if (!res || res.stuck) { aiBusy = false; return; }
+                if (!res || res.stuck) {
+                    if (window.MP_DEBUG_AI) console.log("[AI] nation-legal backstop stuck", res);
+                    aiBusy = false; return;
+                }
 
                 let idx = -1;
                 for (let i = 0; i < pool.length; i++) if (pool[i] === res.player) { idx = i; break; }
-                if (idx === -1) { aiBusy = false; return; }
+                if (idx === -1) {
+                    // The chosen player is not identity-equal to a pool entry.
+                    // Fall back to matching by key so a differing object
+                    // reference does not stall the pick.
+                    const wantKey = MPPicks.playerKey(res.player);
+                    for (let i = 0; i < pool.length; i++) {
+                        if (MPPicks.playerKey(pool[i]) === wantKey) { idx = i; break; }
+                    }
+                    if (window.MP_DEBUG_AI) console.log("[AI] player not === in pool, key fallback idx=", idx, res.player && res.player.name);
+                }
+                if (idx === -1) {
+                    if (window.MP_DEBUG_AI) console.log("[AI] could not locate chosen player in pool, bailing", res.player);
+                    aiBusy = false; return;
+                }
 
                 const aiKey = MPPicks.playerKey(res.player);
+                if (window.MP_DEBUG_AI) console.log("[AI] picking", res.player.name, res.player.country, (res.player.positions||[])[0], "at", res.slotId, "| personKey=", MPPicks.personKey(res.player), "| playerKey=", aiKey);
                 MPNet.makePick(currentCode, res.slotId, idx, draft.order, draft.pickIndex, picker, aiKey)
-                    .catch(function (err) { showNotice("AI pick failed: " + err.message); })
+                    .catch(function (err) {
+                        if (window.MP_DEBUG_AI) console.log("[AI] makePick REJECTED:", err && err.message);
+                        showNotice("AI pick failed: " + err.message);
+                    })
                     .then(function () {
+                        if (window.MP_DEBUG_AI) console.log("[AI] makePick resolved, pick should have landed");
+                        clearTimeout(aiBusyGuard);
                         aiBusy = false;
+                        // If a render tried to drive the AI while we were busy,
+                        // honour that now so the next AI turn is never dropped.
+                        const rerun = aiRerunQueued;
+                        aiRerunQueued = false;
                         // The render that would have started the next AI turn
                         // has already happened by now, so nothing else will
                         // trigger it. Carry on from here instead.
@@ -3236,9 +3304,10 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                             if (latestRoom && (latestRoom.meta || {}).status === "drafting") {
                                 driveAi(latestRoom);
                             }
-                        }, 350);
+                        }, rerun ? 120 : 350);
                     });
             } catch (e) {
+                if (window.MP_DEBUG_AI) console.log("[AI] EXCEPTION in pick computation:", e && e.message, e && e.stack);
                 aiBusy = false;
                 showNotice("AI pick failed: " + (e && e.message ? e.message : "unknown"));
             }
@@ -4769,6 +4838,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
         const lead = $("notifyLead");
         const btn = $("notifyEnable");
         const done = $("notifyDone");
+        const trouble = $("notifyTrouble");
         const st = MPNotify.state();
 
         const setSteps = function (items) {
@@ -4782,11 +4852,20 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
             setSteps(null);
             btn.classList.add("hidden");
             done.classList.remove("hidden");
+            if (trouble) trouble.classList.remove("hidden");
             return;
         }
         done.classList.add("hidden");
+        if (trouble) trouble.classList.add("hidden");
         btn.classList.remove("hidden");
         btn.disabled = false;
+
+        if (st === "unsupported") {
+            // A device that cannot do web push at all. Hide the card rather
+            // than offer a button that would fail.
+            card.classList.add("hidden");
+            return;
+        }
 
         if (st === "denied") {
             lead.textContent = "Notifications are currently blocked for this app.";
@@ -4903,7 +4982,7 @@ on("chemOn", "change", function () { state.chemistry = $("chemOn").checked; });
                 MPNotify.refreshQuietly().then(function (token) {
                     if (token) {
                         const uid = MPNet.currentUid && MPNet.currentUid();
-                        if (uid) MPNotify.saveTokenFor(uid, currentCode || "_pending");
+                        if (uid && currentCode) MPNotify.saveTokenFor(uid, currentCode);
                         renderNotifyCard();
                     }
                 });

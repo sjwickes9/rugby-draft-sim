@@ -103,6 +103,13 @@
                 + "<p>You can turn them off again any time in your browser or phone settings. "
                 + "Delivery on iPhone is a little less reliable than on Android, so treat them "
                 + "as a helpful nudge rather than a guarantee.</p>"
+                + "<p><strong>Not getting notifications even though they are on?</strong> The most "
+                + "common cause is a Do Not Disturb or Focus mode on your device silently holding "
+                + "them back, check that first. On a Mac, also open System Settings, Notifications, "
+                + "find your browser, and make sure notifications are allowed and the style is set to "
+                + "Banners or Alerts rather than None. On a phone, check the app or browser is allowed "
+                + "to send notifications in your device settings. Notifications also only arrive when it "
+                + "actually becomes your turn, so nothing appears while you are waiting on someone else.</p>"
         },
 
         kit: {
